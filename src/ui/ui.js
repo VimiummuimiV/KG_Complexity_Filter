@@ -16,73 +16,63 @@ const el = (tag, cls) => {
   return node;
 };
 
-const txt = (str) => document.createTextNode(str);
+// Create an element with a text node in one call
+const elText = (tag, cls, str) => {
+  const node = el(tag, cls);
+  node.appendChild(document.createTextNode(str));
+  return node;
+};
 
-const scoreColor = (s) => s < 35 ? 'var(--easy)' : s < 65 ? 'var(--medium)' : 'var(--hard)';
-const scoreLabel = (s) => s < 35 ? 'Easy'         : s < 65 ? 'Moderate'       : 'Hard';
+const SCORE_TIERS = [
+  { max: 35, cls: 'easy',   label: 'Easy'     },
+  { max: 65, cls: 'medium', label: 'Moderate' },
+  { max: Infinity, cls: 'hard', label: 'Hard' },
+];
+
+const scoreTier  = (s) => SCORE_TIERS.find(t => s < t.max);
+const scoreColor = (s) => `var(--${scoreTier(s).cls})`;
+const scoreLabel = (s) => scoreTier(s).label;
 
 // ─── Section builders ─────────────────────────────────────────────────────────
 
 const buildHeader = (panel) => {
     const header = el('div', 'panel-header');
 
-    const logo = el('span', 'panel-logo');
-    logo.appendChild(txt('KG'));
-
-    const title = el('span', 'panel-title');
-    title.appendChild(txt('Typing Complexity · ЙЦУКЕН'));
+    header.appendChild(elText('span', 'panel-logo',  'KG'));
+    header.appendChild(elText('span', 'panel-title', 'Typing Complexity · ЙЦУКЕН'));
 
     const close = el('button', 'panel-close');
     close.title = 'Close';
     close.appendChild(createIcon('close-line'));
     close.addEventListener('click', () => panel.remove());
-
-    header.appendChild(logo);
-    header.appendChild(title);
     header.appendChild(close);
+
     return header;
 };
 
 const buildStats = (score, avg, length) => {
     const color = scoreColor(score);
-    const label = scoreLabel(score);
-
     const stats = el('div', 'stats');
 
     // — Score column —
     const scoreWrap = el('div', 'score-summary');
-
-    const scoreNum = el('div', 'score-value');
-    scoreNum.style.color = color;
-    scoreNum.appendChild(txt(String(score)));
-
-    const scoreLabel_ = el('div', 'score-label');
-    scoreLabel_.style.color = color;
-    scoreLabel_.appendChild(txt(label));
-
-    scoreWrap.appendChild(scoreNum);
-    scoreWrap.appendChild(scoreLabel_);
+    [['score-value', String(score)], ['score-label', scoreLabel(score)]].forEach(([cls, str]) => {
+        const node = elText('div', cls, str);
+        node.style.color = color;
+        scoreWrap.appendChild(node);
+    });
 
     // — Meta rows —
     const meta = el('div', 'meta-info');
-
     const rows = [
         ['Avg cost / char', String(avg)],
         ['Characters',      length.toLocaleString()],
         ['Layout',          'ЙЦУКЕН'],
     ];
-
     for (const [key, val] of rows) {
         const row = el('div', 'meta-row');
-
-        const keySpan = el('span', 'meta-key');
-        keySpan.appendChild(txt(key));
-
-        const valSpan = el('span', 'meta-value');
-        valSpan.appendChild(txt(val));
-
-        row.appendChild(keySpan);
-        row.appendChild(valSpan);
+        row.appendChild(elText('span', 'meta-key',   key));
+        row.appendChild(elText('span', 'meta-value', val));
         meta.appendChild(row);
     }
 
@@ -102,17 +92,12 @@ const buildBar = (score) => {
 
 const buildLegend = () => {
     const legend = el('div', 'score-legend');
-    const items  = [['easy', 'Easy'], ['medium', 'Moderate'], ['hard', 'Hard']];
-
-    for (const [cls, label] of items) {
-        const leg = el('span', 'legend-item');
-
-        const dot = el('span', 'legend-dot');
+    for (const { cls, label } of SCORE_TIERS) {
+        const item = elText('span', 'legend-item', label);
+        const dot  = el('span', 'legend-dot');
         dot.style.background = `var(--${cls})`;
-
-        leg.appendChild(dot);
-        leg.appendChild(txt(label));
-        legend.appendChild(leg);
+        item.prepend(dot);
+        legend.appendChild(item);
     }
     return legend;
 };
@@ -121,10 +106,8 @@ const buildTextView = ({ chars, segments }) => {
     const scroll = el('div', 'text-scroll');
     const block  = el('div', 'text-block');
 
-    for (const seg of segments) {
-        const span = el('span', seg.level);
-        span.appendChild(txt(chars.slice(seg.start, seg.end + 1).join('')));
-        block.appendChild(span);
+    for (const { level, start, end } of segments) {
+        block.appendChild(elText('span', level, chars.slice(start, end + 1).join('')));
     }
 
     scroll.appendChild(block);
@@ -134,7 +117,6 @@ const buildTextView = ({ chars, segments }) => {
 // ─── Public: render(result) ───────────────────────────────────────────────────
 
 export const render = (result) => {
-
     document.getElementById(ID)?.remove();
 
     const { score, avg, length } = result;
