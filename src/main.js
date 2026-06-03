@@ -1,6 +1,6 @@
 import { getGameId, fetchGameText } from './api/gameText.js';
-import { analyzeComplexity }        from './analysis/complexity.js';
-import { render }                    from './ui/ui.js';
+import { analyzeComplexity } from './analysis/complexity.js';
+import { render } from './ui/ui.js';
 
 const gameId = getGameId();
 
