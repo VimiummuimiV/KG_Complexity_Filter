@@ -83,6 +83,12 @@
     height: 18px;
   }
 
+  .panel-theme .panel-icon {
+    transform-origin: 50% 50%;
+    &.spin  { animation: spin   .5s cubic-bezier(.34, 1.56, .64, 1) forwards; }
+    &.swing { animation: swing  .4s ease-in-out forwards; }
+  }
+
   .stats {
     display: flex;
     align-items: stretch;
