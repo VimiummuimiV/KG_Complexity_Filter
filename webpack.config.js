@@ -40,6 +40,11 @@ export default (env = {}, argv) => {
             'sass-loader',  // Compiles Sass to CSS
           ],
         },
+        // Rule for SVG files imported as raw text
+        {
+          test: /\.svg$/i,
+          use: 'raw-loader',
+        },
       ],
     },
     optimization: {

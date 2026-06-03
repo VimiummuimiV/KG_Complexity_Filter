@@ -3,8 +3,9 @@
 // No innerHTML anywhere.
 
 import '../styles/styles.scss';
+import { icons } from '../icons';
 
-const ID = 'kg-complexity-ui';
+const ID = 'complexity-panel';
 
 // ─── Tiny helpers ─────────────────────────────────────────────────────────────
 
@@ -21,18 +22,39 @@ const scoreLabel = (s) => s < 35 ? 'Easy'         : s < 65 ? 'Moderate'       : 
 
 // ─── Section builders ─────────────────────────────────────────────────────────
 
-const buildHeader = (panel) => {
-    const header = el('div', 'kg-header');
+const parseSvg = (svgString) =>
+    new DOMParser().parseFromString(svgString, 'image/svg+xml').documentElement;
 
-    const logo = el('span', 'kg-logo');
+const createIcon = (name, attrs = {}) => {
+    const svgString = icons[name];
+    if (!svgString) {
+        throw new Error(`Icon not found: ${name}`);
+    }
+
+    const svg = parseSvg(svgString);
+    svg.classList.add('panel-icon');
+
+    if (attrs.class) {
+        svg.classList.add(...attrs.class.split(/\s+/).filter(Boolean));
+        delete attrs.class;
+    }
+
+    Object.entries(attrs).forEach(([key, value]) => svg.setAttribute(key, value));
+    return svg;
+};
+
+const buildHeader = (panel) => {
+    const header = el('div', 'panel-header');
+
+    const logo = el('span', 'panel-logo');
     logo.appendChild(txt('KG'));
 
-    const title = el('span', 'kg-title');
+    const title = el('span', 'panel-title');
     title.appendChild(txt('Typing Complexity · ЙЦУКЕН'));
 
-    const close = el('button', 'kg-close');
+    const close = el('button', 'panel-close');
     close.title = 'Close';
-    close.appendChild(txt('✕'));
+    close.appendChild(createIcon('close-line'));
     close.addEventListener('click', () => panel.remove());
 
     header.appendChild(logo);
@@ -45,16 +67,16 @@ const buildStats = (score, avg, length) => {
     const color = scoreColor(score);
     const label = scoreLabel(score);
 
-    const stats = el('div', 'kg-stats');
+    const stats = el('div', 'stats');
 
     // — Score column —
-    const scoreWrap = el('div', 'kg-score-wrap');
+    const scoreWrap = el('div', 'score-summary');
 
-    const scoreNum = el('div', 'kg-score-num');
+    const scoreNum = el('div', 'score-value');
     scoreNum.style.color = color;
     scoreNum.appendChild(txt(String(score)));
 
-    const scoreLabel_ = el('div', 'kg-score-label');
+    const scoreLabel_ = el('div', 'score-label');
     scoreLabel_.style.color = color;
     scoreLabel_.appendChild(txt(label));
 
@@ -62,7 +84,7 @@ const buildStats = (score, avg, length) => {
     scoreWrap.appendChild(scoreLabel_);
 
     // — Meta rows —
-    const meta = el('div', 'kg-meta');
+    const meta = el('div', 'meta-info');
 
     const rows = [
         ['Avg cost / char', String(avg)],
@@ -71,12 +93,12 @@ const buildStats = (score, avg, length) => {
     ];
 
     for (const [key, val] of rows) {
-        const row = el('div', 'kg-meta-row');
+        const row = el('div', 'meta-row');
 
-        const keySpan = el('span', 'kg-meta-key');
+        const keySpan = el('span', 'meta-key');
         keySpan.appendChild(txt(key));
 
-        const valSpan = el('span', 'kg-meta-val');
+        const valSpan = el('span', 'meta-value');
         valSpan.appendChild(txt(val));
 
         row.appendChild(keySpan);
@@ -90,8 +112,8 @@ const buildStats = (score, avg, length) => {
 };
 
 const buildBar = (score) => {
-    const track = el('div', 'kg-bar-track');
-    const fill  = el('div', 'kg-bar-fill');
+    const track = el('div', 'progress-track');
+    const fill  = el('div', 'progress-fill');
     fill.style.width      = score + '%';
     fill.style.background = scoreColor(score);
     track.appendChild(fill);
@@ -99,13 +121,13 @@ const buildBar = (score) => {
 };
 
 const buildLegend = () => {
-    const legend = el('div', 'kg-legend');
+    const legend = el('div', 'score-legend');
     const items  = [['easy', 'Easy'], ['medium', 'Moderate'], ['hard', 'Hard']];
 
     for (const [cls, label] of items) {
-        const leg = el('span', 'kg-leg');
+        const leg = el('span', 'legend-item');
 
-        const dot = el('span', 'kg-leg-dot');
+        const dot = el('span', 'legend-dot');
         dot.style.background = `var(--${cls})`;
 
         leg.appendChild(dot);
@@ -116,8 +138,8 @@ const buildLegend = () => {
 };
 
 const buildTextView = ({ chars, segments }) => {
-    const scroll = el('div', 'kg-text-scroll');
-    const block  = el('div', 'kg-text');
+    const scroll = el('div', 'text-scroll');
+    const block  = el('div', 'text-block');
 
     for (const seg of segments) {
         const span = el('span', seg.level);
