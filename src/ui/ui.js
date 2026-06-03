@@ -3,16 +3,16 @@
 // No innerHTML anywhere.
 
 import '../styles/styles.scss';
-import { icons } from '../icons';
+import { createIcon } from '../icons';
 
-const ID = 'complexity-panel';
+const ID = 'complexity-filter-panel';
 
 // ─── Tiny helpers ─────────────────────────────────────────────────────────────
 
 const el = (tag, cls) => {
-    const node = document.createElement(tag);
-    if (cls) node.className = cls;
-    return node;
+  const node = document.createElement(tag);
+  if (cls) node.className = cls;
+  return node;
 };
 
 const txt = (str) => document.createTextNode(str);
@@ -21,27 +21,6 @@ const scoreColor = (s) => s < 35 ? 'var(--easy)' : s < 65 ? 'var(--medium)' : 'v
 const scoreLabel = (s) => s < 35 ? 'Easy'         : s < 65 ? 'Moderate'       : 'Hard';
 
 // ─── Section builders ─────────────────────────────────────────────────────────
-
-const parseSvg = (svgString) =>
-    new DOMParser().parseFromString(svgString, 'image/svg+xml').documentElement;
-
-const createIcon = (name, attrs = {}) => {
-    const svgString = icons[name];
-    if (!svgString) {
-        throw new Error(`Icon not found: ${name}`);
-    }
-
-    const svg = parseSvg(svgString);
-    svg.classList.add('panel-icon');
-
-    if (attrs.class) {
-        svg.classList.add(...attrs.class.split(/\s+/).filter(Boolean));
-        delete attrs.class;
-    }
-
-    Object.entries(attrs).forEach(([key, value]) => svg.setAttribute(key, value));
-    return svg;
-};
 
 const buildHeader = (panel) => {
     const header = el('div', 'panel-header');
