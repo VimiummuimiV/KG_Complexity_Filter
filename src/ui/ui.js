@@ -4,6 +4,7 @@
 
 import '../styles/styles.scss';
 import { createIcon } from '../icons';
+import { makeDraggable } from '../helpers/drag';
 
 const ID = 'complexity-filter-panel';
 
@@ -148,4 +149,5 @@ export const render = (result) => {
     panel.appendChild(buildTextView(result));
 
     document.body.appendChild(panel);
+    makeDraggable(panel, panel.querySelector('.panel-header'));
 };

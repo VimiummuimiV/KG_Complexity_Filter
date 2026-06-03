@@ -39,6 +39,9 @@
     padding: 14px 16px 12px;
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
   }
 
   .panel-logo {
