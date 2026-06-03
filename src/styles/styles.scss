@@ -1,16 +1,10 @@
 @use 'animations' as *;
+@use 'themes/dark';
+@use 'themes/light';
 
 #complexity-filter-panel {
-  --bg: #0f1117;
-  --border: #2a2f42;
-  --txt: #d4d8e8;
-  --txt-dim: #6b728e;
-  --accent: #5b8cff;
-  --easy: #4caf82;
-  --medium: #f0b840;
-  --hard: #e05c5c;
   --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
-  --font-ui: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --font-ui:   'Inter', 'Segoe UI', system-ui, sans-serif;
 
   position: fixed;
   width: clamp(320px, 38vw, 560px);
@@ -56,7 +50,7 @@
     flex: 1;
   }
 
-  .panel-close {
+  .panel-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -84,7 +78,7 @@
     fill: currentColor;
   }
 
-  .panel-close .panel-icon {
+  .panel-btn .panel-icon {
     width: 18px;
     height: 18px;
   }
@@ -138,10 +132,7 @@
     font-size: 12px;
   }
 
-  .meta-key {
-    color: var(--txt-dim);
-  }
-
+  .meta-key   { color: var(--txt-dim); }
   .meta-value {
     font-family: var(--font-mono);
     color: var(--txt);
@@ -190,14 +181,8 @@
     flex: 1;
     min-height: 0;
 
-    &::-webkit-scrollbar {
-      width: 5px;
-    }
-
-    &::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
+    &::-webkit-scrollbar       { width: 5px; }
+    &::-webkit-scrollbar-track { background: transparent; }
     &::-webkit-scrollbar-thumb {
       background: var(--border);
       border-radius: 99px;
@@ -211,18 +196,16 @@
     word-break: break-word;
     white-space: pre-wrap;
 
-    .easy {
-      color: var(--easy);
-    }
-
-    .medium {
-      color: var(--medium);
-    }
-
-    .hard {
+    .easy   { color: var(--easy); }
+    .medium { color: var(--medium); }
+    .hard   {
       color: var(--hard);
       background: rgba(224, 92, 92, .08);
       border-radius: 2px;
     }
   }
+
+  // Theme toggle: show sun in dark mode (click → light), moon in light mode (click → dark)
+  &[data-complexity-filter-theme='dark']  .panel-theme .panel-icon:nth-child(1) { display: none; }
+  &[data-complexity-filter-theme='light'] .panel-theme .panel-icon:nth-child(2) { display: none; }
 }

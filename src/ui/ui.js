@@ -5,6 +5,7 @@
 import '../styles/styles.scss';
 import { createIcon } from '../icons';
 import { makeDraggable } from '../helpers/drag';
+import { applyInitialTheme, toggleTheme } from '../helpers/theme';
 
 const ID = 'complexity-filter-panel';
 
@@ -24,9 +25,9 @@ const elText = (tag, cls, str) => {
 };
 
 const SCORE_TIERS = [
-  { max: 35, cls: 'easy',   label: 'Easy'     },
-  { max: 65, cls: 'medium', label: 'Moderate' },
-  { max: Infinity, cls: 'hard', label: 'Hard' },
+  { max: 35,       cls: 'easy',   label: 'Easy'     },
+  { max: 65,       cls: 'medium', label: 'Moderate' },
+  { max: Infinity, cls: 'hard',   label: 'Hard'     },
 ];
 
 const scoreTier  = (s) => SCORE_TIERS.find(t => s < t.max);
@@ -35,13 +36,23 @@ const scoreLabel = (s) => scoreTier(s).label;
 
 // ─── Section builders ─────────────────────────────────────────────────────────
 
+const buildThemeBtn = (panel) => {
+    const btn = el('button', 'panel-btn panel-theme');
+    btn.title = 'Toggle theme';
+    btn.appendChild(createIcon('sun-fill'));
+    btn.appendChild(createIcon('moon-fill'));
+    btn.addEventListener('click', () => toggleTheme(panel));
+    return btn;
+};
+
 const buildHeader = (panel) => {
     const header = el('div', 'panel-header');
 
     header.appendChild(elText('span', 'panel-logo',  'KG'));
     header.appendChild(elText('span', 'panel-title', 'Typing Complexity · ЙЦУКЕН'));
+    header.appendChild(buildThemeBtn(panel));
 
-    const close = el('button', 'panel-close');
+    const close = el('button', 'panel-btn panel-close');
     close.title = 'Close';
     close.appendChild(createIcon('close-line'));
     close.addEventListener('click', () => panel.remove());
@@ -123,6 +134,7 @@ export const render = (result) => {
 
     const panel = el('div');
     panel.id = ID;
+    applyInitialTheme(panel);
 
     panel.appendChild(buildHeader(panel));
     panel.appendChild(buildStats(score, avg, length));
