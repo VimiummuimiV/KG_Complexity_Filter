@@ -13,8 +13,6 @@
   --font-ui: 'Inter', 'Segoe UI', system-ui, sans-serif;
 
   position: fixed;
-  bottom: 24px;
-  right: 24px;
   width: clamp(320px, 38vw, 560px);
   max-height: 80vh;
   background: var(--bg);
@@ -29,7 +27,6 @@
   font-size: 13px;
   color: var(--txt);
   opacity: 0;
-  transform: translateY(12px);
   @include fade(in);
 
   .panel-header {
@@ -39,7 +36,7 @@
     padding: 14px 16px 12px;
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
-    cursor: grab;
+    cursor: move;
     user-select: none;
     touch-action: none;
   }

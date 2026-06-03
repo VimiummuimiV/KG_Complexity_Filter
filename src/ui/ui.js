@@ -149,5 +149,5 @@ export const render = (result) => {
     panel.appendChild(buildTextView(result));
 
     document.body.appendChild(panel);
-    makeDraggable(panel, panel.querySelector('.panel-header'));
+    makeDraggable(panel, panel.querySelector('.panel-header'), 'complexityFilterPanelPosition');
 };
