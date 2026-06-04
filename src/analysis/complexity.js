@@ -103,13 +103,16 @@ export const analyzeComplexity = (text, config = null) => {
     let wordStart = -1; // -1 = not in a letter-run
     let wordCount = 0;
     let longWords = 0;
+    const longWordChars = new Set();
 
     const closeWord = (end) => {
         const wordLen = end - wordStart;
         const mult    = Math.min(W.wordLengthMax,
                             1 + Math.max(0, wordLen - W.wordLengthBase) * W.wordLengthStep);
-        if (mult > 1) for (let j = wordStart; j < end; j++) costs[j] *= mult;
-        if (wordLen > W.wordLengthBase) longWords++;
+        if (mult > 1) {
+            for (let j = wordStart; j < end; j++) { costs[j] *= mult; longWordChars.add(j); }
+            longWords++;
+        }
         wordCount++;
         wordStart = -1;
     };
@@ -258,6 +261,7 @@ export const analyzeComplexity = (text, config = null) => {
         segments,
         hardPct,
         longWordPct: wordCount > 0 ? Math.round(longWords / wordCount * 100) : 0,
+        longWordChars,
         topBigrams,
         penaltyBreakdown,
         handBalance: { left: leftKeys, right: rightKeys, imbalance: +imbalance.toFixed(3) },

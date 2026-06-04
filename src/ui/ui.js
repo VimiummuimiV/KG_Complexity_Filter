@@ -227,12 +227,14 @@ const buildTopBigrams = (topBigrams) => {
     return wrap;
 };
 
-const buildTextView = ({ chars, segments }) => {
+const buildTextView = ({ chars, segments, longWordChars }) => {
     const scroll = el('div', 'text-scroll');
     const block  = el('div', 'text-block');
 
     for (const { level, start, end } of segments) {
-        block.appendChild(elText('span', level, chars.slice(start, end + 1).join('')));
+        const span = elText('span', level, chars.slice(start, end + 1).join(''));
+        if (longWordChars?.has(start) || longWordChars?.has(end)) span.classList.add('long-word');
+        block.appendChild(span);
     }
 
     scroll.appendChild(block);
