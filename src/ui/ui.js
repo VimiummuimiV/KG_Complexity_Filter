@@ -6,6 +6,7 @@ import '../styles/styles.scss';
 import { createIcon } from '../icons/iconsIndex';
 import { makeDraggable } from '../helpers/drag';
 import { applyInitialTheme, toggleTheme } from '../helpers/theme';
+import { applyInitialView, cycleView } from '../helpers/view';
 
 const ID = 'complexity-filter-panel';
 
@@ -35,6 +36,16 @@ const scoreLabel = (s) => scoreTier(s).label;
 
 // ─── Section builders ─────────────────────────────────────────────────────────
 
+const buildViewToggleBtn = (panel) => {
+    const btn = el('button', 'panel-btn panel-view');
+    btn.title = 'Cycle view';
+    btn.appendChild(createIcon('eye-fill'));       // full
+    btn.appendChild(createIcon('eye-off-fill'));   // summary
+    btn.appendChild(createIcon('eye-close-fill')); // minimal
+    btn.addEventListener('click', () => cycleView(panel));
+    return btn;
+};
+
 const buildThemeBtn = (panel) => {
     const btn = el('button', 'panel-btn panel-theme');
     btn.title = 'Toggle theme';
@@ -49,6 +60,7 @@ const buildHeader = (panel, layoutName) => {
 
     header.appendChild(elText('span', 'panel-logo',  'KG'));
     header.appendChild(elText('span', 'panel-title', `Typing Complexity · ${layoutName}`));
+    header.appendChild(buildViewToggleBtn(panel));
     header.appendChild(buildThemeBtn(panel));
 
     const close = el('button', 'panel-btn panel-close');
@@ -133,12 +145,6 @@ const buildHandBar = ({ left, right, imbalance }) => {
 
     label.appendChild(elText('span', 'hand-label hand-l', `L ${leftPct}%`));
 
-    // Imbalance badge — severity scales with actual imbalance
-    // 0.00–0.15 → hidden (balanced)
-    // 0.15–0.30 → uneven
-    // 0.30–0.55 → ⚠ lopsided
-    // 0.55–0.85 → ⚠ dominant hand
-    // 0.85–1.00 → ⚠ one-sided
     const imbalanceLabel = imbalance > 0.85 ? '⚠ one-sided'
                          : imbalance > 0.55 ? '⚠ dominant hand'
                          : imbalance > 0.30 ? '⚠ lopsided'
@@ -251,6 +257,27 @@ const buildTextView = ({ chars, segments, longWordChars }) => {
     return scroll;
 };
 
+// Difficulty progress bar — shown in summary and minimal view modes.
+// Uses a CSS linear-gradient with hard stops so every character-length
+// region maps to the right colour without a canvas.
+const TIER_COLOR = { easy: 'var(--easy)', medium: 'var(--medium)', hard: 'var(--hard)' };
+
+const buildDifficultyBar = ({ chars, segments }) => {
+    const total = chars.length || 1;
+    const stops = [];
+
+    for (const { level, start, end } of segments) {
+        const color = TIER_COLOR[level] ?? 'var(--border)';
+        const from  = (start / total * 100).toFixed(2) + '%';
+        const to    = ((end + 1) / total * 100).toFixed(2) + '%';
+        stops.push(`${color} ${from}`, `${color} ${to}`);
+    }
+
+    const bar = el('div', 'difficulty-bar');
+    bar.style.background = `linear-gradient(to right, ${stops.join(', ')})`;
+    return bar;
+};
+
 // ─── Public: render(result) ───────────────────────────────────────────────────
 
 export const render = (result) => {
@@ -261,16 +288,28 @@ export const render = (result) => {
     const panel = el('div');
     panel.id = ID;
     applyInitialTheme(panel);
+    applyInitialView(panel);
 
     panel.appendChild(buildHeader(panel, layoutName));
-    panel.appendChild(buildStats(score, avg, length, hardPct, longWordPct, lang, layoutName));
-    panel.appendChild(buildBar(score));
-    panel.appendChild(buildLegend());
-    panel.appendChild(buildHandBar(handBalance));
+
+    // Difficulty bar — visible in summary and minimal modes
+    panel.appendChild(buildDifficultyBar(result));
+
+    // Stats row — visible in summary mode only
+    const summary = el('div', 'panel-summary');
+    summary.appendChild(buildStats(score, avg, length, hardPct, longWordPct, lang, layoutName));
+    summary.appendChild(buildBar(score));
+    summary.appendChild(buildLegend());
+    panel.appendChild(summary);
+
+    // Full detail — visible in full mode only
+    const body = el('div', 'panel-body');
+    body.appendChild(buildHandBar(handBalance));
     const breakdown = buildPenaltyBreakdown(penaltyBreakdown);
-    if (breakdown) panel.appendChild(breakdown);
-    panel.appendChild(buildTopBigrams(topBigrams));
-    panel.appendChild(buildTextView(result));
+    if (breakdown) body.appendChild(breakdown);
+    body.appendChild(buildTopBigrams(topBigrams));
+    body.appendChild(buildTextView(result));
+    panel.appendChild(body);
 
     document.body.appendChild(panel);
     makeDraggable(panel, panel.querySelector('.panel-header'), 'complexityFilterPanelPosition');
