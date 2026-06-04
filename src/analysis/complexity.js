@@ -1,6 +1,8 @@
 // ─── Typing complexity analyser ───────────────────────────────────────────────
 // Pure algorithm — layout data lives in weights/<lang>/<layout>.js
 
+import * as defaultConfig from './weights/ru/jcuken.js';
+
 const DIGIT_SET = new Set('1234567890');
 
 const buildLayout = ({ layout, shiftMap, freq, weights: W }) => {
@@ -66,7 +68,7 @@ const buildLayout = ({ layout, shiftMap, freq, weights: W }) => {
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
-export const analyzeComplexity = (text, config) => {
+export const analyzeComplexity = (text, config = defaultConfig) => {
     if (!text?.length) return null;
 
     const { layout, weights: W, scoreMax, varWeight, segEasy, segMedium } = config;
