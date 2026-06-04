@@ -128,10 +128,19 @@ const buildHandBar = ({ left, right, imbalance }) => {
 
     label.appendChild(elText('span', 'hand-label hand-l', `L ${leftPct}%`));
 
-    // Imbalance badge — only shown when meaningfully lopsided
-    if (imbalance > 0.15) {
-        const badge = elText('span', 'hand-imbalance', imbalance > 0.4 ? '⚠ one-sided' : 'uneven');
-        label.appendChild(badge);
+    // Imbalance badge — severity scales with actual imbalance
+    // 0.00–0.15 → hidden (balanced)
+    // 0.15–0.30 → uneven
+    // 0.30–0.55 → ⚠ lopsided
+    // 0.55–0.85 → ⚠ dominant hand
+    // 0.85–1.00 → ⚠ one-sided
+    const imbalanceLabel = imbalance > 0.85 ? '⚠ one-sided'
+                         : imbalance > 0.55 ? '⚠ dominant hand'
+                         : imbalance > 0.30 ? '⚠ lopsided'
+                         : imbalance > 0.15 ? 'uneven'
+                         : null;
+    if (imbalanceLabel) {
+        label.appendChild(elText('span', 'hand-imbalance', imbalanceLabel));
     }
 
     label.appendChild(elText('span', 'hand-label hand-r', `${rightPct}% R`));
