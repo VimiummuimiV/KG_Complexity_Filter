@@ -100,6 +100,7 @@ export const analyzeComplexity = (text, config = null) => {
     let lastHand  = '';
     let leftKeys  = 0;
     let rightKeys = 0;
+    let wordStart = -1; // index where the current letter-run began
 
     // Penalty buckets for breakdown chart
     const pb = { sameFinger: 0, outwardRoll: 0, scissor: 0, rowJump: 0, other: 0 };
@@ -135,7 +136,23 @@ export const analyzeComplexity = (text, config = null) => {
         const bc = bg?.total ?? 0;
 
         costs[i] = cc + bc + runSurcharge;
-        total   += costs[i];
+
+        // Track letter-run boundaries for the word-length multiplier.
+        // Digits don't count as word letters — they can appear mid-word (e.g. "CO2") but
+        // don't contribute to the typing-flow length that makes long words hard.
+        const isLetter = !!key && !DIGIT_SET.has(baseOf(ch));
+        if (isLetter) {
+            if (wordStart === -1) wordStart = i;
+        } else if (wordStart !== -1) {
+            // Word just ended at i-1: apply multiplier to every char in the run.
+            // mult = 1 + how many chars we are past wordLengthBase, scaled by wordLengthStep,
+            // clamped to wordLengthMax. Words up to wordLengthBase chars get mult = 1 (no change).
+            const wordLen = i - wordStart;
+            const mult    = Math.min(W.wordLengthMax,
+                                1 + Math.max(0, wordLen - W.wordLengthBase) * W.wordLengthStep);
+            if (mult > 1) for (let j = wordStart; j < i; j++) costs[j] *= mult;
+            wordStart = -1;
+        }
 
         // Attribute costs to named buckets
         if (bg) {
@@ -147,8 +164,18 @@ export const analyzeComplexity = (text, config = null) => {
         pb.other += cc + runSurcharge;
     }
 
+    // Close the last word if text ends on a letter
+    if (wordStart !== -1) {
+        const wordLen = n - wordStart;
+        const mult    = Math.min(W.wordLengthMax,
+                            1 + Math.max(0, wordLen - W.wordLengthBase) * W.wordLengthStep);
+        if (mult > 1) for (let j = wordStart; j < n; j++) costs[j] *= mult;
+    }
+
     // Unreliable if too many chars are outside the layout
     if (unknowns / n > 0.1) return null;
+
+    total = costs.reduce((s, c) => s + c, 0);
 
     const avg      = total / n;
     const variance = costs.reduce((s, c) => s + (c - avg) ** 2, 0) / n;
