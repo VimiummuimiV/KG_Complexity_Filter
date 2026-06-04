@@ -100,7 +100,19 @@ export const analyzeComplexity = (text, config = null) => {
     let lastHand  = '';
     let leftKeys  = 0;
     let rightKeys = 0;
-    let wordStart = -1; // index where the current letter-run began
+    let wordStart = -1; // -1 = not in a letter-run
+    let wordCount = 0;
+    let longWords = 0;
+
+    const closeWord = (end) => {
+        const wordLen = end - wordStart;
+        const mult    = Math.min(W.wordLengthMax,
+                            1 + Math.max(0, wordLen - W.wordLengthBase) * W.wordLengthStep);
+        if (mult > 1) for (let j = wordStart; j < end; j++) costs[j] *= mult;
+        if (wordLen > W.wordLengthBase) longWords++;
+        wordCount++;
+        wordStart = -1;
+    };
 
     // Penalty buckets for breakdown chart
     const pb = { sameFinger: 0, outwardRoll: 0, scissor: 0, rowJump: 0, other: 0 };
@@ -144,14 +156,7 @@ export const analyzeComplexity = (text, config = null) => {
         if (isLetter) {
             if (wordStart === -1) wordStart = i;
         } else if (wordStart !== -1) {
-            // Word just ended at i-1: apply multiplier to every char in the run.
-            // mult = 1 + how many chars we are past wordLengthBase, scaled by wordLengthStep,
-            // clamped to wordLengthMax. Words up to wordLengthBase chars get mult = 1 (no change).
-            const wordLen = i - wordStart;
-            const mult    = Math.min(W.wordLengthMax,
-                                1 + Math.max(0, wordLen - W.wordLengthBase) * W.wordLengthStep);
-            if (mult > 1) for (let j = wordStart; j < i; j++) costs[j] *= mult;
-            wordStart = -1;
+            closeWord(i);
         }
 
         // Attribute costs to named buckets
@@ -165,12 +170,7 @@ export const analyzeComplexity = (text, config = null) => {
     }
 
     // Close the last word if text ends on a letter
-    if (wordStart !== -1) {
-        const wordLen = n - wordStart;
-        const mult    = Math.min(W.wordLengthMax,
-                            1 + Math.max(0, wordLen - W.wordLengthBase) * W.wordLengthStep);
-        if (mult > 1) for (let j = wordStart; j < n; j++) costs[j] *= mult;
-    }
+    if (wordStart !== -1) closeWord(n);
 
     // Unreliable if too many chars are outside the layout
     if (unknowns / n > 0.1) return null;
@@ -257,6 +257,7 @@ export const analyzeComplexity = (text, config = null) => {
         chars,
         segments,
         hardPct,
+        longWordPct: wordCount > 0 ? Math.round(longWords / wordCount * 100) : 0,
         topBigrams,
         penaltyBreakdown,
         handBalance: { left: leftKeys, right: rightKeys, imbalance: +imbalance.toFixed(3) },

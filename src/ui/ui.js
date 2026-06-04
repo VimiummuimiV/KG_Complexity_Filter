@@ -60,7 +60,7 @@ const buildHeader = (panel, layoutName) => {
     return header;
 };
 
-const buildStats = (score, avg, length, hardPct, lang, layoutName) => {
+const buildStats = (score, avg, length, hardPct, longWordPct, lang, layoutName) => {
     const color = scoreColor(score);
     const stats = el('div', 'stats');
 
@@ -81,6 +81,7 @@ const buildStats = (score, avg, length, hardPct, lang, layoutName) => {
         ['Avg cost / char', String(avg)],
         ['Characters',      length.toLocaleString()],
         ['Hard zones',      hardPct + '%'],
+        ['Long words',      longWordPct + '%'],
         ['Layout',          `${flag} ${layoutName}`],
     ];
     for (const [key, val] of rows) {
@@ -89,7 +90,8 @@ const buildStats = (score, avg, length, hardPct, lang, layoutName) => {
         const valNode = elText('span', 'meta-value', val);
         // Color avg and hard% to reinforce score tier
         if (key === 'Avg cost / char') valNode.style.color = color;
-        if (key === 'Hard zones' && hardPct > 0) valNode.style.color = `var(--hard)`;
+        if (key === 'Hard zones'  && hardPct     > 0) valNode.style.color = `var(--hard)`;
+        if (key === 'Long words'  && longWordPct > 0) valNode.style.color = `var(--medium)`;
         row.appendChild(valNode);
         meta.appendChild(row);
     }
@@ -242,14 +244,14 @@ const buildTextView = ({ chars, segments }) => {
 export const render = (result) => {
     document.getElementById(ID)?.remove();
 
-    const { score, avg, length, hardPct, topBigrams, penaltyBreakdown, handBalance, lang, layoutName } = result;
+    const { score, avg, length, hardPct, longWordPct, topBigrams, penaltyBreakdown, handBalance, lang, layoutName } = result;
 
     const panel = el('div');
     panel.id = ID;
     applyInitialTheme(panel);
 
     panel.appendChild(buildHeader(panel, layoutName));
-    panel.appendChild(buildStats(score, avg, length, hardPct, lang, layoutName));
+    panel.appendChild(buildStats(score, avg, length, hardPct, longWordPct, lang, layoutName));
     panel.appendChild(buildBar(score));
     panel.appendChild(buildLegend());
     panel.appendChild(buildHandBar(handBalance));
