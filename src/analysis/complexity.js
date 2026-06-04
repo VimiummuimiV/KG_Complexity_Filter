@@ -58,7 +58,15 @@ const W = {
     sameHand:    0.8,
     rowJump:     0.6,   // per row of distance
     outwardRoll: 0.5,
+    colJump:     0.15,  // per-finger lateral distance (same hand, different fingers)
+    scissor:     0.8,   // adjacent fingers spanning ≥2 rows (awkward stretch)
+    handRunBase: 4,     // same-hand streak length before escalation kicks in
+    handRunStep: 0.12,  // extra cost added per char beyond the threshold
+    handImbalance: 0.6, // max penalty added to avg cost when text is fully one-sided
 };
+
+// Consecutive capitals before assuming Caps Lock is used (stops per-key shift penalty)
+const CAPS_LOCK_THRESHOLD = 4;
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -76,13 +84,18 @@ const isShifted = (ch) => ch in SHIFT_MAP || ch !== ch.toLowerCase();
 // Resolve a char to its physical LAYOUT entry
 const keyOf = (ch) => LAYOUT[baseOf(ch)];
 
-const charCost = (ch) => {
+// charCost is now a stateful call that also receives the consecutive-caps
+// count so it can suppress the shift penalty when Caps Lock is likely active.
+const charCost = (ch, capsRun = 0) => {
     if (ch === ' ' || ch === '\n' || ch === '\r') return 0.5;
 
     const base          = baseOf(ch);
     const key           = LAYOUT[base];
     const rhythmPenalty = isRhythmBreak(ch) ? W.rhythmBreak : 0;
-    const shiftPenalty  = isShifted(ch)     ? W.shiftHold   : 0;
+    // Once the user has pressed enough consecutive capitals they almost
+    // certainly switched to Caps Lock, so the per-key pinky-hold cost drops.
+    const shiftPenalty  = isShifted(ch) && capsRun < CAPS_LOCK_THRESHOLD
+                          ? W.shiftHold : 0;
 
     if (!key) return W.unknown + rhythmPenalty + shiftPenalty;
 
@@ -102,13 +115,25 @@ const bigramCost = (a, b) => {
     const [fb, rowb, hb] = kb;
 
     let cost = 0;
-    if (fa === fb)       cost += W.sameFinger;
-    else if (ha === hb)  cost += W.sameHand;
-    cost += Math.abs(rowa - rowb) * W.rowJump;
-    if (ha === hb) {
+    if (fa === fb) {
+        cost += W.sameFinger;
+    } else if (ha === hb) {
+        cost += W.sameHand;
+
+        // Lateral distance between fingers on the same hand
+        cost += Math.abs(fa - fb) * W.colJump;
+
+        // Scissor: adjacent fingers (1 apart) spanning 2+ rows — awkward stretch
+        if (Math.abs(fa - fb) === 1 && Math.abs(rowa - rowb) >= 2) {
+            cost += W.scissor;
+        }
+
+        // Outward roll penalty
         if (ha === 'L' && fb < fa) cost += W.outwardRoll;
         if (ha === 'R' && fb > fa) cost += W.outwardRoll;
     }
+
+    cost += Math.abs(rowa - rowb) * W.rowJump;
     return cost;
 };
 
@@ -150,17 +175,64 @@ export const analyzeComplexity = (text) => {
     const n     = chars.length;
     const costs = new Float32Array(n);
 
-    let total = 0;
+    let total    = 0;
+    let capsRun  = 0;   // consecutive shifted (capital) characters
+    let unknowns = 0;   // characters not found in the layout
+    let handRun  = 0;   // consecutive characters on the same hand
+    let lastHand = '';  // 'L', 'R', or '' for non-keyed chars
+    let leftKeys = 0;   // total keyed characters on left hand
+    let rightKeys= 0;   // total keyed characters on right hand
+
     for (let i = 0; i < n; i++) {
-        const c = charCost(chars[i]) + (i > 0 ? bigramCost(chars[i - 1], chars[i]) : 0);
+        const ch  = chars[i];
+        const key = keyOf(ch);
+
+        // Track caps run for the Caps Lock heuristic
+        if (isShifted(ch)) { capsRun++; } else { capsRun = 0; }
+
+        // Count truly unknown chars (not in layout and not whitespace/punct)
+        if (!key && ch !== ' ' && ch !== '\n' && ch !== '\r' && !(baseOf(ch) in LAYOUT)) {
+            unknowns++;
+        }
+
+        // Track same-hand run; spaces/punctuation reset it
+        if (key) {
+            const hand = key[2];
+            if (hand === lastHand) { handRun++; } else { handRun = 1; lastHand = hand; }
+            if (hand === 'L') leftKeys++; else rightKeys++;
+        } else {
+            handRun = 0; lastHand = '';
+        }
+
+        // Escalation surcharge for sustained one-hand runs
+        const runSurcharge = handRun > W.handRunBase
+            ? (handRun - W.handRunBase) * W.handRunStep
+            : 0;
+
+        const c = charCost(ch, capsRun)
+                + (i > 0 ? bigramCost(chars[i - 1], chars[i]) : 0)
+                + runSurcharge;
         costs[i] = c;
         total   += c;
     }
 
+    // If more than 10% of characters are unknown the score is unreliable
+    if (unknowns / n > 0.1) return null;
+
     const avg      = total / n;
     const variance = costs.reduce((s, c) => s + (c - avg) ** 2, 0) / n;
     const adjusted = avg + VAR_WEIGHT * Math.sqrt(variance);
-    const score    = Math.min(100, Math.round(adjusted / SCORE_MAX * 100));
+
+    // Hand balance penalty: how far the text drifts from 50/50 L/R distribution.
+    // imbalance = 0 at perfect balance, 1 at all-one-hand.
+    // A fully one-sided text adds up to W.handImbalance to the adjusted avg cost.
+    const totalKeys  = leftKeys + rightKeys;
+    const imbalance  = totalKeys > 0
+        ? Math.abs(leftKeys - rightKeys) / totalKeys   // 0.0 – 1.0
+        : 0;
+    const balancePenalty = imbalance * W.handImbalance;
+
+    const score = Math.min(100, Math.round((adjusted + balancePenalty) / SCORE_MAX * 100));
 
     // Window-smoothed per-character coloring
     const WINDOW   = 4;
@@ -184,5 +256,6 @@ export const analyzeComplexity = (text) => {
         }
     }
 
-    return { score, avg: +avg.toFixed(3), length: n, chars, segments };
+    return { score, avg: +avg.toFixed(3), length: n, chars, segments,
+             handBalance: { left: leftKeys, right: rightKeys, imbalance: +imbalance.toFixed(3) } };
 };
