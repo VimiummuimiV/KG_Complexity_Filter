@@ -40,30 +40,35 @@ const buildLayout = ({ layout, shiftMap, freq, weights: W }) => {
              + rhythmPenalty + shiftPenalty + digitPenalty;
     };
 
-    const bigramCost = (a, b) => {
+    // Returns { total, sameFinger, outwardRoll, scissor, rowJump } for one bigram.
+    // Callers that only need the scalar sum it themselves.
+    const bigramBreak = (a, b) => {
         const ka = keyOf(a); const kb = keyOf(b);
-        if (!ka || !kb) return 0;
+        if (!ka || !kb) return null;
         const [fa, rowa, ha] = ka;
         const [fb, rowb, hb] = kb;
 
-        let cost = 0;
+        let sameFinger = 0, outwardRoll = 0, scissor = 0, rowJump = 0;
+
         if (fa === fb) {
-            cost += W.sameFinger;
+            sameFinger = W.sameFinger;
         } else if (ha === hb) {
-            cost += W.sameHand;
-            // Lateral travel: fingers spread wider on the same hand
-            cost += Math.abs(fa - fb) * W.colJump;
+            outwardRoll += W.sameHand + Math.abs(fa - fb) * W.colJump;
             // Scissor: adjacent fingers spanning 2+ rows — physically awkward
-            if (Math.abs(fa - fb) === 1 && Math.abs(rowa - rowb) >= 2) cost += W.scissor;
+            if (Math.abs(fa - fb) === 1 && Math.abs(rowa - rowb) >= 2) scissor = W.scissor;
             // Inward rolls are natural; outward rolls (away from index) resist
-            if (ha === 'L' && fb < fa) cost += W.outwardRoll;
-            if (ha === 'R' && fb > fa) cost += W.outwardRoll;
+            if (ha === 'L' && fb < fa) outwardRoll += W.outwardRoll;
+            if (ha === 'R' && fb > fa) outwardRoll += W.outwardRoll;
         }
-        cost += Math.abs(rowa - rowb) * W.rowJump;
-        return cost;
+        rowJump = Math.abs(rowa - rowb) * W.rowJump;
+
+        return { total: sameFinger + outwardRoll + scissor + rowJump,
+                 sameFinger, outwardRoll, scissor, rowJump };
     };
 
-    return { isShifted, keyOf, baseOf, charCost, bigramCost };
+    const bigramCost = (a, b) => bigramBreak(a, b)?.total ?? 0;
+
+    return { isShifted, keyOf, baseOf, charCost, bigramCost, bigramBreak };
 };
 
 // ─── Public API ───────────────────────────────────────────────────────────────
@@ -72,7 +77,7 @@ export const analyzeComplexity = (text, config = defaultConfig) => {
     if (!text?.length) return null;
 
     const { layout, weights: W, scoreMax, varWeight, segEasy, segMedium } = config;
-    const { isShifted, keyOf, baseOf, charCost, bigramCost } = buildLayout(config);
+    const { isShifted, keyOf, baseOf, charCost, bigramCost, bigramBreak } = buildLayout(config);
 
     const chars = [...text];
     const n     = chars.length;
@@ -85,6 +90,9 @@ export const analyzeComplexity = (text, config = defaultConfig) => {
     let lastHand  = '';
     let leftKeys  = 0;
     let rightKeys = 0;
+
+    // Penalty buckets for breakdown chart
+    const pb = { sameFinger: 0, outwardRoll: 0, scissor: 0, rowJump: 0, other: 0 };
 
     for (let i = 0; i < n; i++) {
         const ch  = chars[i];
@@ -112,11 +120,21 @@ export const analyzeComplexity = (text, config = defaultConfig) => {
             ? (handRun - W.handRunBase) * W.handRunStep
             : 0;
 
-        const c = charCost(ch, capsRun)
-                + (i > 0 ? bigramCost(chars[i - 1], chars[i]) : 0)
-                + runSurcharge;
-        costs[i] = c;
-        total   += c;
+        const cc = charCost(ch, capsRun);
+        const bg = i > 0 ? bigramBreak(chars[i - 1], ch) : null;
+        const bc = bg?.total ?? 0;
+
+        costs[i] = cc + bc + runSurcharge;
+        total   += costs[i];
+
+        // Attribute costs to named buckets
+        if (bg) {
+            pb.sameFinger  += bg.sameFinger;
+            pb.outwardRoll += bg.outwardRoll;
+            pb.scissor     += bg.scissor;
+            pb.rowJump     += bg.rowJump;
+        }
+        pb.other += cc + runSurcharge;
     }
 
     // Unreliable if too many chars are outside the layout
@@ -158,26 +176,16 @@ export const analyzeComplexity = (text, config = defaultConfig) => {
         }
     }
 
-    // Per-character and per-bigram cost accumulators for hotspot stats
-    const charTotals   = {};   // base char → total cost
-    const bigramTotals = {};   // 'ab' → total cost
+    // Per-bigram cost accumulators for hotspot stats
+    const bigramTotals = {};
 
-    for (let i = 0; i < n; i++) {
-        const base = baseOf(chars[i]);
-        charTotals[base] = (charTotals[base] ?? 0) + costs[i];
-
-        if (i > 0) {
-            const key = baseOf(chars[i - 1]) + base;
-            const bc  = bigramCost(chars[i - 1], chars[i]);
-            if (bc > 0) bigramTotals[key] = (bigramTotals[key] ?? 0) + bc;
+    for (let i = 1; i < n; i++) {
+        const bc = bigramCost(chars[i - 1], chars[i]);
+        if (bc > 0) {
+            const key = baseOf(chars[i - 1]) + baseOf(chars[i]);
+            bigramTotals[key] = (bigramTotals[key] ?? 0) + bc;
         }
     }
-
-    // Top 5 hardest individual characters by total accumulated cost
-    const topChars = Object.entries(charTotals)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5)
-        .map(([ch, cost]) => ({ ch, cost: +cost.toFixed(1) }));
 
     // Top 5 hardest bigrams by total accumulated cost
     const topBigrams = Object.entries(bigramTotals)
@@ -191,6 +199,14 @@ export const analyzeComplexity = (text, config = defaultConfig) => {
         .reduce((sum, s) => sum + (s.end - s.start + 1), 0);
     const hardPct = Math.round(hardChars / n * 100);
 
+    // Normalise penalty buckets to integer percentages of total accumulated cost
+    const pbTotal = Object.values(pb).reduce((s, v) => s + v, 0);
+    const penaltyBreakdown = pbTotal > 0
+        ? Object.fromEntries(
+              Object.entries(pb).map(([k, v]) => [k, Math.round(v / pbTotal * 100)])
+          )
+        : null;
+
     return {
         score,
         avg: +avg.toFixed(3),
@@ -198,8 +214,8 @@ export const analyzeComplexity = (text, config = defaultConfig) => {
         chars,
         segments,
         hardPct,
-        topChars,
         topBigrams,
+        penaltyBreakdown,
         handBalance: { left: leftKeys, right: rightKeys, imbalance: +imbalance.toFixed(3) },
     };
 };

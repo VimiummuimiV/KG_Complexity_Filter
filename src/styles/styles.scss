@@ -240,7 +240,54 @@
   .hand-seg-l { background: var(--hand-l); }
   .hand-seg-r { background: var(--hand-r); }
 
-  // ── 6. Hotspot chips (hardest keys / bigrams) ──────────────────────────────
+  // ── 6. Penalty breakdown ──────────────────────────────────────────────────
+
+  .penalty-wrap {
+    padding: 0 16px 12px;
+    flex-shrink: 0;
+  }
+
+  .penalty-track {
+    display: flex;
+    height: 5px;
+    border-radius: 99px;
+    overflow: hidden;
+    background: var(--border);
+    margin-bottom: 8px;
+  }
+
+  .penalty-seg {
+    height: 100%;
+    transition: width .6s cubic-bezier(.16, 1, .3, 1);
+  }
+
+  .penalty-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+  }
+
+  .penalty-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+  }
+
+  .penalty-key {
+    color: var(--txt-dim);
+    flex: 1;
+  }
+
+  .penalty-pct {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--txt);
+    min-width: 28px;
+    text-align: right;
+  }
+
+  // ── 7. Hotspot chips (hardest bigrams) ────────────────────────────────────
 
   .hotspot-section {
     padding: 0 16px 12px;
@@ -282,7 +329,7 @@
     color: var(--txt-dim);
   }
 
-  // ── 7. Annotated text view ─────────────────────────────────────────────────
+  // ── 8. Annotated text view ─────────────────────────────────────────────────
 
   .text-scroll {
     overflow-y: auto;

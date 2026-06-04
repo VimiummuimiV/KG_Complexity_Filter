@@ -158,20 +158,50 @@ const buildHandBar = ({ left, right, imbalance }) => {
     return wrap;
 };
 
-// Row of top hardest characters
-const buildTopChars = (topChars) => {
-    const wrap = el('div', 'hotspot-section');
-    wrap.appendChild(elText('div', 'hotspot-label', 'Hardest keys'));
+// Segmented bar + legend showing what % of typing cost comes from each penalty type
+const PENALTY_META = [
+    { key: 'sameFinger',  label: 'Same finger',  color: 'var(--hard)'    },
+    { key: 'outwardRoll', label: 'Outward roll',  color: 'var(--medium)'  },
+    { key: 'scissor',     label: 'Scissor',       color: 'var(--accent)'  },
+    { key: 'rowJump',     label: 'Row jump',      color: 'var(--easy)'    },
+    { key: 'shiftHold',   label: 'Shift hold',    color: 'var(--hand-r)'  },
+    { key: 'other',       label: 'Base cost',     color: 'var(--border)'  },
+];
 
-    const list = el('div', 'hotspot-list');
-    for (const { ch, cost } of topChars) {
-        const chip = el('div', 'hotspot-chip');
-        chip.appendChild(elText('span', 'hotspot-ch', ch));
-        chip.appendChild(elText('span', 'hotspot-cost', cost));
-        list.appendChild(chip);
+const buildPenaltyBreakdown = (pb) => {
+    if (!pb) return null;
+
+    const wrap = el('div', 'penalty-wrap');
+    wrap.appendChild(elText('div', 'hotspot-label', 'Penalty breakdown'));
+
+    // Segmented bar
+    const track = el('div', 'penalty-track');
+    for (const { key, color } of PENALTY_META) {
+        const pct = pb[key] ?? 0;
+        if (pct === 0) continue;
+        const seg = el('div', 'penalty-seg');
+        seg.style.width      = pct + '%';
+        seg.style.background = color;
+        seg.title            = `${PENALTY_META.find(m => m.key === key).label}: ${pct}%`;
+        track.appendChild(seg);
     }
+    wrap.appendChild(track);
 
-    wrap.appendChild(list);
+    // Legend rows — only show buckets that have a non-zero share
+    const legend = el('div', 'penalty-legend');
+    for (const { key, label, color } of PENALTY_META) {
+        const pct = pb[key] ?? 0;
+        if (pct === 0) continue;
+        const row = el('div', 'penalty-row');
+        const dot = el('span', 'legend-dot');
+        dot.style.background = color;
+        row.appendChild(dot);
+        row.appendChild(elText('span', 'penalty-key', label));
+        row.appendChild(elText('span', 'penalty-pct', pct + '%'));
+        legend.appendChild(row);
+    }
+    wrap.appendChild(legend);
+
     return wrap;
 };
 
@@ -209,7 +239,7 @@ const buildTextView = ({ chars, segments }) => {
 export const render = (result) => {
     document.getElementById(ID)?.remove();
 
-    const { score, avg, length, hardPct, topChars, topBigrams, handBalance } = result;
+    const { score, avg, length, hardPct, topBigrams, penaltyBreakdown, handBalance } = result;
 
     const panel = el('div');
     panel.id = ID;
@@ -220,7 +250,8 @@ export const render = (result) => {
     panel.appendChild(buildBar(score));
     panel.appendChild(buildLegend());
     panel.appendChild(buildHandBar(handBalance));
-    panel.appendChild(buildTopChars(topChars));
+    const breakdown = buildPenaltyBreakdown(penaltyBreakdown);
+    if (breakdown) panel.appendChild(breakdown);
     panel.appendChild(buildTopBigrams(topBigrams));
     panel.appendChild(buildTextView(result));
 
