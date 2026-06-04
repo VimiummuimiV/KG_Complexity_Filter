@@ -187,11 +187,17 @@ export const analyzeComplexity = (text, config = defaultConfig) => {
         }
     }
 
-    // Top 5 hardest bigrams by total accumulated cost
-    const topBigrams = Object.entries(bigramTotals)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5)
-        .map(([pair, cost]) => ({ pair, cost: +cost.toFixed(1) }));
+    // Show enough bigrams to cover 80% of total bigram cost, capped at 10
+    const sorted      = Object.entries(bigramTotals).sort((a, b) => b[1] - a[1]);
+    const bigramSum   = sorted.reduce((s, [, v]) => s + v, 0);
+    const threshold   = bigramSum * 0.8;
+    let   accumulated = 0;
+    const topBigrams  = [];
+    for (const [pair, cost] of sorted) {
+        topBigrams.push({ pair, cost: +cost.toFixed(1) });
+        accumulated += cost;
+        if (accumulated >= threshold || topBigrams.length >= 10) break;
+    }
 
     // Percentage of characters in hard segments
     const hardChars = segments
