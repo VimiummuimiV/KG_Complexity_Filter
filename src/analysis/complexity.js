@@ -110,7 +110,8 @@ export const analyzeComplexity = (text, config = null) => {
         const mult    = Math.min(W.wordLengthMax,
                             1 + Math.max(0, wordLen - W.wordLengthBase) * W.wordLengthStep);
         if (mult > 1) {
-            for (let j = wordStart; j < end; j++) { costs[j] *= mult; longWordChars.add(j); }
+            for (let j = wordStart; j < end; j++) costs[j] *= mult;
+            for (let j = wordStart + W.wordLengthBase; j < end; j++) longWordChars.add(j);
             longWords++;
         }
         wordCount++;

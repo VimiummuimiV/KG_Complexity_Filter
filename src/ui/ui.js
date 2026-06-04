@@ -232,9 +232,19 @@ const buildTextView = ({ chars, segments, longWordChars }) => {
     const block  = el('div', 'text-block');
 
     for (const { level, start, end } of segments) {
-        const span = elText('span', level, chars.slice(start, end + 1).join(''));
-        if (longWordChars?.has(start) || longWordChars?.has(end)) span.classList.add('long-word');
-        block.appendChild(span);
+        let runStart = start;
+        let runLong  = longWordChars?.has(start) ?? false;
+
+        for (let k = start + 1; k <= end + 1; k++) {
+            const isLong = k <= end && (longWordChars?.has(k) ?? false);
+            if (k === end + 1 || isLong !== runLong) {
+                const span = elText('span', level, chars.slice(runStart, k).join(''));
+                if (runLong) span.classList.add('long-word');
+                block.appendChild(span);
+                runStart = k;
+                runLong  = isLong;
+            }
+        }
     }
 
     scroll.appendChild(block);
