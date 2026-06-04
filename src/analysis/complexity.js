@@ -1,7 +1,16 @@
 // ─── Typing complexity analyser ───────────────────────────────────────────────
 // Pure algorithm — layout data lives in weights/<lang>/<layout>.js
 
-import * as defaultConfig from './weights/ru/jcuken.js';
+import * as ruConfig from './weights/ru/jcuken.js';
+import * as enConfig from './weights/en/qwerty.js';
+
+// Count how many chars belong to each config's layout (ignoring whitespace/digits)
+const detectConfig = (text) => {
+    const sample = [...text].filter(ch => /\p{L}/u.test(ch));
+    if (sample.length === 0) return ruConfig;
+    const score = (cfg) => sample.filter(ch => ch.toLowerCase() in cfg.layout).length;
+    return score(enConfig) >= score(ruConfig) ? enConfig : ruConfig;
+};
 
 const DIGIT_SET = new Set('1234567890');
 
@@ -73,11 +82,11 @@ const buildLayout = ({ layout, shiftMap, freq, weights: W }) => {
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
-export const analyzeComplexity = (text, config = defaultConfig) => {
+export const analyzeComplexity = (text, config = null) => {
     if (!text?.length) return null;
-
-    const { layout, weights: W, scoreMax, varWeight, segEasy, segMedium } = config;
-    const { isShifted, keyOf, baseOf, charCost, bigramCost, bigramBreak } = buildLayout(config);
+    const cfg = config ?? detectConfig(text);
+    const { layout, weights: W, scoreMax, varWeight, segEasy, segMedium, lang, layoutName } = cfg;
+    const { isShifted, keyOf, baseOf, charCost, bigramCost, bigramBreak } = buildLayout(cfg);
 
     const chars = [...text];
     const n     = chars.length;
@@ -223,5 +232,7 @@ export const analyzeComplexity = (text, config = defaultConfig) => {
         topBigrams,
         penaltyBreakdown,
         handBalance: { left: leftKeys, right: rightKeys, imbalance: +imbalance.toFixed(3) },
+        lang:        lang       ?? 'ru',
+        layoutName:  layoutName ?? 'ЙЦУКЕН',
     };
 };

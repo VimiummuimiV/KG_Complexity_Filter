@@ -80,3 +80,5 @@ export const weights = {
     handImbalance:0.6,   // max penalty when entire text is on one hand
     capsLockAt:   4,     // consecutive capitals before assuming Caps Lock
 };
+export const lang       = 'ru';
+export const layoutName = 'ЙЦУКЕН';

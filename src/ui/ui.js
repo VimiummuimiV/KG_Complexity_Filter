@@ -44,11 +44,11 @@ const buildThemeBtn = (panel) => {
     return btn;
 };
 
-const buildHeader = (panel) => {
+const buildHeader = (panel, layoutName) => {
     const header = el('div', 'panel-header');
 
     header.appendChild(elText('span', 'panel-logo',  'KG'));
-    header.appendChild(elText('span', 'panel-title', 'Typing Complexity · ЙЦУКЕН'));
+    header.appendChild(elText('span', 'panel-title', `Typing Complexity · ${layoutName}`));
     header.appendChild(buildThemeBtn(panel));
 
     const close = el('button', 'panel-btn panel-close');
@@ -60,7 +60,7 @@ const buildHeader = (panel) => {
     return header;
 };
 
-const buildStats = (score, avg, length, hardPct) => {
+const buildStats = (score, avg, length, hardPct, lang, layoutName) => {
     const color = scoreColor(score);
     const stats = el('div', 'stats');
 
@@ -73,12 +73,15 @@ const buildStats = (score, avg, length, hardPct) => {
     });
 
     // — Meta rows —
+    const LANG_FLAG = { ru: '🇷🇺', en: '🇬🇧' };
+    const flag = LANG_FLAG[lang] ?? '🌐';
+
     const meta = el('div', 'meta-info');
     const rows = [
         ['Avg cost / char', String(avg)],
         ['Characters',      length.toLocaleString()],
         ['Hard zones',      hardPct + '%'],
-        ['Layout',          'ЙЦУКЕН'],
+        ['Layout',          `${flag} ${layoutName}`],
     ];
     for (const [key, val] of rows) {
         const row = el('div', 'meta-row');
@@ -239,14 +242,14 @@ const buildTextView = ({ chars, segments }) => {
 export const render = (result) => {
     document.getElementById(ID)?.remove();
 
-    const { score, avg, length, hardPct, topBigrams, penaltyBreakdown, handBalance } = result;
+    const { score, avg, length, hardPct, topBigrams, penaltyBreakdown, handBalance, lang, layoutName } = result;
 
     const panel = el('div');
     panel.id = ID;
     applyInitialTheme(panel);
 
-    panel.appendChild(buildHeader(panel));
-    panel.appendChild(buildStats(score, avg, length, hardPct));
+    panel.appendChild(buildHeader(panel, layoutName));
+    panel.appendChild(buildStats(score, avg, length, hardPct, lang, layoutName));
     panel.appendChild(buildBar(score));
     panel.appendChild(buildLegend());
     panel.appendChild(buildHandBar(handBalance));
