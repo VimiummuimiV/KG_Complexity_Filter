@@ -3,7 +3,7 @@
 // No innerHTML anywhere.
 
 import '../styles/styles.scss';
-import { createIcon } from '../icons';
+import { createIcon } from '../icons/iconsIndex';
 import { makeDraggable } from '../helpers/drag';
 import { applyInitialTheme, toggleTheme } from '../helpers/theme';
 

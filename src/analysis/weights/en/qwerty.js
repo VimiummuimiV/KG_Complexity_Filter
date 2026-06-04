@@ -52,32 +52,5 @@ export const freq = {
     'q':0.10,'z':0.07,
 };
 
-// Same calibration philosophy as jcuken — adjust if needed against real EN samples
-export const scoreMax  = 9.0;
-export const varWeight = 0.25;
-
-export const segEasy   = 3.0;
-export const segMedium = 5.5;
-
-export const weights = {
-    row:          { 2:0, 1:1.0, 3:1.5, 0:2.5 },
-    finger:       [2.0, 1.5, 1.0, 0.5, 0.7,  0.7, 0.5, 1.0, 1.5, 2.0],
-    freqMax:      1.0,
-    digit:        1.5,
-    unknown:      3.5,
-    shiftHold:    3.0,
-    rhythmBreak:  1.5,
-    sameFinger:   3.0,
-    sameHand:     0.8,
-    rowJump:      0.6,
-    outwardRoll:  0.5,
-    colJump:      0.15,
-    scissor:      0.8,
-    handRunBase:  4,
-    handRunStep:  0.12,
-    handImbalance:0.6,
-    capsLockAt:   4,
-};
-
 export const lang       = 'en';
 export const layoutName = 'QWERTY';
