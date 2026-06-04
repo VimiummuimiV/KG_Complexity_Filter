@@ -158,12 +158,48 @@ export const analyzeComplexity = (text, config = defaultConfig) => {
         }
     }
 
+    // Per-character and per-bigram cost accumulators for hotspot stats
+    const charTotals   = {};   // base char → total cost
+    const bigramTotals = {};   // 'ab' → total cost
+
+    for (let i = 0; i < n; i++) {
+        const base = baseOf(chars[i]);
+        charTotals[base] = (charTotals[base] ?? 0) + costs[i];
+
+        if (i > 0) {
+            const key = baseOf(chars[i - 1]) + base;
+            const bc  = bigramCost(chars[i - 1], chars[i]);
+            if (bc > 0) bigramTotals[key] = (bigramTotals[key] ?? 0) + bc;
+        }
+    }
+
+    // Top 5 hardest individual characters by total accumulated cost
+    const topChars = Object.entries(charTotals)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([ch, cost]) => ({ ch, cost: +cost.toFixed(1) }));
+
+    // Top 5 hardest bigrams by total accumulated cost
+    const topBigrams = Object.entries(bigramTotals)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([pair, cost]) => ({ pair, cost: +cost.toFixed(1) }));
+
+    // Percentage of characters in hard segments
+    const hardChars = segments
+        .filter(s => s.level === 'hard')
+        .reduce((sum, s) => sum + (s.end - s.start + 1), 0);
+    const hardPct = Math.round(hardChars / n * 100);
+
     return {
         score,
         avg: +avg.toFixed(3),
         length: n,
         chars,
         segments,
+        hardPct,
+        topChars,
+        topBigrams,
         handBalance: { left: leftKeys, right: rightKeys, imbalance: +imbalance.toFixed(3) },
     };
 };

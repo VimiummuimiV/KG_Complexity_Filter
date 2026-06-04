@@ -23,6 +23,8 @@
   opacity: 0;
   @include fade(in);
 
+  // ── 1. Header ─────────────────────────────────────────────────────────────
+
   .panel-header {
     display: flex;
     align-items: center;
@@ -83,11 +85,18 @@
     height: 18px;
   }
 
+  // Theme toggle icon animations
   .panel-theme .panel-icon {
     transform-origin: 50% 50%;
     &.spin  { animation: spin   .5s cubic-bezier(.34, 1.56, .64, 1) forwards; }
     &.swing { animation: swing  .4s ease-in-out forwards; }
   }
+
+  // Theme toggle: show sun in dark mode (click → light), moon in light mode (click → dark)
+  &[data-complexity-filter-theme='dark']  .panel-theme .panel-icon:nth-child(1) { display: none; }
+  &[data-complexity-filter-theme='light'] .panel-theme .panel-icon:nth-child(2) { display: none; }
+
+  // ── 2. Stats (score + meta) ────────────────────────────────────────────────
 
   .stats {
     display: flex;
@@ -144,6 +153,8 @@
     color: var(--txt);
   }
 
+  // ── 3. Score progress bar ──────────────────────────────────────────────────
+
   .progress-track {
     height: 5px;
     background: var(--border);
@@ -158,6 +169,8 @@
     border-radius: 99px;
     transition: width .6s cubic-bezier(.16, 1, .3, 1);
   }
+
+  // ── 4. Score legend ────────────────────────────────────────────────────────
 
   .score-legend {
     display: flex;
@@ -180,6 +193,96 @@
     border-radius: 50%;
     flex-shrink: 0;
   }
+
+  // ── 5. Hand balance bar ────────────────────────────────────────────────────
+
+  .hand-bar-wrap {
+    padding: 0 16px 12px;
+    flex-shrink: 0;
+  }
+
+  .hand-bar-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    margin-bottom: 5px;
+  }
+
+  .hand-label {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--txt-dim);
+  }
+
+  .hand-l { color: var(--hand-l) !important; }
+  .hand-r { color: var(--hand-r) !important; }
+
+  .hand-imbalance {
+    font-size: 10px;
+    color: var(--hard);
+    letter-spacing: .04em;
+  }
+
+  .hand-bar-track {
+    display: flex;
+    height: 5px;
+    border-radius: 99px;
+    overflow: hidden;
+    background: var(--border);
+  }
+
+  .hand-seg {
+    height: 100%;
+    transition: width .6s cubic-bezier(.16, 1, .3, 1);
+  }
+
+  .hand-seg-l { background: var(--hand-l); }
+  .hand-seg-r { background: var(--hand-r); }
+
+  // ── 6. Hotspot chips (hardest keys / bigrams) ──────────────────────────────
+
+  .hotspot-section {
+    padding: 0 16px 12px;
+    flex-shrink: 0;
+  }
+
+  .hotspot-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--txt-dim);
+    margin-bottom: 6px;
+  }
+
+  .hotspot-list {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .hotspot-chip {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    padding: 3px 8px;
+    background: var(--chip-bg);
+    border-radius: 5px;
+    font-family: var(--font-mono);
+  }
+
+  .hotspot-ch {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--hard);
+  }
+
+  .hotspot-cost {
+    font-size: 10px;
+    color: var(--txt-dim);
+  }
+
+  // ── 7. Annotated text view ─────────────────────────────────────────────────
 
   .text-scroll {
     overflow-y: auto;
@@ -206,12 +309,8 @@
     .medium { color: var(--medium); }
     .hard   {
       color: var(--hard);
-      background: rgba(224, 92, 92, .08);
+      background: var(--hard-bg);
       border-radius: 2px;
     }
   }
-
-  // Theme toggle: show sun in dark mode (click → light), moon in light mode (click → dark)
-  &[data-complexity-filter-theme='dark']  .panel-theme .panel-icon:nth-child(1) { display: none; }
-  &[data-complexity-filter-theme='light'] .panel-theme .panel-icon:nth-child(2) { display: none; }
 }

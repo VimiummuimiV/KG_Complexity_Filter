@@ -17,7 +17,6 @@ const el = (tag, cls) => {
   return node;
 };
 
-// Create an element with a text node in one call
 const elText = (tag, cls, str) => {
   const node = el(tag, cls);
   node.appendChild(document.createTextNode(str));
@@ -61,7 +60,7 @@ const buildHeader = (panel) => {
     return header;
 };
 
-const buildStats = (score, avg, length) => {
+const buildStats = (score, avg, length, hardPct) => {
     const color = scoreColor(score);
     const stats = el('div', 'stats');
 
@@ -78,12 +77,17 @@ const buildStats = (score, avg, length) => {
     const rows = [
         ['Avg cost / char', String(avg)],
         ['Characters',      length.toLocaleString()],
+        ['Hard zones',      hardPct + '%'],
         ['Layout',          'ЙЦУКЕН'],
     ];
     for (const [key, val] of rows) {
         const row = el('div', 'meta-row');
-        row.appendChild(elText('span', 'meta-key',   key));
-        row.appendChild(elText('span', 'meta-value', val));
+        row.appendChild(elText('span', 'meta-key', key));
+        const valNode = elText('span', 'meta-value', val);
+        // Color avg and hard% to reinforce score tier
+        if (key === 'Avg cost / char') valNode.style.color = color;
+        if (key === 'Hard zones' && hardPct > 0) valNode.style.color = `var(--hard)`;
+        row.appendChild(valNode);
         meta.appendChild(row);
     }
 
@@ -113,6 +117,72 @@ const buildLegend = () => {
     return legend;
 };
 
+// Two-tone bar showing left/right hand key distribution
+const buildHandBar = ({ left, right, imbalance }) => {
+    const total    = left + right;
+    const leftPct  = total > 0 ? Math.round(left  / total * 100) : 50;
+    const rightPct = 100 - leftPct;
+
+    const wrap  = el('div', 'hand-bar-wrap');
+    const label = el('div', 'hand-bar-label');
+
+    label.appendChild(elText('span', 'hand-label hand-l', `L ${leftPct}%`));
+
+    // Imbalance badge — only shown when meaningfully lopsided
+    if (imbalance > 0.15) {
+        const badge = elText('span', 'hand-imbalance', imbalance > 0.4 ? '⚠ one-sided' : 'uneven');
+        label.appendChild(badge);
+    }
+
+    label.appendChild(elText('span', 'hand-label hand-r', `${rightPct}% R`));
+    wrap.appendChild(label);
+
+    const track = el('div', 'hand-bar-track');
+    const segL  = el('div', 'hand-seg hand-seg-l');
+    const segR  = el('div', 'hand-seg hand-seg-r');
+    segL.style.width = leftPct  + '%';
+    segR.style.width = rightPct + '%';
+    track.appendChild(segL);
+    track.appendChild(segR);
+    wrap.appendChild(track);
+
+    return wrap;
+};
+
+// Row of top hardest characters
+const buildTopChars = (topChars) => {
+    const wrap = el('div', 'hotspot-section');
+    wrap.appendChild(elText('div', 'hotspot-label', 'Hardest keys'));
+
+    const list = el('div', 'hotspot-list');
+    for (const { ch, cost } of topChars) {
+        const chip = el('div', 'hotspot-chip');
+        chip.appendChild(elText('span', 'hotspot-ch', ch));
+        chip.appendChild(elText('span', 'hotspot-cost', cost));
+        list.appendChild(chip);
+    }
+
+    wrap.appendChild(list);
+    return wrap;
+};
+
+// Row of top hardest bigrams
+const buildTopBigrams = (topBigrams) => {
+    const wrap = el('div', 'hotspot-section');
+    wrap.appendChild(elText('div', 'hotspot-label', 'Hardest bigrams'));
+
+    const list = el('div', 'hotspot-list');
+    for (const { pair, cost } of topBigrams) {
+        const chip = el('div', 'hotspot-chip');
+        chip.appendChild(elText('span', 'hotspot-ch', pair));
+        chip.appendChild(elText('span', 'hotspot-cost', cost));
+        list.appendChild(chip);
+    }
+
+    wrap.appendChild(list);
+    return wrap;
+};
+
 const buildTextView = ({ chars, segments }) => {
     const scroll = el('div', 'text-scroll');
     const block  = el('div', 'text-block');
@@ -130,16 +200,19 @@ const buildTextView = ({ chars, segments }) => {
 export const render = (result) => {
     document.getElementById(ID)?.remove();
 
-    const { score, avg, length } = result;
+    const { score, avg, length, hardPct, topChars, topBigrams, handBalance } = result;
 
     const panel = el('div');
     panel.id = ID;
     applyInitialTheme(panel);
 
     panel.appendChild(buildHeader(panel));
-    panel.appendChild(buildStats(score, avg, length));
+    panel.appendChild(buildStats(score, avg, length, hardPct));
     panel.appendChild(buildBar(score));
     panel.appendChild(buildLegend());
+    panel.appendChild(buildHandBar(handBalance));
+    panel.appendChild(buildTopChars(topChars));
+    panel.appendChild(buildTopBigrams(topBigrams));
     panel.appendChild(buildTextView(result));
 
     document.body.appendChild(panel);
