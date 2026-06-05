@@ -187,7 +187,8 @@ const buildHandBar = ({ left, right, imbalance }, strings) => {
     const wrap  = el('div', 'hand-bar-wrap');
     const label = el('div', 'hand-bar-label');
 
-    label.appendChild(elText('span', 'hand-label hand-l', `L ${leftPct}%`));
+    const labelL        = elText('span', 'hand-label hand-l', `L ${leftPct}%`);
+    const labelR        = elText('span', 'hand-label hand-r', `${rightPct}% R`);
 
     const imbalanceLabel =
         imbalance > 0.85 ? strings.handImbalanceHigh  :
@@ -196,9 +197,9 @@ const buildHandBar = ({ left, right, imbalance }, strings) => {
         imbalance > 0.15 ? strings.handImbalanceMinor :
         null;
 
+    label.appendChild(labelL);
     if (imbalanceLabel) label.appendChild(elText('span', 'hand-imbalance', imbalanceLabel));
-
-    label.appendChild(elText('span', 'hand-label hand-r', `${rightPct}% R`));
+    label.appendChild(labelR);
     wrap.appendChild(label);
 
     const track = el('div', 'hand-bar-track');
@@ -209,14 +210,11 @@ const buildHandBar = ({ left, right, imbalance }, strings) => {
     createCustomTooltip(segL, strings.tooltipHandL, 'stats', 0);
     createCustomTooltip(segR, strings.tooltipHandR, 'stats', 0);
 
-    for (const [seg, hand] of [[segL, 'L'], [segR, 'R']]) {
-        seg.addEventListener('mouseenter', () => {
-            seg.closest('#complexity-filter-panel').dataset.hand = hand;
-        });
-        seg.addEventListener('mouseleave', () => {
-            delete seg.closest('#complexity-filter-panel').dataset.hand;
-        });
-    }
+    const panel = () => track.closest('#complexity-filter-panel');
+    track.addEventListener('mousemove', (e) => {
+        panel().dataset.activeHand = e.offsetX / track.offsetWidth < leftPct / 100 ? 'L' : 'R';
+    });
+    track.addEventListener('mouseleave', () => { delete panel().dataset.activeHand; });
 
     appendAll(track, segL, segR);
     wrap.appendChild(track);
