@@ -287,7 +287,19 @@ const buildFingerLoad = (fingerLoad, strings) => {
         const item = el('div', 'fl-item');
 
         const barWrap = el('div', 'fl-bar-wrap');
-        const fill    = el('div', 'fl-bar-fill');
+        barWrap.dataset.finger = i;
+        barWrap.addEventListener('mouseenter', () => {
+            bars.classList.add('fl-active');
+            bars.dataset.activeFinger = i;
+            barWrap.closest('#complexity-filter-panel').dataset.fl = i;
+        });
+        barWrap.addEventListener('mouseleave', () => {
+            bars.classList.remove('fl-active');
+            delete bars.dataset.activeFinger;
+            delete barWrap.closest('#complexity-filter-panel').dataset.fl;
+        });
+
+        const fill = el('div', 'fl-bar-fill');
         fill.style.height     = Math.round(pct / max * 100) + '%';
         fill.style.background = col;
         barWrap.appendChild(fill);
@@ -327,7 +339,7 @@ const buildTopWords = (topWords, strings) => {
 };
 
 const buildTextView = ({ chars, segments, longWordChars, worstZone,
-                         sameFingerChars, shiftedChars }, strings) => {
+                         sameFingerChars, shiftedChars, charFingers }, strings) => {
     const scroll = el('div', 'text-scroll');
     const block  = el('div', 'text-block');
 
@@ -343,22 +355,25 @@ const buildTextView = ({ chars, segments, longWordChars, worstZone,
         const { level, start, end } = seg;
         const isWorst = worstZone && seg === worstZone;
 
-        let runStart = start;
-        let runLong  = longWordChars?.has(start) ?? false;
-        let runFlags = flagOf(start);
+        let runStart  = start;
+        let runLong   = longWordChars?.has(start) ?? false;
+        let runFlags  = flagOf(start);
+        let runFinger = charFingers?.[start] ?? -1;
 
         for (let k = start + 1; k <= end + 1; k++) {
             const isLong = k <= end && (longWordChars?.has(k) ?? false);
             const flags  = k <= end ? flagOf(k) : -1;
+            const finger = k <= end ? (charFingers?.[k] ?? -1) : -2;
 
-            if (k === end + 1 || isLong !== runLong || flags !== runFlags) {
+            if (k === end + 1 || isLong !== runLong || flags !== runFlags || finger !== runFinger) {
                 const span = elText('span', level, chars.slice(runStart, k).join(''));
 
-                if (runLong)      span.classList.add('long-word');
-                if (isWorst)      span.classList.add('worst-zone');
-                if (runFlags & 1) span.classList.add('same-finger-l');
-                if (runFlags & 2) span.classList.add('same-finger-r');
-                if (runFlags & 4) span.classList.add('shifted-char');
+                if (runLong)        span.classList.add('long-word');
+                if (isWorst)        span.classList.add('worst-zone');
+                if (runFlags & 1)   span.classList.add('same-finger-l');
+                if (runFlags & 2)   span.classList.add('same-finger-r');
+                if (runFlags & 4)   span.classList.add('shifted-char');
+                if (runFinger >= 0) span.dataset.f = runFinger;
 
                 const tooltipText =
                     runLong ? strings.tooltipLongWordText :
@@ -376,9 +391,10 @@ const buildTextView = ({ chars, segments, longWordChars, worstZone,
                 }
 
                 block.appendChild(span);
-                runStart = k;
-                runLong  = isLong;
-                runFlags = flags;
+                runStart  = k;
+                runLong   = isLong;
+                runFlags  = flags;
+                runFinger = finger;
             }
         }
     }

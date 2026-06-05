@@ -356,6 +356,7 @@
     background: var(--chip-bg);
     border-radius: 3px;
     overflow: hidden;
+    cursor: default;
   }
 
   .fl-bar-fill {
@@ -373,6 +374,19 @@
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
+  }
+
+  // Finger-highlight: when a bar is hovered, dim all text-block spans
+  // then restore only those belonging to that finger via data-f attribute.
+  &[data-fl] .text-block span {
+    opacity: .15;
+    transition: opacity .12s;
+  }
+
+  @for $i from 0 through 9 {
+    &[data-fl='#{$i}'] .text-block span[data-f='#{$i}'] {
+      opacity: 1;
+    }
   }
 
   // ── 9. Hotspot chips (bigrams / words) ────────────────────────────────────

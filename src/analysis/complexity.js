@@ -143,6 +143,7 @@ export const analyzeComplexity = (text, config = null) => {
     const shiftedChars    = new Set(); // indices of shifted characters
     const fingerCounts    = new Array(10).fill(0); // per-finger keystroke counts
     const fingerCosts     = new Array(10).fill(0); // per-finger accumulated cost
+    const charFingers     = new Int8Array(n).fill(-1); // per-char finger index (0-9), -1 if unmapped
     let   digitRowCount   = 0;                     // number-row keystroke count
 
     // Penalty buckets for breakdown chart
@@ -232,6 +233,7 @@ export const analyzeComplexity = (text, config = null) => {
         // ── Per-finger cost accumulation ──────────────────────────────────────
         if (key) {
             fingerCosts[key[0]] += costs[i];
+            charFingers[i] = key[0];
         }
 
         // ── Word-length multiplier boundary tracking ──────────────────────────
@@ -400,6 +402,7 @@ export const analyzeComplexity = (text, config = null) => {
         handBalance:  { left: leftKeys, right: rightKeys, imbalance: +imbalance.toFixed(3) },
         fingerLoad,
         digitRowPct,
+        charFingers,
         lang:          lang       ?? 'ru',
         layoutName:    layoutName ?? 'ЙЦУКЕН',
     };
