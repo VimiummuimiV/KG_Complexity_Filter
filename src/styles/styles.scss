@@ -376,17 +376,23 @@
     max-width: 100%;
   }
 
-  // Finger-highlight: when a bar is hovered, dim all text-block spans
-  // then restore only those belonging to that finger via data-f attribute.
-  &[data-fl] .text-block span {
+  // Finger-highlight / hand-highlight: dim all text-block spans on bar hover,
+  // restore only those matching the hovered finger (data-active-finger) or hand (data-active-hand).
+  &[data-active-finger] .text-block span,
+  &[data-active-hand] .text-block span {
     opacity: .15;
     transition: opacity .12s;
   }
 
   @for $i from 0 through 9 {
-    &[data-fl='#{$i}'] .text-block span[data-f='#{$i}'] {
+    &[data-active-finger='#{$i}'] .text-block span[data-finger='#{$i}'] {
       opacity: 1;
     }
+  }
+
+  &[data-active-hand='L'] .text-block span[data-hand='L'],
+  &[data-active-hand='R'] .text-block span[data-hand='R'] {
+    opacity: 1;
   }
 
   // ── 9. Hotspot chips (bigrams / words) ────────────────────────────────────

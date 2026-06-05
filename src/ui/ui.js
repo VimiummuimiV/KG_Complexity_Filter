@@ -208,6 +208,16 @@ const buildHandBar = ({ left, right, imbalance }, strings) => {
     segR.style.width = rightPct + '%';
     createCustomTooltip(segL, strings.tooltipHandL, 'stats', 0);
     createCustomTooltip(segR, strings.tooltipHandR, 'stats', 0);
+
+    for (const [seg, hand] of [[segL, 'L'], [segR, 'R']]) {
+        seg.addEventListener('mouseenter', () => {
+            seg.closest('#complexity-filter-panel').dataset.hand = hand;
+        });
+        seg.addEventListener('mouseleave', () => {
+            delete seg.closest('#complexity-filter-panel').dataset.hand;
+        });
+    }
+
     appendAll(track, segL, segR);
     wrap.appendChild(track);
 
@@ -291,12 +301,12 @@ const buildFingerLoad = (fingerLoad, strings) => {
         barWrap.addEventListener('mouseenter', () => {
             bars.classList.add('fl-active');
             bars.dataset.activeFinger = i;
-            barWrap.closest('#complexity-filter-panel').dataset.fl = i;
+            barWrap.closest('#complexity-filter-panel').dataset.activeFinger = i;
         });
         barWrap.addEventListener('mouseleave', () => {
             bars.classList.remove('fl-active');
             delete bars.dataset.activeFinger;
-            delete barWrap.closest('#complexity-filter-panel').dataset.fl;
+            delete barWrap.closest('#complexity-filter-panel').dataset.activeFinger;
         });
 
         const fill = el('div', 'fl-bar-fill');
@@ -373,7 +383,10 @@ const buildTextView = ({ chars, segments, longWordChars, worstZone,
                 if (runFlags & 1)   span.classList.add('same-finger-l');
                 if (runFlags & 2)   span.classList.add('same-finger-r');
                 if (runFlags & 4)   span.classList.add('shifted-char');
-                if (runFinger >= 0) span.dataset.f = runFinger;
+                if (runFinger >= 0) {
+                    span.dataset.finger  = runFinger;
+                    span.dataset.hand = runFinger < 5 ? 'L' : 'R';
+                }
 
                 const tooltipText =
                     runLong ? strings.tooltipLongWordText :
