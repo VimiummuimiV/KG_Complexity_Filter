@@ -3,68 +3,104 @@
 // No innerHTML anywhere.
 
 import '../styles/styles.scss';
-import { createIcon } from '../icons/iconsIndex';
-import { makeDraggable } from '../helpers/drag';
-import { applyInitialTheme, toggleTheme } from '../helpers/theme';
-import { applyInitialView, cycleView } from '../helpers/view';
+import { createIcon }                          from '../icons/iconsIndex';
+import { makeDraggable }                       from '../helpers/drag';
+import { applyInitialTheme, toggleTheme }      from '../helpers/theme';
+import { applyInitialView, cycleView }         from '../helpers/view';
+import { applyInitialLang, toggleLang,
+         getStrings }                          from '../helpers/lang';
 
 const ID = 'complexity-filter-panel';
 
-// ─── Tiny helpers ─────────────────────────────────────────────────────────────
+// ─── DOM micro-helpers ────────────────────────────────────────────────────────
 
 const el = (tag, cls) => {
-  const node = document.createElement(tag);
-  if (cls) node.className = cls;
-  return node;
+    const node = document.createElement(tag);
+    if (cls) node.className = cls;
+    return node;
 };
 
 const elText = (tag, cls, str) => {
-  const node = el(tag, cls);
-  node.appendChild(document.createTextNode(str));
-  return node;
+    const node = el(tag, cls);
+    node.appendChild(document.createTextNode(str));
+    return node;
 };
 
-const SCORE_TIERS = [
-  { max: 35,       cls: 'easy',   label: 'Easy'     },
-  { max: 65,       cls: 'medium', label: 'Moderate' },
-  { max: Infinity, cls: 'hard',   label: 'Hard'     },
+const appendAll = (parent, ...children) => {
+    for (const child of children) if (child) parent.appendChild(child);
+    return parent;
+};
+
+// ─── Score tiers ──────────────────────────────────────────────────────────────
+
+const SCORE_TIER_KEYS = [
+    { max: 35,       cls: 'easy',   key: 'tierEasy'   },
+    { max: 65,       cls: 'medium', key: 'tierMedium' },
+    { max: Infinity, cls: 'hard',   key: 'tierHard'   },
 ];
 
-const scoreTier  = (s) => SCORE_TIERS.find(t => s < t.max);
+const scoreTier  = (s) => SCORE_TIER_KEYS.find(t => s < t.max);
 const scoreColor = (s) => `var(--${scoreTier(s).cls})`;
-const scoreLabel = (s) => scoreTier(s).label;
+const scoreLabel = (s, strings) => strings[scoreTier(s).key];
+
+// ─── Penalty metadata ─────────────────────────────────────────────────────────
+
+const PENALTY_META = [
+    { key: 'sameFinger',  strKey: 'penaltySameFinger', color: 'var(--hard)'    },
+    { key: 'outwardRoll', strKey: 'penaltyOutward',    color: 'var(--medium)'  },
+    { key: 'scissor',     strKey: 'penaltyScissor',    color: 'var(--accent)'  },
+    { key: 'rowJump',     strKey: 'penaltyRowJump',    color: 'var(--easy)'    },
+    { key: 'shiftHold',   strKey: 'penaltyShift',      color: 'var(--hand-r)'  },
+    { key: 'other',       strKey: 'penaltyOther',      color: 'var(--border)'  },
+];
 
 // ─── Section builders ─────────────────────────────────────────────────────────
 
 const buildViewToggleBtn = (panel) => {
     const btn = el('button', 'panel-btn panel-view');
-    btn.title = 'Cycle view';
-    btn.appendChild(createIcon('eye-fill'));       // full
-    btn.appendChild(createIcon('eye-off-fill'));   // summary
-    btn.appendChild(createIcon('eye-close-fill')); // minimal
     btn.addEventListener('click', () => cycleView(panel));
+    appendAll(btn,
+        createIcon('eye-fill'),
+        createIcon('eye-off-fill'),
+        createIcon('eye-close-fill'),
+    );
     return btn;
 };
 
 const buildThemeBtn = (panel) => {
     const btn = el('button', 'panel-btn panel-theme');
-    btn.title = 'Toggle theme';
-    btn.appendChild(createIcon('sun-fill'));
-    btn.appendChild(createIcon('moon-fill'));
     btn.addEventListener('click', () => toggleTheme(panel));
+    appendAll(btn, createIcon('sun-fill'), createIcon('moon-fill'));
     return btn;
 };
 
-const buildHeader = (panel, layoutName) => {
+// Language toggle — emoji flag showing the OTHER language.
+const buildLangBtn = (panel, strings) => {
+    const btn = elText('button', 'panel-btn panel-lang', strings.langIcon);
+    btn.title = strings.langLabel;
+    btn.addEventListener('click', () => {
+        toggleLang(panel);
+        // Re-render the whole panel in the new language.
+        // We store the last result on the panel element to avoid a re-fetch.
+        const result = panel._kgResult;
+        if (result) render(result);
+    });
+    return btn;
+};
+
+const buildHeader = (panel, strings, layoutName) => {
     const header = el('div', 'panel-header');
 
-    header.appendChild(elText('span', 'panel-logo',  'KG'));
-    header.appendChild(elText('span', 'panel-title', `Typing Complexity · ${layoutName}`));
-    header.appendChild(buildViewToggleBtn(panel));
-    header.appendChild(buildThemeBtn(panel));
+    appendAll(header,
+        elText('span', 'panel-logo',  'KG'),
+        elText('span', 'panel-title', `${strings.title} · ${layoutName}`),
+        buildViewToggleBtn(panel),
+        buildThemeBtn(panel),
+        buildLangBtn(panel, strings),
+    );
 
     const close = el('button', 'panel-btn panel-close');
-    close.title = 'Close';
+    close.title = strings.btnClose;
     close.appendChild(createIcon('close-line'));
     close.addEventListener('click', () => panel.remove());
     header.appendChild(close);
@@ -72,44 +108,45 @@ const buildHeader = (panel, layoutName) => {
     return header;
 };
 
-const buildStats = (score, avg, length, hardPct, longWordPct, lang, layoutName) => {
+const buildStats = (result, strings) => {
+    const { score, avg, length, hardPct, longWordPct, digitRowPct, lang, layoutName } = result;
     const color = scoreColor(score);
     const stats = el('div', 'stats');
 
-    // — Score column —
+    // Score column
     const scoreWrap = el('div', 'score-summary');
-    [['score-value', String(score)], ['score-label', scoreLabel(score)]].forEach(([cls, str]) => {
+    for (const [cls, str] of [['score-value', String(score)], ['score-label', scoreLabel(score, strings)]]) {
         const node = elText('div', cls, str);
         node.style.color = color;
         scoreWrap.appendChild(node);
-    });
+    }
 
-    // — Meta rows —
     const LANG_FLAG = { ru: '🇷🇺', en: '🇬🇧' };
     const flag = LANG_FLAG[lang] ?? '🌐';
 
     const meta = el('div', 'meta-info');
     const rows = [
-        ['Avg cost / char', String(avg)],
-        ['Characters',      length.toLocaleString()],
-        ['Hard zones',      hardPct + '%'],
-        ['Long words',      longWordPct + '%'],
-        ['Layout',          `${flag} ${layoutName}`],
+        [strings.metaAvg,       String(avg),                   'avg'      ],
+        [strings.metaChars,     length.toLocaleString(),        null       ],
+        [strings.metaHardZones, hardPct + '%',                  'hard'     ],
+        [strings.metaLongWords, longWordPct + '%',              'longword' ],
+        [strings.metaLayout,    `${flag} ${layoutName}`,        null       ],
+        ['#-row',               digitRowPct + '%',              'digitrow' ],
     ];
-    for (const [key, val] of rows) {
+
+    for (const [key, val, hint] of rows) {
         const row = el('div', 'meta-row');
         row.appendChild(elText('span', 'meta-key', key));
         const valNode = elText('span', 'meta-value', val);
-        // Color avg and hard% to reinforce score tier
-        if (key === 'Avg cost / char') valNode.style.color = color;
-        if (key === 'Hard zones'  && hardPct     > 0) valNode.style.color = `var(--hard)`;
-        if (key === 'Long words'  && longWordPct > 0) valNode.style.color = `var(--medium)`;
+        if (hint === 'avg'      )                        valNode.style.color = color;
+        if (hint === 'hard'     && hardPct     > 0)      valNode.style.color = 'var(--hard)';
+        if (hint === 'longword' && longWordPct > 0)      valNode.style.color = 'var(--medium)';
+        if (hint === 'digitrow' && digitRowPct > 10)     valNode.style.color = 'var(--medium)';
         row.appendChild(valNode);
         meta.appendChild(row);
     }
 
-    stats.appendChild(scoreWrap);
-    stats.appendChild(meta);
+    appendAll(stats, scoreWrap, meta);
     return stats;
 };
 
@@ -122,10 +159,10 @@ const buildBar = (score) => {
     return track;
 };
 
-const buildLegend = () => {
+const buildLegend = (strings) => {
     const legend = el('div', 'score-legend');
-    for (const { cls, label } of SCORE_TIERS) {
-        const item = elText('span', 'legend-item', label);
+    for (const { cls, key } of SCORE_TIER_KEYS) {
+        const item = elText('span', 'legend-item', strings[key]);
         const dot  = el('span', 'legend-dot');
         dot.style.background = `var(--${cls})`;
         item.prepend(dot);
@@ -134,10 +171,9 @@ const buildLegend = () => {
     return legend;
 };
 
-// Two-tone bar showing left/right hand key distribution
-const buildHandBar = ({ left, right, imbalance }) => {
+const buildHandBar = ({ left, right, imbalance }, strings) => {
     const total    = left + right;
-    const leftPct  = total > 0 ? Math.round(left  / total * 100) : 50;
+    const leftPct  = total > 0 ? Math.round(left / total * 100) : 50;
     const rightPct = 100 - leftPct;
 
     const wrap  = el('div', 'hand-bar-wrap');
@@ -145,14 +181,14 @@ const buildHandBar = ({ left, right, imbalance }) => {
 
     label.appendChild(elText('span', 'hand-label hand-l', `L ${leftPct}%`));
 
-    const imbalanceLabel = imbalance > 0.85 ? '⚠ one-sided'
-                         : imbalance > 0.55 ? '⚠ dominant hand'
-                         : imbalance > 0.30 ? '⚠ lopsided'
-                         : imbalance > 0.15 ? 'uneven'
-                         : null;
-    if (imbalanceLabel) {
-        label.appendChild(elText('span', 'hand-imbalance', imbalanceLabel));
-    }
+    const imbalanceLabel =
+        imbalance > 0.85 ? strings.handImbalanceHigh  :
+        imbalance > 0.55 ? strings.handImbalanceMid   :
+        imbalance > 0.30 ? strings.handImbalanceLow   :
+        imbalance > 0.15 ? strings.handImbalanceMinor :
+        null;
+
+    if (imbalanceLabel) label.appendChild(elText('span', 'hand-imbalance', imbalanceLabel));
 
     label.appendChild(elText('span', 'hand-label hand-r', `${rightPct}% R`));
     wrap.appendChild(label);
@@ -162,30 +198,18 @@ const buildHandBar = ({ left, right, imbalance }) => {
     const segR  = el('div', 'hand-seg hand-seg-r');
     segL.style.width = leftPct  + '%';
     segR.style.width = rightPct + '%';
-    track.appendChild(segL);
-    track.appendChild(segR);
+    appendAll(track, segL, segR);
     wrap.appendChild(track);
 
     return wrap;
 };
 
-// Segmented bar + legend showing what % of typing cost comes from each penalty type
-const PENALTY_META = [
-    { key: 'sameFinger',  label: 'Same finger',  color: 'var(--hard)'    },
-    { key: 'outwardRoll', label: 'Outward roll',  color: 'var(--medium)'  },
-    { key: 'scissor',     label: 'Scissor',       color: 'var(--accent)'  },
-    { key: 'rowJump',     label: 'Row jump',      color: 'var(--easy)'    },
-    { key: 'shiftHold',   label: 'Shift hold',    color: 'var(--hand-r)'  },
-    { key: 'other',       label: 'Base cost',     color: 'var(--border)'  },
-];
-
-const buildPenaltyBreakdown = (pb) => {
+const buildPenaltyBreakdown = (pb, strings) => {
     if (!pb) return null;
 
     const wrap = el('div', 'penalty-wrap');
-    wrap.appendChild(elText('div', 'hotspot-label', 'Penalty breakdown'));
+    wrap.appendChild(elText('div', 'hotspot-label', strings.penaltyLabel));
 
-    // Segmented bar
     const track = el('div', 'penalty-track');
     for (const { key, color } of PENALTY_META) {
         const pct = pb[key] ?? 0;
@@ -193,22 +217,22 @@ const buildPenaltyBreakdown = (pb) => {
         const seg = el('div', 'penalty-seg');
         seg.style.width      = pct + '%';
         seg.style.background = color;
-        seg.title            = `${PENALTY_META.find(m => m.key === key).label}: ${pct}%`;
         track.appendChild(seg);
     }
     wrap.appendChild(track);
 
-    // Legend rows — only show buckets that have a non-zero share
     const legend = el('div', 'penalty-legend');
-    for (const { key, label, color } of PENALTY_META) {
+    for (const { key, strKey, color } of PENALTY_META) {
         const pct = pb[key] ?? 0;
         if (pct === 0) continue;
         const row = el('div', 'penalty-row');
         const dot = el('span', 'legend-dot');
         dot.style.background = color;
-        row.appendChild(dot);
-        row.appendChild(elText('span', 'penalty-key', label));
-        row.appendChild(elText('span', 'penalty-pct', pct + '%'));
+        appendAll(row,
+            dot,
+            elText('span', 'penalty-key', strings[strKey]),
+            elText('span', 'penalty-pct', pct + '%'),
+        );
         legend.appendChild(row);
     }
     wrap.appendChild(legend);
@@ -216,16 +240,17 @@ const buildPenaltyBreakdown = (pb) => {
     return wrap;
 };
 
-// Row of top hardest bigrams
-const buildTopBigrams = (topBigrams) => {
+const buildTopBigrams = (topBigrams, strings) => {
     const wrap = el('div', 'hotspot-section');
-    wrap.appendChild(elText('div', 'hotspot-label', 'Hardest bigrams'));
+    wrap.appendChild(elText('div', 'hotspot-label', strings.hardestBigrams));
 
     const list = el('div', 'hotspot-list');
     for (const { pair, cost } of topBigrams) {
         const chip = el('div', 'hotspot-chip');
-        chip.appendChild(elText('span', 'hotspot-ch', pair));
-        chip.appendChild(elText('span', 'hotspot-cost', cost));
+        appendAll(chip,
+            elText('span', 'hotspot-ch', pair),
+            elText('span', 'hotspot-cost', cost),
+        );
         list.appendChild(chip);
     }
 
@@ -233,11 +258,121 @@ const buildTopBigrams = (topBigrams) => {
     return wrap;
 };
 
-const buildTextView = ({ chars, segments, longWordChars }) => {
+// Per-finger load bars
+const buildFingerLoad = (fingerLoad, strings) => {
+    const wrap = el('div', 'finger-load-wrap');
+    wrap.appendChild(elText('div', 'hotspot-label', strings.fingerLoad));
+
+    const bars = el('div', 'finger-load-bars');
+    const max  = Math.max(...fingerLoad, 1);
+
+    for (let i = 0; i < fingerLoad.length; i++) {
+        const pct  = fingerLoad[i];
+        const col  = i < 5 ? 'var(--hand-l)' : 'var(--hand-r)';
+        const item = el('div', 'fl-item');
+
+        const barWrap = el('div', 'fl-bar-wrap');
+        const fill    = el('div', 'fl-bar-fill');
+        fill.style.height     = Math.round(pct / max * 100) + '%';
+        fill.style.background = col;
+        barWrap.appendChild(fill);
+
+        appendAll(item,
+            barWrap,
+            elText('span', 'fl-label', strings.fingers[i]),
+            elText('span', 'fl-pct',   pct + '%'),
+        );
+        bars.appendChild(item);
+    }
+
+    wrap.appendChild(bars);
+    return wrap;
+};
+
+// Cost distribution histogram
+const buildHistogram = (costHistogram, strings) => {
+    const wrap = el('div', 'histogram-wrap');
+    wrap.appendChild(elText('div', 'hotspot-label', strings.costHistogram));
+
+    const bars = el('div', 'histogram-bars');
+    const max  = Math.max(...costHistogram.map(b => b.count), 1);
+
+    for (const { count, to } of costHistogram) {
+        const heightPct = Math.round(count / max * 100);
+        const item = el('div', 'hist-item');
+
+        const barWrap = el('div', 'hist-bar-wrap');
+        const fill    = el('div', 'hist-bar-fill');
+        // Colour by bucket upper bound vs segment thresholds
+        fill.style.height     = heightPct + '%';
+        fill.style.background = `var(--accent)`;
+        fill.title            = `≤${to}: ${count}`;
+        barWrap.appendChild(fill);
+
+        item.appendChild(barWrap);
+        bars.appendChild(item);
+    }
+
+    wrap.appendChild(bars);
+    return wrap;
+};
+
+// Top hardest words
+const buildTopWords = (topWords, strings) => {
+    if (!topWords?.length) return null;
+
+    const wrap = el('div', 'hotspot-section');
+    wrap.appendChild(elText('div', 'hotspot-label', strings.topWords));
+
+    const list = el('div', 'hotspot-list');
+    for (const { word, cost } of topWords) {
+        const chip = el('div', 'hotspot-chip');
+        appendAll(chip,
+            elText('span', 'hotspot-ch', word),
+            elText('span', 'hotspot-cost', cost),
+        );
+        list.appendChild(chip);
+    }
+
+    wrap.appendChild(list);
+    return wrap;
+};
+
+// Practice hints derived from dominant penalty buckets
+const buildPracticeHints = (penaltyBreakdown, handBalance, strings) => {
+    if (!penaltyBreakdown) return null;
+
+    // Pick the top 2 penalty keys (excluding 'other')
+    const relevant = Object.entries(penaltyBreakdown)
+        .filter(([k]) => k !== 'other')
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 2)
+        .map(([k]) => k);
+
+    if (handBalance.imbalance > 0.30) relevant.push('handBalance');
+
+    if (!relevant.length) return null;
+
+    const wrap = el('div', 'hints-wrap');
+    wrap.appendChild(elText('div', 'hotspot-label', strings.practiceHints));
+
+    for (const key of relevant) {
+        const hint = strings.hints[key];
+        if (!hint) continue;
+        wrap.appendChild(elText('p', 'hint-line', hint));
+    }
+
+    return wrap;
+};
+
+const buildTextView = ({ chars, segments, longWordChars, worstZone }) => {
     const scroll = el('div', 'text-scroll');
     const block  = el('div', 'text-block');
 
-    for (const { level, start, end } of segments) {
+    for (const seg of segments) {
+        const { level, start, end } = seg;
+        const isWorst = worstZone && seg === worstZone;
+
         let runStart = start;
         let runLong  = longWordChars?.has(start) ?? false;
 
@@ -245,7 +380,8 @@ const buildTextView = ({ chars, segments, longWordChars }) => {
             const isLong = k <= end && (longWordChars?.has(k) ?? false);
             if (k === end + 1 || isLong !== runLong) {
                 const span = elText('span', level, chars.slice(runStart, k).join(''));
-                if (runLong) span.classList.add('long-word');
+                if (runLong)  span.classList.add('long-word');
+                if (isWorst)  span.classList.add('worst-zone');
                 block.appendChild(span);
                 runStart = k;
                 runLong  = isLong;
@@ -257,9 +393,6 @@ const buildTextView = ({ chars, segments, longWordChars }) => {
     return scroll;
 };
 
-// Difficulty progress bar — shown in summary and minimal view modes.
-// Uses a CSS linear-gradient with hard stops so every character-length
-// region maps to the right colour without a canvas.
 const TIER_COLOR = { easy: 'var(--easy)', medium: 'var(--medium)', hard: 'var(--hard)' };
 
 const buildDifficultyBar = ({ chars, segments }) => {
@@ -278,39 +411,65 @@ const buildDifficultyBar = ({ chars, segments }) => {
     return bar;
 };
 
+// ─── Score count-up animation ─────────────────────────────────────────────────
+
+const animateScore = (node, target) => {
+    const DURATION = 600;
+    const start    = performance.now();
+    const step     = (now) => {
+        const t   = Math.min(1, (now - start) / DURATION);
+        const val = Math.round(t * t * (3 - 2 * t) * target); // smooth-step easing
+        node.textContent = String(val);
+        if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+};
+
 // ─── Public: render(result) ───────────────────────────────────────────────────
 
 export const render = (result) => {
     document.getElementById(ID)?.remove();
 
-    const { score, avg, length, hardPct, longWordPct, topBigrams, penaltyBreakdown, handBalance, lang, layoutName } = result;
+    const strings = getStrings();
+    const { score, topBigrams, penaltyBreakdown, handBalance,
+            fingerLoad, costHistogram, topWords, layoutName } = result;
 
     const panel = el('div');
     panel.id = ID;
+    panel._kgResult = result; // stored for language re-render
+
     applyInitialTheme(panel);
     applyInitialView(panel);
+    applyInitialLang(panel);
 
-    panel.appendChild(buildHeader(panel, layoutName));
-
-    // Difficulty bar — visible in summary and minimal modes
+    panel.appendChild(buildHeader(panel, strings, layoutName));
     panel.appendChild(buildDifficultyBar(result));
 
-    // Stats row — visible in summary mode only
     const summary = el('div', 'panel-summary');
-    summary.appendChild(buildStats(score, avg, length, hardPct, longWordPct, lang, layoutName));
-    summary.appendChild(buildBar(score));
-    summary.appendChild(buildLegend());
+    appendAll(summary,
+        buildStats(result, strings),
+        buildBar(score),
+        buildLegend(strings),
+    );
     panel.appendChild(summary);
 
-    // Full detail — visible in full mode only
     const body = el('div', 'panel-body');
-    body.appendChild(buildHandBar(handBalance));
-    const breakdown = buildPenaltyBreakdown(penaltyBreakdown);
-    if (breakdown) body.appendChild(breakdown);
-    body.appendChild(buildTopBigrams(topBigrams));
-    body.appendChild(buildTextView(result));
+    appendAll(body,
+        buildHandBar(handBalance, strings),
+        buildPenaltyBreakdown(penaltyBreakdown, strings),
+        buildFingerLoad(fingerLoad, strings),
+        buildHistogram(costHistogram, strings),
+        buildTopBigrams(topBigrams, strings),
+        buildTopWords(topWords, strings),
+        buildPracticeHints(penaltyBreakdown, handBalance, strings),
+        buildTextView(result),
+    );
     panel.appendChild(body);
 
     document.body.appendChild(panel);
     makeDraggable(panel, panel.querySelector('.panel-header'), 'complexityFilterPanelPosition');
+
+    // Count-up animation on the score value
+    const scoreNode = panel.querySelector('.score-value');
+    if (scoreNode) animateScore(scoreNode, score);
 };

@@ -88,15 +88,15 @@
   // Theme toggle icon animations
   .panel-theme .panel-icon {
     transform-origin: 50% 50%;
-    &.spin  { animation: spin   .5s cubic-bezier(.34, 1.56, .64, 1) forwards; }
-    &.swing { animation: swing  .4s ease-in-out forwards; }
+    &.spin  { animation: spin  .5s cubic-bezier(.34, 1.56, .64, 1) forwards; }
+    &.swing { animation: swing .4s ease-in-out forwards; }
   }
 
   // Theme toggle: show sun in dark mode (click → light), moon in light mode (click → dark)
   &[data-complexity-filter-theme='dark']  .panel-theme .panel-icon:nth-child(1) { display: none; }
   &[data-complexity-filter-theme='light'] .panel-theme .panel-icon:nth-child(2) { display: none; }
 
-  // ── 2. View modes (full / summary / minimal) ──────────────────────────────
+  // ── 2. View modes ──────────────────────────────────────────────────────────
 
   // Coloured difficulty bar — shown in summary and minimal modes
   .difficulty-bar {
@@ -109,14 +109,10 @@
   }
 
   // Stats + score bar + legend — transparent wrapper, always rendered except in minimal
-  .panel-summary {
-    display: contents;
-  }
+  .panel-summary { display: contents; }
 
-  // Full detail (hand bar, penalties, bigrams, text) — transparent wrapper, hidden in summary/minimal
-  .panel-body {
-    display: contents;
-  }
+// Full detail (hand bar, penalties, bigrams, text) — transparent wrapper, hidden in summary/minimal
+  .panel-body    { display: contents; }
 
   // summary: difficulty bar + stats, no detail
   &[data-view='summary'] {
@@ -136,7 +132,7 @@
   &[data-view='summary'] .panel-view .panel-icon { &:nth-child(1), &:nth-child(3) { display: none; } }
   &[data-view='minimal'] .panel-view .panel-icon { &:nth-child(1), &:nth-child(2) { display: none; } }
 
-  // ── 3. Stats (score + meta) ────────────────────────────────────────────────
+  // ── 3. Stats ───────────────────────────────────────────────────────────────
 
   .stats {
     display: flex;
@@ -272,11 +268,7 @@
     background: var(--border);
   }
 
-  .hand-seg {
-    height: 100%;
-    transition: width .6s cubic-bezier(.16, 1, .3, 1);
-  }
-
+  .hand-seg   { height: 100%; transition: width .6s cubic-bezier(.16, 1, .3, 1); }
   .hand-seg-l { background: var(--hand-l); }
   .hand-seg-r { background: var(--hand-r); }
 
@@ -314,11 +306,7 @@
     font-size: 11px;
   }
 
-  .penalty-key {
-    color: var(--txt-dim);
-    flex: 1;
-  }
-
+  .penalty-key { color: var(--txt-dim); flex: 1; }
   .penalty-pct {
     font-family: var(--font-mono);
     font-size: 11px;
@@ -327,7 +315,93 @@
     text-align: right;
   }
 
-  // ── 8. Hotspot chips (hardest bigrams) ────────────────────────────────────
+  // ── 8. Per-finger load bars ────────────────────────────────────────────────
+
+  .finger-load-wrap {
+    padding: 0 16px 14px;
+    flex-shrink: 0;
+  }
+
+  .finger-load-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 48px;
+  }
+
+  .fl-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex: 1;
+  }
+
+  .fl-bar-wrap {
+    width: 100%;
+    height: 32px;
+    display: flex;
+    align-items: flex-end;
+    background: var(--chip-bg);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .fl-bar-fill {
+    width: 100%;
+    transition: height .5s cubic-bezier(.16, 1, .3, 1);
+    border-radius: 2px 2px 0 0;
+  }
+
+  .fl-label {
+    font-size: 9px;
+    color: var(--txt-dim);
+    font-family: var(--font-mono);
+  }
+
+  .fl-pct {
+    display: none; // shown on hover via title attribute on fill
+  }
+
+  // ── 9. Cost histogram ─────────────────────────────────────────────────────
+
+  .histogram-wrap {
+    padding: 0 16px 14px;
+    flex-shrink: 0;
+  }
+
+  .histogram-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 40px;
+  }
+
+  .hist-item {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .hist-bar-wrap {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    background: var(--chip-bg);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .hist-bar-fill {
+    width: 100%;
+    border-radius: 2px 2px 0 0;
+    opacity: .75;
+    transition: height .5s cubic-bezier(.16, 1, .3, 1);
+  }
+
+  // ── 10. Hotspot chips (bigrams / words) ───────────────────────────────────
 
   .hotspot-section {
     padding: 0 16px 12px;
@@ -358,18 +432,28 @@
     font-family: var(--font-mono);
   }
 
-  .hotspot-ch {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--hard);
+  .hotspot-ch   { font-size: 13px; font-weight: 600; color: var(--hard); }
+  .hotspot-cost { font-size: 10px; color: var(--txt-dim); }
+
+  // ── 11. Practice hints ────────────────────────────────────────────────────
+
+  .hints-wrap {
+    padding: 0 16px 12px;
+    flex-shrink: 0;
   }
 
-  .hotspot-cost {
-    font-size: 10px;
+  .hint-line {
+    font-size: 11px;
     color: var(--txt-dim);
+    line-height: 1.55;
+    margin: 4px 0 0;
+    padding-left: 10px;
+    border-left: 2px solid var(--accent);
+
+    &:first-of-type { margin-top: 6px; }
   }
 
-  // ── 9. Annotated text view ─────────────────────────────────────────────────
+  // ── 12. Annotated text view ───────────────────────────────────────────────
 
   .text-scroll {
     overflow-y: auto;
@@ -399,9 +483,23 @@
       background: var(--hard-bg);
       border-radius: 2px;
     }
+
+    // Worst zone: underlined with a solid accent bar underneath
+    .worst-zone {
+      text-decoration: underline solid var(--accent);
+      text-underline-offset: 3px;
+      text-decoration-thickness: 2px;
+    }
+
     .long-word {
       text-decoration: underline dotted var(--txt-dim);
       text-underline-offset: 3px;
+    }
+
+    // When a span is both worst-zone and long-word, accent wins
+    .worst-zone.long-word {
+      text-decoration: underline solid var(--accent);
+      text-decoration-thickness: 2px;
     }
   }
 }
