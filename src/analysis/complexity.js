@@ -150,7 +150,7 @@ export const analyzeComplexity = (text, config = null) => {
     let   digitRowCount   = 0;                     // number-row keystroke count
 
     // Penalty buckets for breakdown chart
-    const pb = { sameFinger: 0, outwardRoll: 0, scissor: 0, rowJump: 0, other: 0 };
+    const pb = { sameFinger: 0, shiftHold: 0, outwardRoll: 0, scissor: 0, rowJump: 0, other: 0 };
 
     const isRhythmBreak = (ch) => !/[\p{L}\p{N} \n\r]/u.test(ch);
 
@@ -257,7 +257,9 @@ export const analyzeComplexity = (text, config = null) => {
             if (bg.scissor     > 0) { scissorChars.add(i - 1);     scissorChars.add(i);     }
             if (bg.rowJump     > 0) { rowJumpChars.add(i - 1);     rowJumpChars.add(i);     }
         }
-        pb.other += cc + runSurcharge + punctSurcharge + fatigueSurcharge + tc;
+        const shiftCost = isShifted(ch) && capsRun < W.capsLockAt ? W.shiftHold : 0;
+        pb.shiftHold += shiftCost;
+        pb.other += cc - shiftCost + runSurcharge + punctSurcharge + fatigueSurcharge + tc;
     }
 
     // Close the last word if text ends on a letter
