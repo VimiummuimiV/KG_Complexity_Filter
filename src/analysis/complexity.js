@@ -139,8 +139,11 @@ export const analyzeComplexity = (text, config = null) => {
     let longWords  = 0;
     let punctRun   = 0; // consecutive rhythm-break chars
     const longWordChars   = new Set(); // indices of chars in words long enough to trigger the length multiplier
-    const sameFingerChars = new Map(); // index → hand ('L'/'R') for same-finger bigram chars
-    const shiftedChars    = new Set(); // indices of shifted characters
+    const sameFingerChars  = new Map(); // index → hand ('L'/'R') for same-finger bigram chars
+    const shiftedChars     = new Set(); // indices of shifted characters
+    const outwardRollChars = new Set(); // indices of chars in outward-roll bigrams
+    const scissorChars     = new Set(); // indices of chars in scissor bigrams
+    const rowJumpChars     = new Set(); // indices of chars in row-jump bigrams
     const fingerCounts    = new Array(10).fill(0); // per-finger keystroke counts
     const fingerCosts     = new Array(10).fill(0); // per-finger accumulated cost
     const charFingers     = new Int8Array(n).fill(-1); // per-char finger index (0-9), -1 if unmapped
@@ -250,6 +253,9 @@ export const analyzeComplexity = (text, config = null) => {
             pb.outwardRoll += bg.outwardRoll;
             pb.scissor     += bg.scissor;
             pb.rowJump     += bg.rowJump;
+            if (bg.outwardRoll > 0) { outwardRollChars.add(i - 1); outwardRollChars.add(i); }
+            if (bg.scissor     > 0) { scissorChars.add(i - 1);     scissorChars.add(i);     }
+            if (bg.rowJump     > 0) { rowJumpChars.add(i - 1);     rowJumpChars.add(i);     }
         }
         pb.other += cc + runSurcharge + punctSurcharge + fatigueSurcharge + tc;
     }
@@ -395,6 +401,9 @@ export const analyzeComplexity = (text, config = null) => {
         longWordChars,
         sameFingerChars,
         shiftedChars,
+        outwardRollChars,
+        scissorChars,
+        rowJumpChars,
         topBigrams,
         topWords,
         worstZone,

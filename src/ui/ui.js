@@ -255,6 +255,11 @@ const buildPenaltyBreakdown = (pb, strings) => {
         );
         const tipKey = 'tooltipPenalty_' + key;
         if (strings[tipKey]) createCustomTooltip(row, strings[tipKey], 'stats', 0);
+        if (key !== 'other') {
+            const panel = () => row.closest('#complexity-filter-panel');
+            row.addEventListener('mouseenter', () => { panel().dataset.activePenalty = key; });
+            row.addEventListener('mouseleave', () => { delete panel().dataset.activePenalty; });
+        }
         legend.appendChild(row);
     }
     wrap.appendChild(legend);
@@ -347,9 +352,20 @@ const buildTopWords = (topWords, strings) => {
 };
 
 const buildTextView = ({ chars, segments, longWordChars, worstZone,
-                         sameFingerChars, shiftedChars, charFingers }, strings) => {
+                         sameFingerChars, shiftedChars, charFingers,
+                         outwardRollChars, scissorChars, rowJumpChars }, strings) => {
     const scroll = el('div', 'text-scroll');
     const block  = el('div', 'text-block');
+
+    // Map penalty key → per-char Set for fast lookup when stamping spans
+    const penaltyChars = {
+        sameFinger:  sameFingerChars, // Map — test with .has()
+        shiftHold:   shiftedChars,
+        outwardRoll: outwardRollChars,
+        scissor:     scissorChars,
+        rowJump:     rowJumpChars,
+    };
+    const PENALTY_KEYS = ['sameFinger', 'shiftHold', 'outwardRoll', 'scissor', 'rowJump'];
 
     // Bitmask of per-char annotation flags — used to split runs when any flag changes.
     // Bits: 1=same-finger-L, 2=same-finger-R, 4=shifted
@@ -382,9 +398,12 @@ const buildTextView = ({ chars, segments, longWordChars, worstZone,
                 if (runFlags & 2)   span.classList.add('same-finger-r');
                 if (runFlags & 4)   span.classList.add('shifted-char');
                 if (runFinger >= 0) {
-                    span.dataset.finger  = runFinger;
-                    span.dataset.hand = runFinger < 5 ? 'L' : 'R';
+                    span.dataset.finger = runFinger;
+                    span.dataset.hand   = runFinger < 5 ? 'L' : 'R';
                 }
+
+                const penalties = PENALTY_KEYS.filter(pk => penaltyChars[pk]?.has(runStart));
+                if (penalties.length) span.dataset.penalty = penalties.join(' ');
 
                 const tooltipText =
                     runLong ? strings.tooltipLongWordText :

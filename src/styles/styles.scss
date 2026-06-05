@@ -324,6 +324,7 @@
     align-items: center;
     gap: 5px;
     font-size: 11px;
+    cursor: default;
   }
 
   .penalty-key { color: var(--txt-dim); }
@@ -383,10 +384,11 @@
     max-width: 100%;
   }
 
-  // Finger-highlight / hand-highlight: dim all text-block spans on bar hover,
-  // restore only those matching the hovered finger (data-active-finger) or hand (data-active-hand).
+  // Finger-highlight / hand-highlight / penalty-highlight: dim all text-block spans on hover,
+  // restore only those matching the hovered finger, hand, or penalty type.
   &[data-active-finger] .text-block span,
-  &[data-active-hand] .text-block span {
+  &[data-active-hand] .text-block span,
+  &[data-active-penalty] .text-block span {
     opacity: .15;
     transition: opacity .12s;
   }
@@ -399,6 +401,15 @@
 
   &[data-active-hand='L'] .text-block span[data-hand='L'],
   &[data-active-hand='R'] .text-block span[data-hand='R'] {
+    opacity: 1;
+  }
+
+  // ~= matches a whole word in a space-separated data-penalty attribute
+  &[data-active-penalty='sameFinger']  .text-block span[data-penalty~='sameFinger'],
+  &[data-active-penalty='shiftHold']   .text-block span[data-penalty~='shiftHold'],
+  &[data-active-penalty='outwardRoll'] .text-block span[data-penalty~='outwardRoll'],
+  &[data-active-penalty='scissor']     .text-block span[data-penalty~='scissor'],
+  &[data-active-penalty='rowJump']     .text-block span[data-penalty~='rowJump'] {
     opacity: 1;
   }
 
