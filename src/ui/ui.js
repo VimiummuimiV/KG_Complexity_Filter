@@ -355,12 +355,11 @@ const buildTextView = ({ chars, segments, longWordChars, worstZone,
             if (k === end + 1 || isLong !== runLong || flags !== runFlags) {
                 const span = elText('span', level, chars.slice(runStart, k).join(''));
 
-                if (runLong)               { span.classList.add('long-word');        createCustomTooltip(span, strings.tooltipLongWordText, 'stats', 0); }
-                if (isWorst)               { span.classList.add('worst-zone');       createCustomTooltip(span, strings.tooltipWorstZone,    'stats', 0); }
-                else if (level === 'hard') {                                      createCustomTooltip(span, strings.tooltipHardText,     'stats', 0); }
-                if (runFlags & 1)          { span.classList.add('same-finger-l');    createCustomTooltip(span, strings.tooltipSameFinger,   'stats', 0); }
-                if (runFlags & 2)          { span.classList.add('same-finger-r');    createCustomTooltip(span, strings.tooltipSameFinger,   'stats', 0); }
-                if (runFlags & 4)          { span.classList.add('shifted-char');     createCustomTooltip(span, strings.tooltipShifted,      'stats', 0); }
+                if (runLong)      span.classList.add('long-word');
+                if (isWorst)      span.classList.add('worst-zone');
+                if (runFlags & 1) span.classList.add('same-finger-l');
+                if (runFlags & 2) span.classList.add('same-finger-r');
+                if (runFlags & 4) span.classList.add('shifted-char');
 
                 block.appendChild(span);
                 runStart = k;
