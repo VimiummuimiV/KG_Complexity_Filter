@@ -108,6 +108,17 @@
     flex-shrink: 0;
   }
 
+  // Mini score shown in the header only in minimal view
+  .header-score {
+    display: none;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -.02em;
+    margin-left: auto;
+  }
+
   // Stats + score bar + legend — transparent wrapper, always rendered except in minimal
   .panel-summary { display: contents; }
 
@@ -120,11 +131,13 @@
     .panel-body     { display: none;  }
   }
 
-  // minimal: difficulty bar only
+  // minimal: difficulty bar + mini score in header only
   &[data-view='minimal'] {
     .difficulty-bar { display: block; }
     .panel-summary  { display: none;  }
     .panel-body     { display: none;  }
+    .header-score   { display: block; }
+    .panel-title    { flex: unset;    }
   }
 
   // View toggle: show the icon matching the current state

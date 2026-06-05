@@ -91,12 +91,16 @@ const buildLangBtn = (panel, strings) => {
     return btn;
 };
 
-const buildHeader = (panel, strings, layoutName) => {
+const buildHeader = (panel, strings, layoutName, score) => {
     const header = el('div', 'panel-header');
+
+    const miniScore = makeScoreNode('header-score');
+    miniScore.style.color = scoreColor(score);
 
     appendAll(header,
         elText('span', 'panel-logo',  'KG'),
         elText('span', 'panel-title', `${strings.title} · ${layoutName}`),
+        miniScore,
         buildViewToggleBtn(panel, strings),
         buildThemeBtn(panel, strings),
         buildLangBtn(panel, strings),
@@ -108,7 +112,7 @@ const buildHeader = (panel, strings, layoutName) => {
     createCustomTooltip(close, strings.btnClose, 'stats', 0);
     header.appendChild(close);
 
-    return header;
+    return { header, miniScore };
 };
 
 const buildStats = (result, strings) => {
@@ -375,15 +379,23 @@ const buildDifficultyBar = ({ chars, segments }) => {
     return bar;
 };
 
+// ─── Score node factory (shared by header mini-score and main score) ──────────
+
+const makeScoreNode = (cls) => el('div', cls);
+
 // ─── Score count-up animation ─────────────────────────────────────────────────
+// Each digit position animates independently from 0 to its final digit,
+// so tens and units both travel exactly once through their own range.
 
 const animateScore = (node, target) => {
     const DURATION = 600;
     const start    = performance.now();
+    const digits   = String(target).split('');   // e.g. ['7','2']
     const step     = (now) => {
-        const t   = Math.min(1, (now - start) / DURATION);
-        const val = Math.round((1 - (1 - t) * (1 - t)) * target); // ease-out: fast start, gentle finish
-        node.textContent = String(val);
+        const t    = Math.min(1, (now - start) / DURATION);
+        const ease = 1 - (1 - t) * (1 - t);     // ease-out
+        const str  = digits.map(d => String(Math.round(ease * Number(d)))).join('');
+        node.textContent = str;
         if (t < 1) requestAnimationFrame(step);
     };
     requestAnimationFrame(step);
@@ -406,7 +418,8 @@ export const render = (result) => {
     applyInitialView(panel);
     applyInitialLang(panel);
 
-    panel.appendChild(buildHeader(panel, strings, layoutName));
+    const { header, miniScore } = buildHeader(panel, strings, layoutName, score);
+    panel.appendChild(header);
     panel.appendChild(buildDifficultyBar(result));
 
     const summary = el('div', 'panel-summary');
@@ -431,7 +444,8 @@ export const render = (result) => {
     document.body.appendChild(panel);
     makeDraggable(panel, panel.querySelector('.panel-header'), 'complexityFilterPanelPosition');
 
-    // Count-up animation on the score value
-    const scoreNode = panel.querySelector('.score-value');
-    if (scoreNode) animateScore(scoreNode, score);
+    // Animate both score nodes with the same logic
+    const mainScoreNode = panel.querySelector('.score-value');
+    if (mainScoreNode) animateScore(mainScoreNode, score);
+    animateScore(miniScore, score);
 };
