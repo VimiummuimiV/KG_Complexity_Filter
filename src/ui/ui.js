@@ -275,41 +275,13 @@ const buildFingerLoad = (fingerLoad, strings) => {
         const fill    = el('div', 'fl-bar-fill');
         fill.style.height     = Math.round(pct / max * 100) + '%';
         fill.style.background = col;
+        fill.title            = strings.fingers[i] + ': ' + pct + '%';
         barWrap.appendChild(fill);
 
         appendAll(item,
             barWrap,
             elText('span', 'fl-label', strings.fingers[i]),
-            elText('span', 'fl-pct',   pct + '%'),
         );
-        bars.appendChild(item);
-    }
-
-    wrap.appendChild(bars);
-    return wrap;
-};
-
-// Cost distribution histogram
-const buildHistogram = (costHistogram, strings) => {
-    const wrap = el('div', 'histogram-wrap');
-    wrap.appendChild(elText('div', 'hotspot-label', strings.costHistogram));
-
-    const bars = el('div', 'histogram-bars');
-    const max  = Math.max(...costHistogram.map(b => b.count), 1);
-
-    for (const { count, to } of costHistogram) {
-        const heightPct = Math.round(count / max * 100);
-        const item = el('div', 'hist-item');
-
-        const barWrap = el('div', 'hist-bar-wrap');
-        const fill    = el('div', 'hist-bar-fill');
-        // Colour by bucket upper bound vs segment thresholds
-        fill.style.height     = heightPct + '%';
-        fill.style.background = `var(--accent)`;
-        fill.title            = `≤${to}: ${count}`;
-        barWrap.appendChild(fill);
-
-        item.appendChild(barWrap);
         bars.appendChild(item);
     }
 
@@ -338,32 +310,6 @@ const buildTopWords = (topWords, strings) => {
     return wrap;
 };
 
-// Practice hints derived from dominant penalty buckets
-const buildPracticeHints = (penaltyBreakdown, handBalance, strings) => {
-    if (!penaltyBreakdown) return null;
-
-    // Pick the top 2 penalty keys (excluding 'other')
-    const relevant = Object.entries(penaltyBreakdown)
-        .filter(([k]) => k !== 'other')
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 2)
-        .map(([k]) => k);
-
-    if (handBalance.imbalance > 0.30) relevant.push('handBalance');
-
-    if (!relevant.length) return null;
-
-    const wrap = el('div', 'hints-wrap');
-    wrap.appendChild(elText('div', 'hotspot-label', strings.practiceHints));
-
-    for (const key of relevant) {
-        const hint = strings.hints[key];
-        if (!hint) continue;
-        wrap.appendChild(elText('p', 'hint-line', hint));
-    }
-
-    return wrap;
-};
 
 const buildTextView = ({ chars, segments, longWordChars, worstZone }) => {
     const scroll = el('div', 'text-scroll');
@@ -432,7 +378,7 @@ export const render = (result) => {
 
     const strings = getStrings();
     const { score, topBigrams, penaltyBreakdown, handBalance,
-            fingerLoad, costHistogram, topWords, layoutName } = result;
+            fingerLoad, topWords, layoutName } = result;
 
     const panel = el('div');
     panel.id = ID;
@@ -458,10 +404,8 @@ export const render = (result) => {
         buildHandBar(handBalance, strings),
         buildPenaltyBreakdown(penaltyBreakdown, strings),
         buildFingerLoad(fingerLoad, strings),
-        buildHistogram(costHistogram, strings),
         buildTopBigrams(topBigrams, strings),
         buildTopWords(topWords, strings),
-        buildPracticeHints(penaltyBreakdown, handBalance, strings),
         buildTextView(result),
     );
     panel.appendChild(body);

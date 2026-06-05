@@ -354,54 +354,17 @@
   }
 
   .fl-label {
-    font-size: 9px;
+    font-size: 8px;
     color: var(--txt-dim);
     font-family: var(--font-mono);
-  }
-
-  .fl-pct {
-    display: none; // shown on hover via title attribute on fill
-  }
-
-  // ── 9. Cost histogram ─────────────────────────────────────────────────────
-
-  .histogram-wrap {
-    padding: 0 16px 14px;
-    flex-shrink: 0;
-  }
-
-  .histogram-bars {
-    display: flex;
-    align-items: flex-end;
-    gap: 3px;
-    height: 40px;
-  }
-
-  .hist-item {
-    flex: 1;
-    height: 100%;
-    display: flex;
-    align-items: flex-end;
-  }
-
-  .hist-bar-wrap {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: flex-end;
-    background: var(--chip-bg);
-    border-radius: 3px;
+    text-align: center;
+    white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
 
-  .hist-bar-fill {
-    width: 100%;
-    border-radius: 2px 2px 0 0;
-    opacity: .75;
-    transition: height .5s cubic-bezier(.16, 1, .3, 1);
-  }
-
-  // ── 10. Hotspot chips (bigrams / words) ───────────────────────────────────
+  // ── 9. Hotspot chips (bigrams / words) ────────────────────────────────────
 
   .hotspot-section {
     padding: 0 16px 12px;
@@ -435,25 +398,7 @@
   .hotspot-ch   { font-size: 13px; font-weight: 600; color: var(--hard); }
   .hotspot-cost { font-size: 10px; color: var(--txt-dim); }
 
-  // ── 11. Practice hints ────────────────────────────────────────────────────
-
-  .hints-wrap {
-    padding: 0 16px 12px;
-    flex-shrink: 0;
-  }
-
-  .hint-line {
-    font-size: 11px;
-    color: var(--txt-dim);
-    line-height: 1.55;
-    margin: 4px 0 0;
-    padding-left: 10px;
-    border-left: 2px solid var(--accent);
-
-    &:first-of-type { margin-top: 6px; }
-  }
-
-  // ── 12. Annotated text view ───────────────────────────────────────────────
+  // ── 10. Annotated text view ───────────────────────────────────────────────
 
   .text-scroll {
     overflow-y: auto;

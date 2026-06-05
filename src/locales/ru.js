@@ -36,22 +36,10 @@ export const ru = {
     hardestBigrams: 'Сложные биграммы',
     worstZone:      'Худший участок',
     fingerLoad:     'Нагрузка на пальцы',
-    costHistogram:  'Распределение сложности',
     topWords:       'Сложные слова',
-    practiceHints:  'Советы',
 
-    // Finger names (short)
-    fingers: ['Л5', 'Л4', 'Л3', 'Л2д', 'Л2', 'П2', 'П2д', 'П3', 'П4', 'П5'],
-
-    // Practice hints (keyed by penalty bucket)
-    hints: {
-        sameFinger:  'Чередуй пальцы — не жми два знака подряд одним пальцем.',
-        outwardRoll: 'Используй внутренние переходы; веди указательным, не мизинцем.',
-        scissor:     'Избегай растяжений соседних пальцев через ряды — расслабь запястье.',
-        rowJump:     'Держи запястья ровно; минимизируй дальние вертикальные тянучки.',
-        shiftHold:   'Жми Shift другой рукой; не держи его той же стороной.',
-        handBalance: 'Распределяй нагрузку — ищи слова, где другая рука может помочь.',
-    },
+    // Finger names — shown as bar labels in the finger-load chart
+    fingers: ['Мизинец Л', 'Безымян Л', 'Средний Л', 'Указ+ Л', 'Указат Л', 'Указат П', 'Указ+ П', 'Средний П', 'Безымян П', 'Мизинец П'],
 
     // Language toggle — icon shows the CURRENT language (RU is active)
     langIcon:  '🇷🇺',

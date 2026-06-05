@@ -15,28 +15,6 @@ const detectConfig = (text) => {
 
 const DIGIT_SET = new Set('1234567890');
 
-// ─── Histogram helpers ────────────────────────────────────────────────────────
-
-const HIST_BUCKETS = 8;
-
-// Build a fixed-width histogram from a Float32Array of costs.
-// Returns an array of { from, to, count } bucket objects.
-const buildHistogram = (costs, buckets = HIST_BUCKETS) => {
-    const min = Math.min(...costs);
-    const max = Math.max(...costs);
-    const step = max === min ? 1 : (max - min) / buckets;
-    const counts = new Array(buckets).fill(0);
-    for (const c of costs) {
-        const i = Math.min(buckets - 1, Math.floor((c - min) / step));
-        counts[i]++;
-    }
-    return counts.map((count, i) => ({
-        from:  +(min + i * step).toFixed(2),
-        to:    +(min + (i + 1) * step).toFixed(2),
-        count,
-    }));
-};
-
 // ─── Layout builder ───────────────────────────────────────────────────────────
 
 const buildLayout = ({ layout, shiftMap, freq, weights: W }) => {
@@ -404,7 +382,6 @@ export const analyzeComplexity = (text, config = null) => {
         handBalance:  { left: leftKeys, right: rightKeys, imbalance: +imbalance.toFixed(3) },
         fingerLoad,
         digitRowPct,
-        costHistogram: buildHistogram(costs),
         lang:          lang       ?? 'ru',
         layoutName:    layoutName ?? 'ЙЦУКЕН',
     };
