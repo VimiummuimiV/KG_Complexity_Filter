@@ -393,6 +393,9 @@
     transition: opacity .12s;
   }
 
+  // Spaces and unmapped chars have no data-penalty — never dim them
+  &[data-active-penalty] .text-block span:not([data-penalty]) { opacity: 1; }
+
   @for $i from 0 through 9 {
     &[data-active-finger='#{$i}'] .text-block span[data-finger='#{$i}'] {
       opacity: 1;
@@ -409,7 +412,8 @@
   &[data-active-penalty='shiftHold']   .text-block span[data-penalty~='shiftHold'],
   &[data-active-penalty='outwardRoll'] .text-block span[data-penalty~='outwardRoll'],
   &[data-active-penalty='scissor']     .text-block span[data-penalty~='scissor'],
-  &[data-active-penalty='rowJump']     .text-block span[data-penalty~='rowJump'] {
+  &[data-active-penalty='rowJump']     .text-block span[data-penalty~='rowJump'],
+  &[data-active-penalty='other']       .text-block span[data-penalty~='other'] {
     opacity: 1;
   }
 

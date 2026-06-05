@@ -255,11 +255,9 @@ const buildPenaltyBreakdown = (pb, strings) => {
         );
         const tipKey = 'tooltipPenalty_' + key;
         if (strings[tipKey]) createCustomTooltip(row, strings[tipKey], 'stats', 0);
-        if (key !== 'other') {
-            const panel = () => row.closest('#complexity-filter-panel');
-            row.addEventListener('mouseenter', () => { panel().dataset.activePenalty = key; });
-            row.addEventListener('mouseleave', () => { delete panel().dataset.activePenalty; });
-        }
+        const panel = () => row.closest('#complexity-filter-panel');
+        row.addEventListener('mouseenter', () => { panel().dataset.activePenalty = key; });
+        row.addEventListener('mouseleave', () => { delete panel().dataset.activePenalty; });
         legend.appendChild(row);
     }
     wrap.appendChild(legend);
@@ -368,11 +366,14 @@ const buildTextView = ({ chars, segments, longWordChars, worstZone,
     const PENALTY_KEYS = ['sameFinger', 'shiftHold', 'outwardRoll', 'scissor', 'rowJump'];
 
     // Bitmask of per-char annotation flags — used to split runs when any flag changes.
-    // Bits: 1=same-finger-L, 2=same-finger-R, 4=shifted
+    // Bits: 1=same-finger-L, 2=same-finger-R, 4=shifted, 8=outwardRoll, 16=scissor, 32=rowJump
     const flagOf = (k) => {
         const sameFingerHand = sameFingerChars?.get(k);
         return (sameFingerHand === 'L' ? 1 : sameFingerHand === 'R' ? 2 : 0) |
-               (shiftedChars?.has(k) ? 4 : 0);
+               (shiftedChars?.has(k)     ?  4 : 0) |
+               (outwardRollChars?.has(k) ?  8 : 0) |
+               (scissorChars?.has(k)     ? 16 : 0) |
+               (rowJumpChars?.has(k)     ? 32 : 0);
     };
 
     for (const seg of segments) {
@@ -403,7 +404,8 @@ const buildTextView = ({ chars, segments, longWordChars, worstZone,
                 }
 
                 const penalties = PENALTY_KEYS.filter(pk => penaltyChars[pk]?.has(runStart));
-                if (penalties.length) span.dataset.penalty = penalties.join(' ');
+                if (!penalties.length && runFinger >= 0) penalties.push('other');
+                span.dataset.penalty = penalties.join(' ');
 
                 const tooltipText =
                     runLong ? strings.tooltipLongWordText :

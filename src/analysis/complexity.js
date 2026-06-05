@@ -60,7 +60,7 @@ const buildLayout = ({ layout, shiftMap, freq, weights: W }) => {
         const [fa, rowa, ha] = ka;
         const [fb, rowb, hb] = kb;
 
-        let sameFinger = 0, outwardRoll = 0, scissor = 0, rowJump = 0;
+        let sameFinger = 0, outwardRoll = 0, scissor = 0, rowJump = 0, isOutward = false;
 
         // ── Shift alternation bonus / penalty ─────────────────────────────────
         // Pressing Shift with the same hand costs extra; opposite hand is free.
@@ -81,13 +81,13 @@ const buildLayout = ({ layout, shiftMap, freq, weights: W }) => {
             // Scissor: adjacent fingers spanning 2+ rows — physically awkward
             if (Math.abs(fa - fb) === 1 && Math.abs(rowa - rowb) >= 2) scissor = W.scissor;
             // Inward rolls are natural; outward rolls (away from index) resist
-            if (ha === 'L' && fb < fa) outwardRoll += W.outwardRoll;
-            if (ha === 'R' && fb > fa) outwardRoll += W.outwardRoll;
+            if (ha === 'L' && fb < fa) { outwardRoll += W.outwardRoll; isOutward = true; }
+            if (ha === 'R' && fb > fa) { outwardRoll += W.outwardRoll; isOutward = true; }
         }
         rowJump = Math.abs(rowa - rowb) * W.rowJump;
 
         const total = sameFinger + outwardRoll + scissor + rowJump + shiftAlt;
-        return { total, sameFinger, outwardRoll, scissor, rowJump, shiftAlt };
+        return { total, sameFinger, outwardRoll, scissor, rowJump, shiftAlt, isOutward };
     };
 
     const bigramCost = (a, b) => bigramBreak(a, b)?.total ?? 0;
@@ -253,9 +253,9 @@ export const analyzeComplexity = (text, config = null) => {
             pb.outwardRoll += bg.outwardRoll;
             pb.scissor     += bg.scissor;
             pb.rowJump     += bg.rowJump;
-            if (bg.outwardRoll > 0) { outwardRollChars.add(i - 1); outwardRollChars.add(i); }
-            if (bg.scissor     > 0) { scissorChars.add(i - 1);     scissorChars.add(i);     }
-            if (bg.rowJump     > 0) { rowJumpChars.add(i - 1);     rowJumpChars.add(i);     }
+            if (bg.isOutward)                { outwardRollChars.add(i - 1); outwardRollChars.add(i); }
+            if (bg.scissor     > 0)          { scissorChars.add(i - 1);     scissorChars.add(i);     }
+            if (bg.rowJump >= W.rowJump * 2) { rowJumpChars.add(i - 1);     rowJumpChars.add(i);     }
         }
         const shiftCost = isShifted(ch) && capsRun < W.capsLockAt ? W.shiftHold : 0;
         pb.shiftHold += shiftCost;
