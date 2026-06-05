@@ -326,15 +326,17 @@ const buildTopWords = (topWords, strings) => {
 
 
 const buildTextView = ({ chars, segments, longWordChars, worstZone,
-                         sameFingerChars, digitRowChars, shiftedChars }, strings) => {
+                         sameFingerChars, shiftedChars }, strings) => {
     const scroll = el('div', 'text-scroll');
     const block  = el('div', 'text-block');
 
     // Bitmask of per-char annotation flags — used to split runs when any flag changes.
-    const flagOf = (k) =>
-        (sameFingerChars?.has(k) ? 1 : 0) |
-        (digitRowChars?.has(k)   ? 2 : 0) |
-        (shiftedChars?.has(k)    ? 4 : 0);
+    // Bits: 1=same-finger-L, 2=same-finger-R, 4=shifted
+    const flagOf = (k) => {
+        const sameFingerHand = sameFingerChars?.get(k);
+        return (sameFingerHand === 'L' ? 1 : sameFingerHand === 'R' ? 2 : 0) |
+               (shiftedChars?.has(k) ? 4 : 0);
+    };
 
     for (const seg of segments) {
         const { level, start, end } = seg;
@@ -351,12 +353,12 @@ const buildTextView = ({ chars, segments, longWordChars, worstZone,
             if (k === end + 1 || isLong !== runLong || flags !== runFlags) {
                 const span = elText('span', level, chars.slice(runStart, k).join(''));
 
-                if (runLong)            { span.classList.add('long-word');      createCustomTooltip(span, strings.tooltipLongWordText,  'stats', 0); }
-                if (isWorst)            { span.classList.add('worst-zone');      createCustomTooltip(span, strings.tooltipWorstZone,     'stats', 0); }
-                else if (level === 'hard') {                                     createCustomTooltip(span, strings.tooltipHardText,      'stats', 0); }
-                if (runFlags & 1)       { span.classList.add('same-finger-char');         createCustomTooltip(span, strings.tooltipSameFinger,    'stats', 0); }
-                if (runFlags & 2)       { span.classList.add('digit-row-char');  createCustomTooltip(span, strings.tooltipDigitRowChar,  'stats', 0); }
-                if (runFlags & 4)       { span.classList.add('shifted-char');    createCustomTooltip(span, strings.tooltipShifted,       'stats', 0); }
+                if (runLong)               { span.classList.add('long-word');        createCustomTooltip(span, strings.tooltipLongWordText, 'stats', 0); }
+                if (isWorst)               { span.classList.add('worst-zone');       createCustomTooltip(span, strings.tooltipWorstZone,    'stats', 0); }
+                else if (level === 'hard') {                                      createCustomTooltip(span, strings.tooltipHardText,     'stats', 0); }
+                if (runFlags & 1)          { span.classList.add('same-finger-l');    createCustomTooltip(span, strings.tooltipSameFinger,   'stats', 0); }
+                if (runFlags & 2)          { span.classList.add('same-finger-r');    createCustomTooltip(span, strings.tooltipSameFinger,   'stats', 0); }
+                if (runFlags & 4)          { span.classList.add('shifted-char');     createCustomTooltip(span, strings.tooltipShifted,      'stats', 0); }
 
                 block.appendChild(span);
                 runStart = k;

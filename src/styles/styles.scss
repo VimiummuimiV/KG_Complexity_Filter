@@ -456,15 +456,13 @@
       text-decoration-thickness: 2px;
     }
 
-    // Same-finger bigram: red top shadow
-    .same-finger-char {
-      box-shadow: inset 0 2px 0 0 var(--hard) !important;
+    // Same-finger bigram: top shadow coloured by hand
+    .same-finger-l {
+      box-shadow: inset 0 2px 0 0 var(--hand-l) !important;
     }
 
-    // Digit row key: purple background tint
-    .digit-row-char {
-      background: var(--digit-bg);
-      border-radius: 2px;
+    .same-finger-r {
+      box-shadow: inset 0 2px 0 0 var(--hand-r) !important;
     }
 
     // Shifted character: italic

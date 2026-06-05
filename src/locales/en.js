@@ -56,7 +56,6 @@ export const en = {
     tooltipHardText:     'Hard zone — high typing cost due to awkward key combinations',
     tooltipWorstZone:    'Worst zone — the most demanding stretch of text to type',
     tooltipSameFinger:   'This character is part of a same-finger bigram',
-    tooltipDigitRowChar: 'Typed on the number row',
     tooltipShifted:      'Requires holding Shift',
     tooltipPenalty_sameFinger:  'Two consecutive keys pressed with the same finger',
     tooltipPenalty_outwardRoll: 'Roll toward the pinky — less natural than rolling toward the index finger',

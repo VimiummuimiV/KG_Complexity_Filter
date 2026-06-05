@@ -139,12 +139,11 @@ export const analyzeComplexity = (text, config = null) => {
     let longWords  = 0;
     let punctRun   = 0; // consecutive rhythm-break chars
     const longWordChars   = new Set(); // indices of chars in words long enough to trigger the length multiplier
-    const sameFingerChars = new Set(); // indices where a same-finger bigram occurs (both chars)
-    const digitRowChars   = new Set(); // indices of digit-row keystrokes
+    const sameFingerChars = new Map(); // index → hand ('L'/'R') for same-finger bigram chars
     const shiftedChars    = new Set(); // indices of shifted characters
-    const fingerCounts   = new Array(10).fill(0); // per-finger keystroke counts
-    const fingerCosts    = new Array(10).fill(0); // per-finger accumulated cost
-    let   digitRowCount  = 0;                     // number-row keystroke count
+    const fingerCounts    = new Array(10).fill(0); // per-finger keystroke counts
+    const fingerCosts     = new Array(10).fill(0); // per-finger accumulated cost
+    let   digitRowCount   = 0;                     // number-row keystroke count
 
     // Penalty buckets for breakdown chart
     const pb = { sameFinger: 0, outwardRoll: 0, scissor: 0, rowJump: 0, other: 0 };
@@ -222,8 +221,12 @@ export const analyzeComplexity = (text, config = null) => {
         costs[i] = cc + bc + tc + runSurcharge + punctSurcharge + fatigueSurcharge;
 
         // ── Per-char annotation sets ──────────────────────────────────────────
-        if (bg?.sameFinger > 0)  { sameFingerChars.add(i - 1); sameFingerChars.add(i); }
-        if (key && key[1] === 0) { digitRowChars.add(i); digitRowCount++; }
+        if (bg?.sameFinger > 0) {
+            const hand = key?.[2] ?? 'L';
+            sameFingerChars.set(i - 1, keyOf(chars[i - 1])?.[2] ?? hand);
+            sameFingerChars.set(i, hand);
+        }
+        if (key && key[1] === 0) { digitRowCount++; }
         if (isShifted(ch))       shiftedChars.add(i);
 
         // ── Per-finger cost accumulation ──────────────────────────────────────
@@ -389,7 +392,6 @@ export const analyzeComplexity = (text, config = null) => {
         longWordPct:  wordCount > 0 ? Math.round(longWords / wordCount * 100) : 0,
         longWordChars,
         sameFingerChars,
-        digitRowChars,
         shiftedChars,
         topBigrams,
         topWords,
