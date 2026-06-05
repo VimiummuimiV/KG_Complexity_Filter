@@ -42,7 +42,6 @@ export const en = {
     fingers: ['L pinky', 'L ring', 'L mid', 'L idx+', 'L idx', 'R idx', 'R idx+', 'R mid', 'R ring', 'R pinky'],
 
     // Tooltips
-    tooltipScore:        'Overall typing difficulty score (0 = trivial, 100 = extreme)',
     tooltipAvg:          'Average cost per character — lower means easier to type',
     tooltipChars:        'Total number of characters in the text',
     tooltipHardZones:    'Share of characters that fall in hard-difficulty segments',

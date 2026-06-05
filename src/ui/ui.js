@@ -123,7 +123,6 @@ const buildStats = (result, strings) => {
         node.style.color = color;
         scoreWrap.appendChild(node);
     }
-    createCustomTooltip(scoreWrap, strings.tooltipScore, 'stats', 0);
 
     const LANG_FLAG = { ru: '🇷🇺', en: '🇬🇧' };
     const flag = LANG_FLAG[lang] ?? '🌐';
