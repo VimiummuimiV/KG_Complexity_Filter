@@ -9,6 +9,7 @@ import { applyInitialTheme, toggleTheme }      from '../helpers/theme';
 import { applyInitialView, cycleView }         from '../helpers/view';
 import { applyInitialLang, toggleLang,
          getStrings }                          from '../helpers/lang';
+import { createCustomTooltip }                 from '../helpers/tooltip';
 
 const ID = 'complexity-filter-panel';
 
@@ -275,8 +276,8 @@ const buildFingerLoad = (fingerLoad, strings) => {
         const fill    = el('div', 'fl-bar-fill');
         fill.style.height     = Math.round(pct / max * 100) + '%';
         fill.style.background = col;
-        fill.title            = strings.fingers[i] + ': ' + pct + '%';
         barWrap.appendChild(fill);
+        createCustomTooltip(barWrap, strings.fingers[i] + ': ' + pct + '%', 'stats', 0);
 
         appendAll(item,
             barWrap,
