@@ -41,6 +41,27 @@ export const en = {
     // Finger names — shown as bar labels in the finger-load chart
     fingers: ['L pinky', 'L ring', 'L mid', 'L idx+', 'L idx', 'R idx', 'R idx+', 'R mid', 'R ring', 'R pinky'],
 
+    // Tooltips
+    tooltipScore:        'Overall typing difficulty score (0 = trivial, 100 = extreme)',
+    tooltipAvg:          'Average cost per character — lower means easier to type',
+    tooltipChars:        'Total number of characters in the text',
+    tooltipHardZones:    'Share of characters that fall in hard-difficulty segments',
+    tooltipLongWords:    'Share of words exceeding 8 characters — longer words tire fingers faster',
+    tooltipDigitRow:     'Share of keystrokes on the number row — the most awkward row to reach',
+    tooltipHandL:        'Left hand share of total keystrokes',
+    tooltipHandR:        'Right hand share of total keystrokes',
+    tooltipBigram:       'Accumulated cost of this two-key combination across the whole text',
+    tooltipTopWord:      'Total typing cost for this word (higher = harder to type)',
+    tooltipLongWordText: 'Long word — extra fatigue penalty applied beyond 8 characters',
+    tooltipHardText:     'Hard zone — high typing cost due to awkward key combinations',
+    tooltipWorstZone:    'Worst zone — the longest unbroken hard segment in the text',
+    tooltipPenalty_sameFinger:  'Two consecutive keys pressed with the same finger',
+    tooltipPenalty_outwardRoll: 'Roll away from the index finger — less natural than inward rolls',
+    tooltipPenalty_scissor:     'Adjacent fingers spanning 2+ rows simultaneously',
+    tooltipPenalty_rowJump:     'Large vertical reach between keyboard rows',
+    tooltipPenalty_shiftHold:   'Shift held on the same side as the key being typed',
+    tooltipPenalty_other:       'Base key cost: row position, finger weight, and character frequency',
+
     // Language toggle — icon shows the CURRENT language (EN is active)
     langIcon:  '🇬🇧',
     langLabel: 'Switch to Russian',

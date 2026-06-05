@@ -57,7 +57,7 @@ const PENALTY_META = [
 
 // ─── Section builders ─────────────────────────────────────────────────────────
 
-const buildViewToggleBtn = (panel) => {
+const buildViewToggleBtn = (panel, strings) => {
     const btn = el('button', 'panel-btn panel-view');
     btn.addEventListener('click', () => cycleView(panel));
     appendAll(btn,
@@ -65,20 +65,22 @@ const buildViewToggleBtn = (panel) => {
         createIcon('eye-off-fill'),
         createIcon('eye-close-fill'),
     );
+    createCustomTooltip(btn, strings.btnCycleView, 'stats', 0);
     return btn;
 };
 
-const buildThemeBtn = (panel) => {
+const buildThemeBtn = (panel, strings) => {
     const btn = el('button', 'panel-btn panel-theme');
     btn.addEventListener('click', () => toggleTheme(panel));
     appendAll(btn, createIcon('sun-fill'), createIcon('moon-fill'));
+    createCustomTooltip(btn, strings.btnToggleTheme, 'stats', 0);
     return btn;
 };
 
 // Language toggle — emoji flag showing the OTHER language.
 const buildLangBtn = (panel, strings) => {
     const btn = elText('button', 'panel-btn panel-lang', strings.langIcon);
-    btn.title = strings.langLabel;
+    createCustomTooltip(btn, strings.langLabel, 'stats', 0);
     btn.addEventListener('click', () => {
         toggleLang(panel);
         // Re-render the whole panel in the new language.
@@ -95,15 +97,15 @@ const buildHeader = (panel, strings, layoutName) => {
     appendAll(header,
         elText('span', 'panel-logo',  'KG'),
         elText('span', 'panel-title', `${strings.title} · ${layoutName}`),
-        buildViewToggleBtn(panel),
-        buildThemeBtn(panel),
+        buildViewToggleBtn(panel, strings),
+        buildThemeBtn(panel, strings),
         buildLangBtn(panel, strings),
     );
 
     const close = el('button', 'panel-btn panel-close');
-    close.title = strings.btnClose;
     close.appendChild(createIcon('close-line'));
     close.addEventListener('click', () => panel.remove());
+    createCustomTooltip(close, strings.btnClose, 'stats', 0);
     header.appendChild(close);
 
     return header;
@@ -121,21 +123,22 @@ const buildStats = (result, strings) => {
         node.style.color = color;
         scoreWrap.appendChild(node);
     }
+    createCustomTooltip(scoreWrap, strings.tooltipScore, 'stats', 0);
 
     const LANG_FLAG = { ru: '🇷🇺', en: '🇬🇧' };
     const flag = LANG_FLAG[lang] ?? '🌐';
 
     const meta = el('div', 'meta-info');
     const rows = [
-        [strings.metaAvg,       String(avg),                   'avg'      ],
-        [strings.metaChars,     length.toLocaleString(),        null       ],
-        [strings.metaHardZones, hardPct + '%',                  'hard'     ],
-        [strings.metaLongWords, longWordPct + '%',              'longword' ],
-        [strings.metaLayout,    `${flag} ${layoutName}`,        null       ],
-        ['#-row',               digitRowPct + '%',              'digitrow' ],
+        [strings.metaAvg,       String(avg),                'avg',      strings.tooltipAvg       ],
+        [strings.metaChars,     length.toLocaleString(),     null,      strings.tooltipChars     ],
+        [strings.metaHardZones, hardPct + '%',              'hard',     strings.tooltipHardZones ],
+        [strings.metaLongWords, longWordPct + '%',          'longword', strings.tooltipLongWords ],
+        [strings.metaLayout,    `${flag} ${layoutName}`,     null,      null                     ],
+        ['#-row',               digitRowPct + '%',          'digitrow', strings.tooltipDigitRow  ],
     ];
 
-    for (const [key, val, hint] of rows) {
+    for (const [key, val, hint, tip] of rows) {
         const row = el('div', 'meta-row');
         row.appendChild(elText('span', 'meta-key', key));
         const valNode = elText('span', 'meta-value', val);
@@ -144,6 +147,7 @@ const buildStats = (result, strings) => {
         if (hint === 'longword' && longWordPct > 0)      valNode.style.color = 'var(--medium)';
         if (hint === 'digitrow' && digitRowPct > 10)     valNode.style.color = 'var(--medium)';
         row.appendChild(valNode);
+        if (tip) createCustomTooltip(row, tip, 'stats', 0);
         meta.appendChild(row);
     }
 
@@ -199,6 +203,8 @@ const buildHandBar = ({ left, right, imbalance }, strings) => {
     const segR  = el('div', 'hand-seg hand-seg-r');
     segL.style.width = leftPct  + '%';
     segR.style.width = rightPct + '%';
+    createCustomTooltip(segL, strings.tooltipHandL, 'stats', 0);
+    createCustomTooltip(segR, strings.tooltipHandR, 'stats', 0);
     appendAll(track, segL, segR);
     wrap.appendChild(track);
 
@@ -234,6 +240,8 @@ const buildPenaltyBreakdown = (pb, strings) => {
             elText('span', 'penalty-key', strings[strKey]),
             elText('span', 'penalty-pct', pct + '%'),
         );
+        const tipKey = 'tooltipPenalty_' + key;
+        if (strings[tipKey]) createCustomTooltip(row, strings[tipKey], 'stats', 0);
         legend.appendChild(row);
     }
     wrap.appendChild(legend);
@@ -252,6 +260,7 @@ const buildTopBigrams = (topBigrams, strings) => {
             elText('span', 'hotspot-ch', pair),
             elText('span', 'hotspot-cost', cost),
         );
+        createCustomTooltip(chip, strings.tooltipBigram, 'stats', 0);
         list.appendChild(chip);
     }
 
@@ -304,6 +313,7 @@ const buildTopWords = (topWords, strings) => {
             elText('span', 'hotspot-ch', word),
             elText('span', 'hotspot-cost', cost),
         );
+        createCustomTooltip(chip, strings.tooltipTopWord, 'stats', 0);
         list.appendChild(chip);
     }
 
@@ -312,7 +322,7 @@ const buildTopWords = (topWords, strings) => {
 };
 
 
-const buildTextView = ({ chars, segments, longWordChars, worstZone }) => {
+const buildTextView = ({ chars, segments, longWordChars, worstZone }, strings) => {
     const scroll = el('div', 'text-scroll');
     const block  = el('div', 'text-block');
 
@@ -327,8 +337,16 @@ const buildTextView = ({ chars, segments, longWordChars, worstZone }) => {
             const isLong = k <= end && (longWordChars?.has(k) ?? false);
             if (k === end + 1 || isLong !== runLong) {
                 const span = elText('span', level, chars.slice(runStart, k).join(''));
-                if (runLong)  span.classList.add('long-word');
-                if (isWorst)  span.classList.add('worst-zone');
+                if (runLong)  {
+                    span.classList.add('long-word');
+                    createCustomTooltip(span, strings.tooltipLongWordText, 'stats', 0);
+                }
+                if (isWorst)  {
+                    span.classList.add('worst-zone');
+                    createCustomTooltip(span, strings.tooltipWorstZone, 'stats', 0);
+                } else if (level === 'hard') {
+                    createCustomTooltip(span, strings.tooltipHardText, 'stats', 0);
+                }
                 block.appendChild(span);
                 runStart = k;
                 runLong  = isLong;
@@ -407,7 +425,7 @@ export const render = (result) => {
         buildFingerLoad(fingerLoad, strings),
         buildTopBigrams(topBigrams, strings),
         buildTopWords(topWords, strings),
-        buildTextView(result),
+        buildTextView(result, strings),
     );
     panel.appendChild(body);
 
