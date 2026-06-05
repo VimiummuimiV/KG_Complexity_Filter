@@ -309,7 +309,7 @@
   .penalty-legend {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px 14px;
+    gap: 4px 10px;
   }
 
   .penalty-row {
@@ -319,13 +319,11 @@
     font-size: 11px;
   }
 
-  .penalty-key { color: var(--txt-dim); flex: 1; }
+  .penalty-key { color: var(--txt-dim); }
   .penalty-pct {
     font-family: var(--font-mono);
     font-size: 11px;
     color: var(--txt);
-    min-width: 28px;
-    text-align: right;
   }
 
   // ── 8. Per-finger load bars ────────────────────────────────────────────────

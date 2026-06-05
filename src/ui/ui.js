@@ -238,10 +238,12 @@ const buildPenaltyBreakdown = (pb, strings) => {
         const row = el('div', 'penalty-row');
         const dot = el('span', 'legend-dot');
         dot.style.background = color;
+        const pctNode = elText('span', 'penalty-pct', pct + '%');
+        pctNode.style.color = color;
         appendAll(row,
             dot,
+            pctNode,
             elText('span', 'penalty-key', strings[strKey]),
-            elText('span', 'penalty-pct', pct + '%'),
         );
         const tipKey = 'tooltipPenalty_' + key;
         if (strings[tipKey]) createCustomTooltip(row, strings[tipKey], 'stats', 0);
