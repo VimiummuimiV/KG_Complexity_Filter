@@ -274,17 +274,21 @@
   }
 
   .hand-bar-track {
+    position: relative;
     display: flex;
     height: 5px;
     border-radius: 99px;
-    overflow: hidden;
     background: var(--border);
+    cursor: default;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: -12px 0;
+    }
   }
 
-  .hand-seg {
-    height: 100%;
-    transition: width .6s cubic-bezier(.16, 1, .3, 1);
-  }
+  .hand-seg   { height: 100%; transition: width .6s cubic-bezier(.16, 1, .3, 1); }
   .hand-seg-l { background: var(--hand-l); }
   .hand-seg-r { background: var(--hand-r); }
 
