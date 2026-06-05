@@ -436,11 +436,7 @@
 
     .easy   { color: var(--easy); }
     .medium { color: var(--medium); }
-    .hard   {
-      color: var(--hard);
-      background: var(--hard-bg);
-      border-radius: 2px;
-    }
+    .hard   { color: var(--hard); }
 
     // Worst zone: underlined with a solid accent bar underneath
     .worst-zone {
