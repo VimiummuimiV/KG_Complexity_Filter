@@ -53,7 +53,7 @@ export const en = {
     tooltipTopWord:      'Total typing cost for this word (higher = harder to type)',
     tooltipLongWordText: 'Long word — extra fatigue penalty applied beyond 8 characters',
     tooltipHardText:     'Hard zone — high typing cost due to awkward key combinations',
-    tooltipWorstZone:    'Worst zone — the longest unbroken hard segment in the text',
+    tooltipWorstZone:    'Worst zone — the highest-cost hard segment in the text',
     tooltipPenalty_sameFinger:  'Two consecutive keys pressed with the same finger',
     tooltipPenalty_outwardRoll: 'Roll away from the index finger — less natural than inward rolls',
     tooltipPenalty_scissor:     'Adjacent fingers spanning 2+ rows simultaneously',

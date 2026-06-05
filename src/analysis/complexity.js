@@ -289,14 +289,22 @@ export const analyzeComplexity = (text, config = null) => {
     }
 
     // ── Worst zone ────────────────────────────────────────────────────────────
-    // Longest unbroken hard segment (fall back to longest medium if no hard).
+    // Highest total cost among hard segments of at least 4 chars (fall back to medium).
+    // Total cost rather than average prevents single-char spikes from winning,
+    // while still preferring genuinely dense clusters over long easy stretches.
     const worstZone = (() => {
-        const hardSegs = segments.filter(s => s.level === 'hard');
-        const pool     = hardSegs.length ? hardSegs : segments.filter(s => s.level === 'medium');
+        const MIN_LEN  = 4;
+        const hardSegs = segments.filter(s => s.level === 'hard' && (s.end - s.start + 1) >= MIN_LEN);
+        const pool     = hardSegs.length
+            ? hardSegs
+            : segments.filter(s => s.level === 'medium' && (s.end - s.start + 1) >= MIN_LEN);
         if (!pool.length) return null;
-        return pool.reduce((best, s) =>
-            (s.end - s.start) > (best.end - best.start) ? s : best
-        );
+        const totalCost = s => {
+            let sum = 0;
+            for (let i = s.start; i <= s.end; i++) sum += costs[i];
+            return sum;
+        };
+        return pool.reduce((best, s) => totalCost(s) > totalCost(best) ? s : best);
     })();
 
     // ── Bigram hotspots ───────────────────────────────────────────────────────
