@@ -326,7 +326,6 @@ const buildTopWords = (topWords, strings) => {
     return wrap;
 };
 
-
 const buildTextView = ({ chars, segments, longWordChars, worstZone,
                          sameFingerChars, shiftedChars }, strings) => {
     const scroll = el('div', 'text-scroll');
@@ -360,6 +359,21 @@ const buildTextView = ({ chars, segments, longWordChars, worstZone,
                 if (runFlags & 1) span.classList.add('same-finger-l');
                 if (runFlags & 2) span.classList.add('same-finger-r');
                 if (runFlags & 4) span.classList.add('shifted-char');
+
+                const tooltipText =
+                    runLong ? strings.tooltipLongWordText :
+                    isWorst ? strings.tooltipWorstZone :
+                    (runFlags & 1) ? strings.tooltipSameFingerL :
+                    (runFlags & 2) ? strings.tooltipSameFingerR :
+                    ({
+                        hard: strings.tooltipHardText,
+                        medium: strings.tooltipMediumText,
+                        easy: strings.tooltipEasyText,
+                    })[level];
+
+                if (tooltipText && !(runFlags & 4)) {
+                    createCustomTooltip(span, tooltipText, 'stats', 0);
+                }
 
                 block.appendChild(span);
                 runStart = k;

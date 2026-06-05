@@ -53,7 +53,12 @@ export const en = {
     tooltipBigram:       'Total weight of this key pair accumulated across the whole text',
     tooltipTopWord:      'Total typing cost for this word — the higher, the harder to type',
     tooltipLongWordText: 'Long word — extra fatigue penalty applied beyond 8 characters',
-    tooltipHardText:     'Hard zone — high typing cost due to awkward key combinations',
+
+    // Zone descriptions
+    tooltipEasyText:     'Easy zone — comfortable to type',
+    tooltipMediumText:   'Medium zone — moderate typing difficulty',
+    tooltipHardText:     'Hard zone — requires more complex finger movements',
+
     tooltipWorstZone:    'Worst zone — the most demanding stretch of text to type',
     tooltipSameFingerL:  'This character is part of a same-finger bigram (left hand)',
     tooltipSameFingerR:  'This character is part of a same-finger bigram (right hand)',
