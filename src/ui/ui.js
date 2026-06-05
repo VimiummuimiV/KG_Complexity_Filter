@@ -382,7 +382,7 @@ const animateScore = (node, target) => {
     const start    = performance.now();
     const step     = (now) => {
         const t   = Math.min(1, (now - start) / DURATION);
-        const val = Math.round(t * t * (3 - 2 * t) * target); // smooth-step easing
+        const val = Math.round((1 - (1 - t) * (1 - t)) * target); // ease-out: fast start, gentle finish
         node.textContent = String(val);
         if (t < 1) requestAnimationFrame(step);
     };
