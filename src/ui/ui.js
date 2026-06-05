@@ -138,7 +138,7 @@ const buildStats = (result, strings) => {
         [strings.metaHardZones, hardPct + '%',              'hard',     strings.tooltipHardZones ],
         [strings.metaLongWords, longWordPct + '%',          'longword', strings.tooltipLongWords ],
         [strings.metaLayout,    `${flag} ${layoutName}`,     null,      null                     ],
-        ['#-row',               digitRowPct + '%',          'digitrow', strings.tooltipDigitRow  ],
+        [strings.metaDigitRow,  digitRowPct + '%',          'digitrow', strings.tooltipDigitRow  ],
     ];
 
     for (const [key, val, hint, tip] of rows) {
@@ -325,9 +325,16 @@ const buildTopWords = (topWords, strings) => {
 };
 
 
-const buildTextView = ({ chars, segments, longWordChars, worstZone }, strings) => {
+const buildTextView = ({ chars, segments, longWordChars, worstZone,
+                         sameFingerChars, digitRowChars, shiftedChars }, strings) => {
     const scroll = el('div', 'text-scroll');
     const block  = el('div', 'text-block');
+
+    // Bitmask of per-char annotation flags — used to split runs when any flag changes.
+    const flagOf = (k) =>
+        (sameFingerChars?.has(k) ? 1 : 0) |
+        (digitRowChars?.has(k)   ? 2 : 0) |
+        (shiftedChars?.has(k)    ? 4 : 0);
 
     for (const seg of segments) {
         const { level, start, end } = seg;
@@ -335,24 +342,26 @@ const buildTextView = ({ chars, segments, longWordChars, worstZone }, strings) =
 
         let runStart = start;
         let runLong  = longWordChars?.has(start) ?? false;
+        let runFlags = flagOf(start);
 
         for (let k = start + 1; k <= end + 1; k++) {
             const isLong = k <= end && (longWordChars?.has(k) ?? false);
-            if (k === end + 1 || isLong !== runLong) {
+            const flags  = k <= end ? flagOf(k) : -1;
+
+            if (k === end + 1 || isLong !== runLong || flags !== runFlags) {
                 const span = elText('span', level, chars.slice(runStart, k).join(''));
-                if (runLong)  {
-                    span.classList.add('long-word');
-                    createCustomTooltip(span, strings.tooltipLongWordText, 'stats', 0);
-                }
-                if (isWorst)  {
-                    span.classList.add('worst-zone');
-                    createCustomTooltip(span, strings.tooltipWorstZone, 'stats', 0);
-                } else if (level === 'hard') {
-                    createCustomTooltip(span, strings.tooltipHardText, 'stats', 0);
-                }
+
+                if (runLong)            { span.classList.add('long-word');      createCustomTooltip(span, strings.tooltipLongWordText,  'stats', 0); }
+                if (isWorst)            { span.classList.add('worst-zone');      createCustomTooltip(span, strings.tooltipWorstZone,     'stats', 0); }
+                else if (level === 'hard') {                                     createCustomTooltip(span, strings.tooltipHardText,      'stats', 0); }
+                if (runFlags & 1)       { span.classList.add('same-finger-char');         createCustomTooltip(span, strings.tooltipSameFinger,    'stats', 0); }
+                if (runFlags & 2)       { span.classList.add('digit-row-char');  createCustomTooltip(span, strings.tooltipDigitRowChar,  'stats', 0); }
+                if (runFlags & 4)       { span.classList.add('shifted-char');    createCustomTooltip(span, strings.tooltipShifted,       'stats', 0); }
+
                 block.appendChild(span);
                 runStart = k;
                 runLong  = isLong;
+                runFlags = flags;
             }
         }
     }

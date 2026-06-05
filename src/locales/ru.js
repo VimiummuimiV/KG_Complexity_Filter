@@ -16,6 +16,7 @@ export const ru = {
     metaHardZones:  'Сложные зоны',
     metaLongWords:  'Длинные слова',
     metaLayout:     'Раскладка',
+    metaDigitRow:   'Цифровой ряд',
 
     // Hand balance
     handImbalanceHigh:  '⚠ одна рука',
@@ -54,6 +55,9 @@ export const ru = {
     tooltipLongWordText: 'Длинное слово — применяется штраф за усталость после 8 символов',
     tooltipHardText:     'Сложная зона — высокая стоимость из-за неудобных комбинаций клавиш',
     tooltipWorstZone:    'Худший участок — самый сложный для набора фрагмент текста',
+    tooltipSameFinger:   'Биграмма одним пальцем — два символа подряд нажаты одним пальцем',
+    tooltipDigitRowChar: 'Клавиша цифрового ряда — самый неудобный ряд для достижения',
+    tooltipShifted:      'Shift-символ — Shift зажат при наборе этого символа',
     tooltipPenalty_sameFinger:  'Два подряд идущих символа нажаты одним пальцем',
     tooltipPenalty_outwardRoll: 'Перекат от указательного к мизинцу — менее естественен чем внутренний',
     tooltipPenalty_scissor:     'Соседние пальцы одновременно охватывают 2+ ряда',

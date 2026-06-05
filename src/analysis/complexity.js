@@ -138,7 +138,10 @@ export const analyzeComplexity = (text, config = null) => {
     let wordCount  = 0;
     let longWords  = 0;
     let punctRun   = 0; // consecutive rhythm-break chars
-    const longWordChars  = new Set();
+    const longWordChars   = new Set(); // indices of chars in words long enough to trigger the length multiplier
+    const sameFingerChars = new Set(); // indices where a same-finger bigram occurs (both chars)
+    const digitRowChars   = new Set(); // indices of digit-row keystrokes
+    const shiftedChars    = new Set(); // indices of shifted characters
     const fingerCounts   = new Array(10).fill(0); // per-finger keystroke counts
     const fingerCosts    = new Array(10).fill(0); // per-finger accumulated cost
     let   digitRowCount  = 0;                     // number-row keystroke count
@@ -218,8 +221,10 @@ export const analyzeComplexity = (text, config = null) => {
 
         costs[i] = cc + bc + tc + runSurcharge + punctSurcharge + fatigueSurcharge;
 
-        // ── Number-row tracking ───────────────────────────────────────────────
-        if (key && key[1] === 0) digitRowCount++;
+        // ── Per-char annotation sets ──────────────────────────────────────────
+        if (bg?.sameFinger > 0)  { sameFingerChars.add(i - 1); sameFingerChars.add(i); }
+        if (key && key[1] === 0) { digitRowChars.add(i); digitRowCount++; }
+        if (isShifted(ch))       shiftedChars.add(i);
 
         // ── Per-finger cost accumulation ──────────────────────────────────────
         if (key) {
@@ -383,6 +388,9 @@ export const analyzeComplexity = (text, config = null) => {
         hardPct,
         longWordPct:  wordCount > 0 ? Math.round(longWords / wordCount * 100) : 0,
         longWordChars,
+        sameFingerChars,
+        digitRowChars,
+        shiftedChars,
         topBigrams,
         topWords,
         worstZone,

@@ -16,6 +16,7 @@ export const en = {
     metaHardZones:  'Hard zones',
     metaLongWords:  'Long words',
     metaLayout:     'Layout',
+    metaDigitRow:   'Digit row',
 
     // Hand balance
     handImbalanceHigh:   '⚠ one-sided',
@@ -54,6 +55,9 @@ export const en = {
     tooltipLongWordText: 'Long word — extra fatigue penalty applied beyond 8 characters',
     tooltipHardText:     'Hard zone — high typing cost due to awkward key combinations',
     tooltipWorstZone:    'Worst zone — the most demanding stretch of text to type',
+    tooltipSameFinger:   'Same-finger bigram — two consecutive keys typed with the same finger',
+    tooltipDigitRowChar: 'Number row key — the most awkward row to reach',
+    tooltipShifted:      'Shifted key — Shift held while typing this character',
     tooltipPenalty_sameFinger:  'Two consecutive keys pressed with the same finger',
     tooltipPenalty_outwardRoll: 'Roll away from the index finger — less natural than inward rolls',
     tooltipPenalty_scissor:     'Adjacent fingers spanning 2+ rows simultaneously',
