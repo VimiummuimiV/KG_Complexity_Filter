@@ -29,7 +29,7 @@ export const shiftMap = {
 
 // Letter frequency in English text (approx %)
 // Used to penalise rare letters (weaker muscle memory)
-export const freq = {
+export const frequency = {
     // ── top row ────────────────────────────────────────────────────────────
     'q':0.10, 'w':2.36, 'e':12.70, 'r':5.99, 't':9.06, 'y':1.97, 'u':2.76, 'i':6.97, 'o':7.51, 'p':1.93,
     // ── home row ───────────────────────────────────────────────────────────

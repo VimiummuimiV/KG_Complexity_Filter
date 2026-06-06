@@ -17,7 +17,7 @@ const DIGIT_SET = new Set('1234567890');
 
 // ─── Layout builder ───────────────────────────────────────────────────────────
 
-const buildLayout = ({ layout, shiftMap, freq, weights: W }) => {
+const buildLayout = ({ layout, shiftMap, frequency, weights: W }) => {
     // Punctuation and symbols break typing rhythm; letters/digits/whitespace do not
     const rhythmKeep    = /[\p{L}\p{N} \n\r]/u;
     const isRhythmBreak = (ch) => !rhythmKeep.test(ch);
@@ -40,10 +40,10 @@ const buildLayout = ({ layout, shiftMap, freq, weights: W }) => {
 
         const [finger, row] = key;
         const digitPenalty  = DIGIT_SET.has(base) ? W.digit : 0;
-        const letterFreq    = freq?.[base];
+        const letterFreq    = frequency?.[base];
         const freqMax       = W.freqMax ?? 1.0;
-        // Rare letters cost more — weaker muscle memory; freq is a percentage,
-        // normalised against the most common letter (~11%)
+        // Rare letters cost more — weaker muscle memory; frequency is a percentage,
+        // normalised against the most common letter (о = 10.983% in Russian, ~11%)
         const freqPenalty   = letterFreq !== undefined
             ? freqMax * (1 - letterFreq / 11)
             : freqMax;

@@ -1,6 +1,6 @@
 // ─── weights/weightsIndex.js ─────────────────────────────────────────────────────────
 // Auto-discovers all layout configs from weights/<lang>/<layout>.js via webpack
-// require.context. Each module must export: layout, shiftMap, freq, lang, layoutName.
+// require.context. Each module must export: layout, shiftMap, frequency, lang, layoutName.
 // Shared defaults (weights, scoreMax, etc.) are merged in from complexity.js.
 
 import { defaultWeights, defaultScoreMax, defaultVarWeight, defaultSegEasy, defaultSegMedium } from './defaults.js';
