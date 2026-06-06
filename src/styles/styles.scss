@@ -316,13 +316,16 @@
   .penalty-legend {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px 10px;
+    gap: 4px;
   }
 
   .penalty-row {
     display: flex;
     align-items: center;
     gap: 5px;
+    padding: 3px 8px;
+    background: var(--chip-bg);
+    border-radius: 5px;
     font-size: 11px;
     cursor: default;
   }
@@ -331,7 +334,7 @@
   .penalty-pct {
     font-family: var(--font-mono);
     font-size: 11px;
-    color: var(--txt);
+    font-weight: 600;
   }
 
   .penalty-count {
@@ -442,7 +445,7 @@
 
   .hotspot-list {
     display: flex;
-    gap: 6px;
+    gap: 4px;
     flex-wrap: wrap;
   }
 

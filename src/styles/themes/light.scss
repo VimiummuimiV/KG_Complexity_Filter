@@ -3,12 +3,27 @@
   --border:   #dde1ef;
   --txt:      #1e2235;
   --txt-dim:  #8b92aa;
-  --accent:   #3a6ee8;
-  --easy:     #2e9668;
-  --medium:   #c9920a;
-  --hard:     #c93030;
   --digit-bg: #ccd8f7;
-  --hand-l:   #3a6ee8;
-  --hand-r:   #c9920a;
   --chip-bg:  #eaecf5;
+
+  --clr-red:    #c93030;
+  --clr-yellow: #c9920a;
+  --clr-green:  #2e9668;
+  --clr-blue:   #3a6ee8;
+  --clr-purple: #7c52d9;
+  --clr-slate:  #9098b0;
+
+  --accent:  var(--clr-blue);
+  --easy:    var(--clr-green);
+  --medium:  var(--clr-yellow);
+  --hard:    var(--clr-red);
+  --hand-l:  var(--clr-blue);
+  --hand-r:  var(--clr-yellow);
+
+  --penalty-same-finger: var(--clr-red);
+  --penalty-outward:     var(--clr-purple);
+  --penalty-scissor:     var(--clr-blue);
+  --penalty-row-jump:    var(--clr-green);
+  --penalty-shift:       var(--clr-yellow);
+  --penalty-other:       var(--clr-slate);
 }

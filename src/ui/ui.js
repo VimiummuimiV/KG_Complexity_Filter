@@ -47,12 +47,12 @@ const scoreLabel = (s, strings) => strings[scoreTier(s).key];
 // ─── Penalty metadata ─────────────────────────────────────────────────────────
 
 const PENALTY_META = [
-    { key: 'sameFinger',  strKey: 'penaltySameFinger', color: 'var(--hard)'    },
-    { key: 'outwardRoll', strKey: 'penaltyOutward',    color: 'var(--medium)'  },
-    { key: 'scissor',     strKey: 'penaltyScissor',    color: 'var(--accent)'  },
-    { key: 'rowJump',     strKey: 'penaltyRowJump',    color: 'var(--easy)'    },
-    { key: 'shiftHold',   strKey: 'penaltyShift',      color: 'var(--hand-r)'  },
-    { key: 'other',       strKey: 'penaltyOther',      color: 'var(--border)'  },
+    { key: 'sameFinger',  strKey: 'penaltySameFinger', color: 'var(--penalty-same-finger)' },
+    { key: 'outwardRoll', strKey: 'penaltyOutward',    color: 'var(--penalty-outward)'     },
+    { key: 'scissor',     strKey: 'penaltyScissor',    color: 'var(--penalty-scissor)'     },
+    { key: 'rowJump',     strKey: 'penaltyRowJump',    color: 'var(--penalty-row-jump)'    },
+    { key: 'shiftHold',   strKey: 'penaltyShift',      color: 'var(--penalty-shift)'       },
+    { key: 'other',       strKey: 'penaltyOther',      color: 'var(--penalty-other)'       },
 ];
 
 // ─── Section builders ─────────────────────────────────────────────────────────
