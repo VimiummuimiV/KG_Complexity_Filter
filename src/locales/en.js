@@ -25,7 +25,7 @@ export const en = {
     handImbalanceMinor:  'uneven',
 
     // Penalty breakdown
-    penaltyLabel:     'Penalty breakdown',
+    penaltyBreakdown:  'Penalty breakdown',
     penaltySameFinger: 'Same finger',
     penaltyOutward:    'Outward roll',
     penaltyScissor:    'Scissor',
@@ -37,7 +37,8 @@ export const en = {
     hardestBigrams:   'Hardest bigrams',
     worstZone:        'Worst zone',
     fingerLoad:       'Finger load',
-    topWords:         'Hardest words',
+    hardestWords:     'Hardest words',
+    handBalance:      'Hand balance',
 
     // Finger names — shown as bar labels in the finger-load chart
     fingers: ['L pinky', 'L ring', 'L mid', 'L idx+', 'L idx', 'R idx', 'R idx+', 'R mid', 'R ring', 'R pinky'],

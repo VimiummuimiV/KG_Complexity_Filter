@@ -25,7 +25,7 @@ export const ru = {
     handImbalanceMinor: 'неравномерно',
 
     // Penalty breakdown
-    penaltyLabel:      'Штрафы',
+    penaltyBreakdown:  'Штрафы',
     penaltySameFinger: 'Один палец',
     penaltyOutward:    'Внешний перекат',
     penaltyScissor:    'Ножницы',
@@ -37,7 +37,8 @@ export const ru = {
     hardestBigrams: 'Сложные биграммы',
     worstZone:      'Худший участок',
     fingerLoad:     'Нагрузка на пальцы',
-    topWords:       'Сложные слова',
+    hardestWords:   'Сложные слова',
+    handBalance:    'Баланс рук',
 
     // Finger names — shown as bar labels in the finger-load chart
     fingers: ['Мизинец Л', 'Безымян Л', 'Средний Л', 'Указ+ Л', 'Указат Л', 'Указат П', 'Указ+ П', 'Средний П', 'Безымян П', 'Мизинец П'],

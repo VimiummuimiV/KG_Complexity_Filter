@@ -501,8 +501,9 @@ export const render = (result) => {
     document.getElementById(ID)?.remove();
 
     const strings = getStrings();
-    const { score, hardestBigrams, penaltyBreakdown, handBalance,
-            fingerLoad, hardestWords, layoutName } = result;
+    const { score, layoutName,
+            handBalance, penaltyBreakdown, fingerLoad,
+            hardestBigrams, hardestWords } = result;
 
     const panel = el('div');
     panel.id = ID;
@@ -531,7 +532,7 @@ export const render = (result) => {
         buildSection('penalties', strings.penaltyBreakdown, buildPenaltyBreakdown(penaltyBreakdown, strings)),
         buildSection('fingers',   strings.fingerLoad,     buildFingerLoad(fingerLoad, strings)),
         buildSection('bigrams',   strings.hardestBigrams, buildHardestBigrams(hardestBigrams, strings)),
-        buildSection('words',     strings.topWords,       buildHardestWords(hardestWords, strings)),
+        buildSection('words',     strings.hardestWords,   buildHardestWords(hardestWords, strings)),
         buildTextView(result, strings),
     );
     panel.appendChild(body);
