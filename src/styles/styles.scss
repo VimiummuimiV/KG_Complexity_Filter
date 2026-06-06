@@ -118,6 +118,10 @@ $gap-large:       20px;  // score summary divider margins
   &[data-complexity-filter-theme='dark']  .panel-theme .panel-icon:nth-child(1) { display: none; }
   &[data-complexity-filter-theme='light'] .panel-theme .panel-icon:nth-child(2) { display: none; }
 
+  // Lang toggle: show flag of the OTHER language (the one you'll switch to)
+  &[data-lang='en'] .panel-lang .panel-icon:nth-child(1) { display: none; }
+  &[data-lang='ru'] .panel-lang .panel-icon:nth-child(2) { display: none; }
+
   // ── 2. View modes ──────────────────────────────────────────────────────────
 
   // Coloured difficulty bar — shown in summary and minimal modes
@@ -220,6 +224,9 @@ $gap-large:       20px;  // score summary divider margins
 
   .meta-key   { color: var(--txt-dim); }
   .meta-value {
+    display: inline-flex;
+    align-items: center;
+    gap: $gap-extra-small;
     font-family: var(--font-mono);
     color: var(--txt);
   }
@@ -468,7 +475,7 @@ $gap-large:       20px;  // score summary divider margins
     display: flex;
     gap: $gap-extra-small;
     flex-wrap: wrap;
-    max-height: 96px;
+    max-height: 80px;
     overflow-y: auto;
     @include custom-scroll;
   }

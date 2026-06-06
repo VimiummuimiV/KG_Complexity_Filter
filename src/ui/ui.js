@@ -77,9 +77,10 @@ const buildThemeBtn = (panel, strings) => {
     return btn;
 };
 
-// Language toggle — emoji flag showing the OTHER language.
+// Language toggle — flag icon showing the OTHER language.
 const buildLangBtn = (panel, strings) => {
-    const btn = elText('button', 'panel-btn panel-lang', strings.langIcon);
+    const btn = el('button', 'panel-btn panel-lang');
+    appendAll(btn, createIcon('ruFlag'), createIcon('enFlag'));
     createCustomTooltip(btn, strings.langLabel, 'stats', 0);
     btn.addEventListener('click', () => {
         toggleLang(panel);
@@ -128,17 +129,16 @@ const buildStats = (result, strings) => {
         scoreWrap.appendChild(node);
     }
 
-    const LANG_FLAG = { ru: '🇷🇺', en: '🇬🇧' };
-    const flag = LANG_FLAG[lang] ?? '🌐';
+    const LANG_ICON = { ru: 'ruFlag', en: 'enFlag' };
 
     const meta = el('div', 'meta-info');
     const rows = [
-        [strings.metaAvg,       String(avg),                'avg',      strings.tooltipAvg       ],
-        [strings.metaChars,     length.toLocaleString(),     null,      strings.tooltipChars     ],
-        [strings.metaHardZones, hardPct + '%',              'hard',     strings.tooltipHardZones ],
-        [strings.metaLongWords, longWordPct + '%',          'longword', strings.tooltipLongWords ],
-        [strings.metaLayout,    `${flag} ${layoutName}`,     null,      null                     ],
-        [strings.metaDigitRow,  digitRowPct + '%',          'digitrow', strings.tooltipDigitRow  ],
+        [strings.metaAvg,       String(avg),            'avg',      strings.tooltipAvg        ],
+        [strings.metaChars,     length.toLocaleString(), null,       strings.tooltipChars     ],
+        [strings.metaHardZones, hardPct + '%',          'hard',      strings.tooltipHardZones ],
+        [strings.metaLongWords, longWordPct + '%',      'longword',  strings.tooltipLongWords ],
+        [strings.metaLayout,    layoutName,             'layout',    null                     ],
+        [strings.metaDigitRow,  digitRowPct + '%',      'digitrow',  strings.tooltipDigitRow  ],
     ];
 
     for (const [key, val, hint, tip] of rows) {
@@ -149,6 +149,10 @@ const buildStats = (result, strings) => {
         if (hint === 'hard'     && hardPct     > 0)      valNode.style.color = 'var(--hard)';
         if (hint === 'longword' && longWordPct > 0)      valNode.style.color = 'var(--medium)';
         if (hint === 'digitrow' && digitRowPct > 10)     valNode.style.color = 'var(--medium)';
+        if (hint === 'layout') {
+            const iconName = LANG_ICON[lang];
+            if (iconName) valNode.prepend(createIcon(iconName));
+        }
         row.appendChild(valNode);
         if (tip) createCustomTooltip(row, tip, 'stats', 0);
         meta.appendChild(row);
