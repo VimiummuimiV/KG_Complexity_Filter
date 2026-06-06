@@ -12,13 +12,11 @@ $gap-large:       20px;  // score summary divider margins
 // Apply to any scrollable element. Uses theme-aware CSS vars from dark/light.
 @mixin custom-scroll {
   scrollbar-width: thin;
-  scrollbar-color: var(--scrollbar-thumb) transparent;  // Firefox
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 
-  &::-webkit-scrollbar               { width: 5px; }
-  &::-webkit-scrollbar-button        { display: none; }
-  &::-webkit-scrollbar-track         { background: transparent; }
-  &::-webkit-scrollbar-track-piece   { background: transparent; }
-  &::-webkit-scrollbar-corner        { background: transparent; }
+  &::-webkit-scrollbar-track,
+  &::-webkit-scrollbar-track-piece,
+  &::-webkit-scrollbar-corner      { background: transparent; }
   &::-webkit-scrollbar-thumb {
     background: var(--scrollbar-thumb);
     border-radius: 99px;
