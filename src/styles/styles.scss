@@ -2,6 +2,12 @@
 @use 'themes/dark';
 @use 'themes/light';
 
+// ── Spacing scale ──────────────────────────────────────────────────────────────
+$gap-extra-small: 4px;   // tight inline gaps (chips, dots, finger bars)
+$gap-small:       8px;   // small inner gaps (meta rows, penalty chips, labels)
+$gap-medium:      16px;  // outer section padding (horizontal) / separator spacing
+$gap-large:       20px;  // score summary divider margins
+
 #complexity-filter-panel {
   --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
   --font-ui:   'Inter', 'Segoe UI', system-ui, sans-serif;
@@ -28,8 +34,8 @@
   .panel-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 14px 16px 12px;
+    gap: $gap-small;
+    padding: $gap-small $gap-small $gap-small $gap-medium;
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
     cursor: move;
@@ -102,7 +108,7 @@
   .difficulty-bar {
     display: none;
     height: 12px;
-    margin: 14px 16px;
+    margin: $gap-medium;
     border-radius: 99px;
     overflow: hidden;
     flex-shrink: 0;
@@ -150,7 +156,7 @@
   .stats {
     display: flex;
     align-items: stretch;
-    padding: 14px 16px;
+    padding: $gap-medium;
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
   }
@@ -160,9 +166,9 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding-right: 20px;
+    padding-right: $gap-large;
     border-right: 1px solid var(--border);
-    margin-right: 20px;
+    margin-right: $gap-large;
     min-width: 80px;
   }
 
@@ -179,13 +185,13 @@
     text-transform: uppercase;
     letter-spacing: .1em;
     color: var(--txt-dim);
-    margin-top: 4px;
+    margin-top: $gap-extra-small;
   }
 
   .meta-info {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: $gap-extra-small;
     justify-content: center;
     flex: 1;
   }
@@ -209,7 +215,7 @@
     background: var(--border);
     border-radius: 99px;
     overflow: hidden;
-    margin: 14px 16px;
+    margin: $gap-medium;
     flex-shrink: 0;
   }
 
@@ -223,15 +229,15 @@
 
   .score-legend {
     display: flex;
-    gap: 14px;
-    padding: 0 16px 12px;
+    gap: $gap-medium;
+    padding: 0 $gap-medium $gap-small;
     flex-shrink: 0;
   }
 
   .legend-item {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: $gap-extra-small;
     font-size: 11px;
     color: var(--txt-dim);
   }
@@ -246,7 +252,7 @@
   // ── 6. Hand balance bar ────────────────────────────────────────────────────
 
   .hand-bar-wrap {
-    padding: 0 16px 12px;
+    padding: 0 $gap-medium $gap-small;
     flex-shrink: 0;
   }
 
@@ -255,7 +261,7 @@
     justify-content: space-between;
     align-items: center;
     font-size: 11px;
-    margin-bottom: 5px;
+    margin-bottom: $gap-extra-small;
   }
 
   .hand-label {
@@ -295,7 +301,7 @@
   // ── 7. Penalty breakdown ──────────────────────────────────────────────────
 
   .penalty-wrap {
-    padding: 0 16px 12px;
+    padding: 0 $gap-medium $gap-small;
     flex-shrink: 0;
   }
 
@@ -305,7 +311,7 @@
     border-radius: 99px;
     overflow: hidden;
     background: var(--border);
-    margin-bottom: 8px;
+    margin-bottom: $gap-small;
   }
 
   .penalty-seg {
@@ -316,14 +322,14 @@
   .penalty-legend {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: $gap-extra-small;
   }
 
   .penalty-row {
     display: flex;
     align-items: center;
-    gap: 5px;
-    padding: 3px 8px;
+    gap: $gap-extra-small;
+    padding: $gap-extra-small $gap-small;
     background: var(--chip-bg);
     border-radius: 5px;
     font-size: 11px;
@@ -348,14 +354,14 @@
   // ── 8. Per-finger load bars ────────────────────────────────────────────────
 
   .finger-load-wrap {
-    padding: 0 16px 14px;
+    padding: 0 $gap-medium $gap-medium;
     flex-shrink: 0;
   }
 
   .finger-load-bars {
     display: flex;
     align-items: flex-end;
-    gap: 4px;
+    gap: $gap-extra-small;
     height: 48px;
   }
 
@@ -363,7 +369,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
+    gap: $gap-extra-small / 2;
     flex: 1;
   }
 
@@ -431,7 +437,7 @@
   // ── 9. Hotspot chips (bigrams / words) ────────────────────────────────────
 
   .hotspot-section {
-    padding: 0 16px 12px;
+    padding: 0 $gap-medium $gap-small;
     flex-shrink: 0;
   }
 
@@ -440,20 +446,20 @@
     text-transform: uppercase;
     letter-spacing: .08em;
     color: var(--txt-dim);
-    margin-bottom: 6px;
+    margin-bottom: $gap-extra-small;
   }
 
   .hotspot-list {
     display: flex;
-    gap: 4px;
+    gap: $gap-extra-small;
     flex-wrap: wrap;
   }
 
   .hotspot-chip {
     display: flex;
     align-items: baseline;
-    gap: 4px;
-    padding: 3px 8px;
+    gap: $gap-extra-small;
+    padding: $gap-extra-small $gap-small;
     background: var(--chip-bg);
     border-radius: 5px;
     font-family: var(--font-mono);
@@ -466,7 +472,7 @@
 
   .text-scroll {
     overflow-y: auto;
-    padding: 14px 16px 18px;
+    padding: $gap-medium;
     flex: 1;
     min-height: 0;
 
