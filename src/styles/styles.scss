@@ -148,8 +148,8 @@ $gap-large:       20px;  // score summary divider margins
   // Stats + score bar + legend — transparent wrapper, always rendered except in minimal
   .panel-summary { display: contents; }
 
-// Full detail (hand bar, penalties, bigrams, text) — transparent wrapper, hidden in summary/minimal
-  .panel-body {
+// full: — shown everything
+  .panel-detail {
     display: flex;
     flex-wrap: wrap;
     align-items: flex-start;
@@ -160,16 +160,16 @@ $gap-large:       20px;  // score summary divider margins
   // summary: difficulty bar + stats, no detail
   &[data-view='summary'] {
     .difficulty-bar { display: block; }
-    .panel-body     { display: none;  }
-    .text-scroll    { display: none;  }
+    .panel-detail     { display: none;  }
+    .panel-text    { display: none;  }
   }
 
   // minimal: difficulty bar + mini score in header only
   &[data-view='minimal'] {
     .difficulty-bar { display: block; }
     .panel-summary  { display: none;  }
-    .panel-body     { display: none;  }
-    .text-scroll    { display: none;  }
+    .panel-detail     { display: none;  }
+    .panel-text    { display: none;  }
     .header-score   { display: block; }
     .panel-title    { flex: unset;    }
   }
@@ -454,36 +454,36 @@ $gap-large:       20px;  // score summary divider margins
     max-width: 100%;
   }
 
-  // Finger-highlight / hand-highlight / penalty-highlight: dim all text-block spans on hover,
+  // Finger-highlight / hand-highlight / penalty-highlight: dim all panel-text-block spans on hover,
   // restore only those matching the hovered finger, hand, or penalty type.
-  &[data-active-finger] .text-block span,
-  &[data-active-hand] .text-block span,
-  &[data-active-penalty] .text-block span {
+  &[data-active-finger] .panel-text span,
+  &[data-active-hand] .panel-text span,
+  &[data-active-penalty] .panel-text span {
     opacity: .15;
     transition: opacity .12s;
   }
 
   // Spaces and unmapped chars have no data-penalty — never dim them
-  &[data-active-penalty] .text-block span:not([data-penalty]) { opacity: 1; }
+  &[data-active-penalty] .panel-text span:not([data-penalty]) { opacity: 1; }
 
   @for $i from 0 through 9 {
-    &[data-active-finger='#{$i}'] .text-block span[data-finger='#{$i}'] {
+    &[data-active-finger='#{$i}'] .panel-text span[data-finger='#{$i}'] {
       opacity: 1;
     }
   }
 
-  &[data-active-hand='L'] .text-block span[data-hand='L'],
-  &[data-active-hand='R'] .text-block span[data-hand='R'] {
+  &[data-active-hand='L'] .panel-text span[data-hand='L'],
+  &[data-active-hand='R'] .panel-text span[data-hand='R'] {
     opacity: 1;
   }
 
   // ~= matches a whole word in a space-separated data-penalty attribute
-  &[data-active-penalty='sameFinger']  .text-block span[data-penalty~='sameFinger'],
-  &[data-active-penalty='shiftHold']   .text-block span[data-penalty~='shiftHold'],
-  &[data-active-penalty='outwardRoll'] .text-block span[data-penalty~='outwardRoll'],
-  &[data-active-penalty='scissor']     .text-block span[data-penalty~='scissor'],
-  &[data-active-penalty='rowJump']     .text-block span[data-penalty~='rowJump'],
-  &[data-active-penalty='other']       .text-block span[data-penalty~='other'] {
+  &[data-active-penalty='sameFinger']  .panel-text span[data-penalty~='sameFinger'],
+  &[data-active-penalty='shiftHold']   .panel-text span[data-penalty~='shiftHold'],
+  &[data-active-penalty='outwardRoll'] .panel-text span[data-penalty~='outwardRoll'],
+  &[data-active-penalty='scissor']     .panel-text span[data-penalty~='scissor'],
+  &[data-active-penalty='rowJump']     .panel-text span[data-penalty~='rowJump'],
+  &[data-active-penalty='other']       .panel-text span[data-penalty~='other'] {
     opacity: 1;
   }
 
@@ -525,26 +525,22 @@ $gap-large:       20px;  // score summary divider margins
 
   // ── 11. Annotated text view ───────────────────────────────────────────────
 
-  .text-scroll {
+  .panel-text {
     overflow-y: auto;
     padding: $gap-medium;
     flex: 1;
     min-height: 0;
-    @include custom-scroll;
-  }
-
-  .text-block {
     font-family: var(--font-mono);
     font-size: 12.5px;
     line-height: 1.75;
     word-break: break-word;
     white-space: pre-wrap;
+    @include custom-scroll;
 
     .easy   { color: var(--easy); }
     .medium { color: var(--medium); }
     .hard   { color: var(--hard); }
 
-    // Worst zone: underlined with a solid accent bar underneath
     .worst-zone {
       text-decoration: underline solid var(--accent);
       text-underline-offset: 3px;
@@ -556,25 +552,14 @@ $gap-large:       20px;  // score summary divider margins
       text-underline-offset: 3px;
     }
 
-    // When a span is both worst-zone and long-word, accent wins
     .worst-zone.long-word {
       text-decoration: underline solid var(--accent);
       text-decoration-thickness: 2px;
     }
 
-    // Same-finger bigram: top shadow coloured by hand
-    .same-finger-l {
-      box-shadow: inset 0 2px 0 0 var(--hand-l) !important;
-    }
-
-    .same-finger-r {
-      box-shadow: inset 0 2px 0 0 var(--hand-r) !important;
-    }
-
-    // Shifted character: italic
-    .shifted-char {
-      font-style: italic;
-    }
+    .same-finger-l { box-shadow: inset 0 2px 0 0 var(--hand-l) !important; }
+    .same-finger-r { box-shadow: inset 0 2px 0 0 var(--hand-r) !important; }
+    .shifted-char  { font-style: italic; }
   }
 }
 

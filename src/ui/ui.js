@@ -372,8 +372,7 @@ const buildHardestWords = (hardestWords, strings) => {
 const buildTextView = ({ chars, segments, longWordChars, worstZone,
                          sameFingerChars, shiftedChars, charFingers,
                          outwardRollChars, scissorChars, rowJumpChars }, strings) => {
-    const scroll = el('div', 'text-scroll');
-    const block  = el('div', 'text-block');
+    const text = el('div', 'panel-text');
 
     // Map penalty key → per-char Set for fast lookup when stamping spans
     const penaltyChars = {
@@ -442,7 +441,7 @@ const buildTextView = ({ chars, segments, longWordChars, worstZone,
                     createCustomTooltip(span, tooltipText, 'stats', 0);
                 }
 
-                block.appendChild(span);
+                text.appendChild(span);
                 runStart  = k;
                 runLong   = isLong;
                 runFlags  = flags;
@@ -451,8 +450,7 @@ const buildTextView = ({ chars, segments, longWordChars, worstZone,
         }
     }
 
-    scroll.appendChild(block);
-    return scroll;
+    return text;
 };
 
 const TIER_COLOR = { easy: 'var(--easy)', medium: 'var(--medium)', hard: 'var(--hard)' };
@@ -521,15 +519,15 @@ export const render = (result) => {
     );
     panel.appendChild(summary);
 
-    const body = el('div', 'panel-body');
-    appendAll(body,
+    const details = el('div', 'panel-detail');
+    appendAll(details,
         buildSection('balance',   strings.handBalance,      buildHandBar(handBalance, strings)),
         buildSection('penalties', strings.penaltyBreakdown, buildPenaltyBreakdown(penaltyBreakdown, strings)),
         buildSection('fingers',   strings.fingerLoad,       buildFingerLoad(fingerLoad, strings)),
         buildSection('bigrams',   strings.hardestBigrams,   buildHardestBigrams(hardestBigrams, strings)),
         buildSection('words',     strings.hardestWords,     buildHardestWords(hardestWords, strings)),
     );
-    panel.appendChild(body);
+    panel.appendChild(details);
     panel.appendChild(buildTextView(result, strings));
 
     applyInitialTheme(panel);
