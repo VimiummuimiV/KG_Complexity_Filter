@@ -57,6 +57,8 @@ const buildLayout = ({ layout, shiftMap, freq, weights: W }) => {
     const bigramBreak = (a, b) => {
         const ka = keyOf(a); const kb = keyOf(b);
         if (!ka || !kb) return null;
+        // Same key repeated (e.g. 666, ll, сс) — no repositioning, zero bigram cost
+        if (baseOf(a) === baseOf(b)) return { total: 0, sameFinger: 0, outwardRoll: 0, scissor: 0, rowJump: 0, shiftAlt: 0, isOutward: false };
         const [fa, rowa, ha] = ka;
         const [fb, rowb, hb] = kb;
 
