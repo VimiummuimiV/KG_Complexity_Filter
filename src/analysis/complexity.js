@@ -335,9 +335,8 @@ export const analyzeComplexity = (text, config = null) => {
         }
     }
 
-    // Show enough bigrams to cover 80% of total bigram cost, capped at 10.
-    // Only include bigrams whose penalty cost is at least segEasy — below that
-    // the bigram isn't noteworthy even if it's the "worst" in an easy text.
+    // Include all bigrams whose penalty cost is at least segEasy, covering 80%
+    // of total bigram cost. No arbitrary cap — quality threshold does the filtering.
     const sorted      = Object.entries(bigramTotals)
                               .filter(([, v]) => v >= segEasy)
                               .sort((a, b) => b[1] - a[1]);
@@ -348,7 +347,7 @@ export const analyzeComplexity = (text, config = null) => {
     for (const [pair, cost] of sorted) {
         topBigrams.push({ pair, cost: +cost.toFixed(1) });
         accumulated += cost;
-        if (accumulated >= threshold || topBigrams.length >= 10) break;
+        if (accumulated >= threshold) break;
     }
 
     // ── Per-word cost ranking ─────────────────────────────────────────────────
@@ -377,7 +376,7 @@ export const analyzeComplexity = (text, config = null) => {
             }
         }
     }
-    const topWords = [...wordBest.values()].sort((a, b) => b.cost - a.cost).slice(0, 5);
+    const topWords = [...wordBest.values()].sort((a, b) => b.cost - a.cost);
 
     // ── Stats ─────────────────────────────────────────────────────────────────
     const hardChars = segments
