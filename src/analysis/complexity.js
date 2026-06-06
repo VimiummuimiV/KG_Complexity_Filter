@@ -349,7 +349,8 @@ export const analyzeComplexity = (text, config = null) => {
 
     // ── Per-word cost ranking ─────────────────────────────────────────────────
     // Re-derive word boundaries from the final costs array (after multipliers).
-    const wordCosts = [];
+    // Deduplicate by lowercase form, keeping the highest cost occurrence.
+    const wordBest = new Map(); // normalised word → { word, cost }
     {
         let ws = -1;
         for (let i = 0; i <= n; i++) {
@@ -361,13 +362,14 @@ export const analyzeComplexity = (text, config = null) => {
             } else if (ws !== -1) {
                 const word    = chars.slice(ws, i).join('');
                 const wordSum = costs.slice(ws, i).reduce((s, c) => s + c, 0);
-                wordCosts.push({ word, cost: +wordSum.toFixed(1) });
+                const norm    = word.toLowerCase();
+                const prev    = wordBest.get(norm);
+                if (!prev || wordSum > prev.cost) wordBest.set(norm, { word, cost: +wordSum.toFixed(1) });
                 ws = -1;
             }
         }
-        wordCosts.sort((a, b) => b.cost - a.cost);
     }
-    const topWords = wordCosts.slice(0, 5);
+    const topWords = [...wordBest.values()].sort((a, b) => b.cost - a.cost).slice(0, 5);
 
     // ── Stats ─────────────────────────────────────────────────────────────────
     const hardChars = segments
