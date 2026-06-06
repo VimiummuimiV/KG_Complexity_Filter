@@ -22,7 +22,6 @@ export const defaultWeights = {
     wordLengthStep:  0.1,
     wordLengthMax:   2.0,
 
-    // ── New weights ───────────────────────────────────────────────────────────
     // Trigram redirect: penalty when a same-hand trigram reverses direction
     redirect:         0.6,
     // Shift alternation: reward / extra penalty for same-side Shift hold
