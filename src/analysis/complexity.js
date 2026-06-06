@@ -335,8 +335,12 @@ export const analyzeComplexity = (text, config = null) => {
         }
     }
 
-    // Show enough bigrams to cover 80% of total bigram cost, capped at 10
-    const sorted      = Object.entries(bigramTotals).sort((a, b) => b[1] - a[1]);
+    // Show enough bigrams to cover 80% of total bigram cost, capped at 10.
+    // Only include bigrams whose penalty cost is at least segEasy — below that
+    // the bigram isn't noteworthy even if it's the "worst" in an easy text.
+    const sorted      = Object.entries(bigramTotals)
+                              .filter(([, v]) => v >= segEasy)
+                              .sort((a, b) => b[1] - a[1]);
     const bigramSum   = sorted.reduce((s, [, v]) => s + v, 0);
     const threshold   = bigramSum * 0.8;
     let   accumulated = 0;
@@ -350,6 +354,7 @@ export const analyzeComplexity = (text, config = null) => {
     // ── Per-word cost ranking ─────────────────────────────────────────────────
     // Re-derive word boundaries from the final costs array (after multipliers).
     // Deduplicate by lowercase form, keeping the highest cost occurrence.
+    // Only include words whose avg cost/char reaches at least the medium threshold.
     const wordBest = new Map(); // normalised word → { word, cost }
     {
         let ws = -1;
@@ -362,9 +367,12 @@ export const analyzeComplexity = (text, config = null) => {
             } else if (ws !== -1) {
                 const word    = chars.slice(ws, i).join('');
                 const wordSum = costs.slice(ws, i).reduce((s, c) => s + c, 0);
-                const norm    = word.toLowerCase();
-                const prev    = wordBest.get(norm);
-                if (!prev || wordSum > prev.cost) wordBest.set(norm, { word, cost: +wordSum.toFixed(1) });
+                const wordAvg = wordSum / (i - ws);
+                if (wordAvg >= segEasy) {
+                    const norm = word.toLowerCase();
+                    const prev = wordBest.get(norm);
+                    if (!prev || wordSum > prev.cost) wordBest.set(norm, { word, cost: +wordSum.toFixed(1) });
+                }
                 ws = -1;
             }
         }

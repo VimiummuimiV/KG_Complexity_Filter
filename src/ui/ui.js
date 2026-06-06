@@ -270,6 +270,8 @@ const buildPenaltyBreakdown = (pb, strings) => {
 };
 
 const buildTopBigrams = (topBigrams, strings) => {
+    if (!topBigrams?.length) return null;
+
     const wrap = el('div', 'hotspot-section');
     wrap.appendChild(elText('div', 'hotspot-label', strings.hardestBigrams));
 
