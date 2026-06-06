@@ -362,14 +362,13 @@ $gap-large:       20px;  // score summary divider margins
     display: flex;
     align-items: flex-end;
     gap: $gap-extra-small;
-    height: 48px;
   }
 
   .fl-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: $gap-extra-small / 2;
+    gap: calc($gap-extra-small / 2);
     flex: 1;
   }
 
