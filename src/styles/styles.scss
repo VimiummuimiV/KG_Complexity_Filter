@@ -30,7 +30,7 @@ $gap-large:       20px;  // score summary divider margins
 
   position: fixed;
   width: clamp(320px, 38vw, 560px);
-  max-height: 80vh;
+  max-height: 100vh;
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -153,16 +153,15 @@ $gap-large:       20px;  // score summary divider margins
     display: flex;
     flex-wrap: wrap;
     align-items: flex-start;
+    align-content: flex-start;
     padding: 0 $gap-medium;
-    overflow-y: auto;
-    min-height: 0;
-    @include custom-scroll;
   }
 
   // summary: difficulty bar + stats, no detail
   &[data-view='summary'] {
     .difficulty-bar { display: block; }
     .panel-body     { display: none;  }
+    .text-scroll    { display: none;  }
   }
 
   // minimal: difficulty bar + mini score in header only
@@ -170,6 +169,7 @@ $gap-large:       20px;  // score summary divider margins
     .difficulty-bar { display: block; }
     .panel-summary  { display: none;  }
     .panel-body     { display: none;  }
+    .text-scroll    { display: none;  }
     .header-score   { display: block; }
     .panel-title    { flex: unset;    }
   }
@@ -527,8 +527,8 @@ $gap-large:       20px;  // score summary divider margins
 
   .text-scroll {
     overflow-y: auto;
-    padding: $gap-medium 0;
-    flex: 1 1 100%;
+    padding: $gap-medium;
+    flex: 1;
     min-height: 0;
     @include custom-scroll;
   }

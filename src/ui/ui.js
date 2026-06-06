@@ -523,14 +523,14 @@ export const render = (result) => {
 
     const body = el('div', 'panel-body');
     appendAll(body,
-        buildSection('balance',   strings.handBalance,    buildHandBar(handBalance, strings)),
+        buildSection('balance',   strings.handBalance,      buildHandBar(handBalance, strings)),
         buildSection('penalties', strings.penaltyBreakdown, buildPenaltyBreakdown(penaltyBreakdown, strings)),
-        buildSection('fingers',   strings.fingerLoad,     buildFingerLoad(fingerLoad, strings)),
-        buildSection('bigrams',   strings.hardestBigrams, buildHardestBigrams(hardestBigrams, strings)),
-        buildSection('words',     strings.hardestWords,   buildHardestWords(hardestWords, strings)),
-        buildTextView(result, strings),
+        buildSection('fingers',   strings.fingerLoad,       buildFingerLoad(fingerLoad, strings)),
+        buildSection('bigrams',   strings.hardestBigrams,   buildHardestBigrams(hardestBigrams, strings)),
+        buildSection('words',     strings.hardestWords,     buildHardestWords(hardestWords, strings)),
     );
     panel.appendChild(body);
+    panel.appendChild(buildTextView(result, strings));
 
     applyInitialTheme(panel);
     applyInitialView(panel);
