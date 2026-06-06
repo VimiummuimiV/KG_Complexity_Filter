@@ -230,7 +230,7 @@ const buildPenaltyBreakdown = (pb, strings) => {
 
     const track = el('div', 'penalty-track');
     for (const { key, color } of PENALTY_META) {
-        const pct = pb[key] ?? 0;
+        const { pct = 0 } = pb[key] ?? {};
         if (pct === 0) continue;
         const seg = el('div', 'penalty-seg');
         seg.style.width      = pct + '%';
@@ -241,16 +241,20 @@ const buildPenaltyBreakdown = (pb, strings) => {
 
     const legend = el('div', 'penalty-legend');
     for (const { key, strKey, color } of PENALTY_META) {
-        const pct = pb[key] ?? 0;
+        const { pct = 0, count } = pb[key] ?? {};
         if (pct === 0) continue;
         const row = el('div', 'penalty-row');
         const dot = el('span', 'legend-dot');
         dot.style.background = color;
         const pctNode = elText('span', 'penalty-pct', pct + '%');
         pctNode.style.color = color;
+        const countNode = count != null && count > 0
+            ? elText('span', 'penalty-count', count)
+            : null;
         appendAll(row,
             dot,
             pctNode,
+            countNode,
             elText('span', 'penalty-key', strings[strKey]),
         );
         const tipKey = 'tooltipPenalty_' + key;

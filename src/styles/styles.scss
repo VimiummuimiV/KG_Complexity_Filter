@@ -334,6 +334,14 @@
     color: var(--txt);
   }
 
+  .penalty-count {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--txt-dim);
+
+    &::before { content: '| '; }
+  }
+
   // ── 8. Per-finger load bars ────────────────────────────────────────────────
 
   .finger-load-wrap {
