@@ -279,21 +279,13 @@ $gap-large:       20px;  // score summary divider margins
   }
 
   .section-header {
+    display: flex;
+    align-items: center;
+    padding: $gap-small $gap-medium;
     cursor: pointer;
     user-select: none;
 
     &:hover { color: var(--txt); }
-
-    &::after {
-      content: '▾';
-      float: right;
-      opacity: .4;
-      transition: transform .2s;
-    }
-
-    [data-collapsed] > &::after {
-      transform: rotate(-90deg);
-    }
   }
 
   // ── 7. Hand balance bar ────────────────────────────────────────────────────
@@ -492,7 +484,6 @@ $gap-large:       20px;  // score summary divider margins
     text-transform: uppercase;
     letter-spacing: .08em;
     color: var(--txt-dim);
-    margin-bottom: $gap-extra-small;
   }
 
   .hotspot-list {

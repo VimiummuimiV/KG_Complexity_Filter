@@ -509,11 +509,6 @@ export const render = (result) => {
     panel.id = ID;
     panel._kgResult = result; // stored for language re-render
 
-    applyInitialTheme(panel);
-    applyInitialView(panel);
-    applyInitialLang(panel);
-    applyInitialSections(panel);
-
     const { header, miniScore } = buildHeader(panel, strings, layoutName, score);
     panel.appendChild(header);
     panel.appendChild(buildDifficultyBar(result));
@@ -536,6 +531,11 @@ export const render = (result) => {
         buildTextView(result, strings),
     );
     panel.appendChild(body);
+
+    applyInitialTheme(panel);
+    applyInitialView(panel);
+    applyInitialLang(panel);
+    applyInitialSections(panel);
 
     document.body.appendChild(panel);
     makeDraggable(panel, panel.querySelector('.panel-header'), 'complexityFilterPanelPosition');
