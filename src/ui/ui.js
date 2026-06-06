@@ -10,6 +10,7 @@ import { applyInitialView, cycleView }         from '../helpers/view';
 import { applyInitialLang, toggleLang,
          getStrings }                          from '../helpers/lang';
 import { createCustomTooltip }                 from '../helpers/tooltip';
+import { applyInitialSections, toggleSection } from '../helpers/sections';
 
 const ID = 'complexity-filter-panel';
 
@@ -30,6 +31,20 @@ const elText = (tag, cls, str) => {
 const appendAll = (parent, ...children) => {
     for (const child of children) if (child) parent.appendChild(child);
     return parent;
+};
+
+// ─── Collapsible section wrapper ──────────────────────────────────────────────
+
+const buildSection = (key, label, ...children) => {
+    const wrap   = el('div', 'section-wrap');
+    wrap.dataset.section = key;
+
+    const header = elText('div', 'section-header hotspot-label', label);
+    header.addEventListener('click', () => toggleSection(header.closest(`#${ID}`), key));
+    wrap.appendChild(header);
+
+    for (const child of children) if (child) wrap.appendChild(child);
+    return wrap;
 };
 
 // ─── Score tiers ──────────────────────────────────────────────────────────────
@@ -190,9 +205,8 @@ const buildHandBar = ({ left, right, imbalance }, strings) => {
 
     const wrap  = el('div', 'hand-bar-wrap');
     const label = el('div', 'hand-bar-label');
-
-    const labelL        = elText('span', 'hand-label hand-l', `L ${leftPct}%`);
-    const labelR        = elText('span', 'hand-label hand-r', `${rightPct}% R`);
+    const labelL = elText('span', 'hand-label hand-l', `L ${leftPct}%`);
+    const labelR = elText('span', 'hand-label hand-r', `${rightPct}% R`);
 
     const imbalanceLabel =
         imbalance > 0.85 ? strings.handImbalanceHigh  :
@@ -230,7 +244,6 @@ const buildPenaltyBreakdown = (pb, strings) => {
     if (!pb) return null;
 
     const wrap = el('div', 'penalty-wrap');
-    wrap.appendChild(elText('div', 'hotspot-label', strings.penaltyLabel));
 
     const track = el('div', 'penalty-track');
     for (const { key, color } of PENALTY_META) {
@@ -273,14 +286,13 @@ const buildPenaltyBreakdown = (pb, strings) => {
     return wrap;
 };
 
-const buildTopBigrams = (topBigrams, strings) => {
-    if (!topBigrams?.length) return null;
+const buildHardestBigrams = (hardestBigrams, strings) => {
+    if (!hardestBigrams?.length) return null;
 
     const wrap = el('div', 'hotspot-section');
-    wrap.appendChild(elText('div', 'hotspot-label', strings.hardestBigrams));
 
     const list = el('div', 'hotspot-list');
-    for (const { pair, cost } of topBigrams) {
+    for (const { pair, cost } of hardestBigrams) {
         const chip = el('div', 'hotspot-chip');
         appendAll(chip,
             elText('span', 'hotspot-ch', pair),
@@ -297,7 +309,6 @@ const buildTopBigrams = (topBigrams, strings) => {
 // Per-finger load bars
 const buildFingerLoad = (fingerLoad, strings) => {
     const wrap = el('div', 'finger-load-wrap');
-    wrap.appendChild(elText('div', 'hotspot-label', strings.fingerLoad));
 
     const bars = el('div', 'finger-load-bars');
     const max  = Math.max(...fingerLoad, 1);
@@ -337,15 +348,14 @@ const buildFingerLoad = (fingerLoad, strings) => {
     return wrap;
 };
 
-// Top hardest words
-const buildTopWords = (topWords, strings) => {
-    if (!topWords?.length) return null;
+// Hardest words
+const buildHardestWords = (hardestWords, strings) => {
+    if (!hardestWords?.length) return null;
 
     const wrap = el('div', 'hotspot-section');
-    wrap.appendChild(elText('div', 'hotspot-label', strings.topWords));
 
     const list = el('div', 'hotspot-list');
-    for (const { word, cost } of topWords) {
+    for (const { word, cost } of hardestWords) {
         const chip = el('div', 'hotspot-chip');
         appendAll(chip,
             elText('span', 'hotspot-ch', word),
@@ -491,8 +501,8 @@ export const render = (result) => {
     document.getElementById(ID)?.remove();
 
     const strings = getStrings();
-    const { score, topBigrams, penaltyBreakdown, handBalance,
-            fingerLoad, topWords, layoutName } = result;
+    const { score, hardestBigrams, penaltyBreakdown, handBalance,
+            fingerLoad, hardestWords, layoutName } = result;
 
     const panel = el('div');
     panel.id = ID;
@@ -501,6 +511,7 @@ export const render = (result) => {
     applyInitialTheme(panel);
     applyInitialView(panel);
     applyInitialLang(panel);
+    applyInitialSections(panel);
 
     const { header, miniScore } = buildHeader(panel, strings, layoutName, score);
     panel.appendChild(header);
@@ -516,11 +527,11 @@ export const render = (result) => {
 
     const body = el('div', 'panel-body');
     appendAll(body,
-        buildHandBar(handBalance, strings),
-        buildPenaltyBreakdown(penaltyBreakdown, strings),
-        buildFingerLoad(fingerLoad, strings),
-        buildTopBigrams(topBigrams, strings),
-        buildTopWords(topWords, strings),
+        buildSection('balance',   strings.handBalance,    buildHandBar(handBalance, strings)),
+        buildSection('penalties', strings.penaltyBreakdown, buildPenaltyBreakdown(penaltyBreakdown, strings)),
+        buildSection('fingers',   strings.fingerLoad,     buildFingerLoad(fingerLoad, strings)),
+        buildSection('bigrams',   strings.hardestBigrams, buildHardestBigrams(hardestBigrams, strings)),
+        buildSection('words',     strings.topWords,       buildHardestWords(hardestWords, strings)),
         buildTextView(result, strings),
     );
     panel.appendChild(body);

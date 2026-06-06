@@ -343,9 +343,9 @@ export const analyzeComplexity = (text, config = null) => {
     const bigramSum   = sorted.reduce((s, [, v]) => s + v, 0);
     const threshold   = bigramSum * 0.8;
     let   accumulated = 0;
-    const topBigrams  = [];
+    const hardestBigrams  = [];
     for (const [pair, cost] of sorted) {
-        topBigrams.push({ pair, cost: +cost.toFixed(1) });
+        hardestBigrams.push({ pair, cost: +cost.toFixed(1) });
         accumulated += cost;
         if (accumulated >= threshold) break;
     }
@@ -376,7 +376,7 @@ export const analyzeComplexity = (text, config = null) => {
             }
         }
     }
-    const topWords = [...wordBest.values()].sort((a, b) => b.cost - a.cost);
+    const hardestWords = [...wordBest.values()].sort((a, b) => b.cost - a.cost);
 
     // ── Stats ─────────────────────────────────────────────────────────────────
     const hardChars = segments
@@ -426,8 +426,8 @@ export const analyzeComplexity = (text, config = null) => {
         outwardRollChars,
         scissorChars,
         rowJumpChars,
-        topBigrams,
-        topWords,
+        hardestBigrams,
+        hardestWords,
         worstZone,
         penaltyBreakdown,
         handBalance:  { left: leftKeys, right: rightKeys, imbalance: +imbalance.toFixed(3) },

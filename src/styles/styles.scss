@@ -272,7 +272,31 @@ $gap-large:       20px;  // score summary divider margins
     flex-shrink: 0;
   }
 
-  // ── 6. Hand balance bar ────────────────────────────────────────────────────
+  // ── 6. Collapsible sections ───────────────────────────────────────────────
+
+  .section-wrap {
+    &[data-collapsed] > :not(.section-header) { display: none; }
+  }
+
+  .section-header {
+    cursor: pointer;
+    user-select: none;
+
+    &:hover { color: var(--txt); }
+
+    &::after {
+      content: '▾';
+      float: right;
+      opacity: .4;
+      transition: transform .2s;
+    }
+
+    [data-collapsed] > &::after {
+      transform: rotate(-90deg);
+    }
+  }
+
+  // ── 7. Hand balance bar ────────────────────────────────────────────────────
 
   .hand-bar-wrap {
     padding: 0 $gap-medium $gap-small;
@@ -321,7 +345,7 @@ $gap-large:       20px;  // score summary divider margins
   .hand-seg-l { background: var(--hand-l); border-radius: 99px 0 0 99px; }
   .hand-seg-r { background: var(--hand-r); border-radius: 0 99px 99px 0; }
 
-  // ── 7. Penalty breakdown ──────────────────────────────────────────────────
+  // ── 8. Penalty breakdown ──────────────────────────────────────────────────
 
   .penalty-wrap {
     padding: 0 $gap-medium $gap-small;
@@ -374,7 +398,7 @@ $gap-large:       20px;  // score summary divider margins
     &::before { content: '| '; }
   }
 
-  // ── 8. Per-finger load bars ────────────────────────────────────────────────
+  // ── 9. Per-finger load bars ────────────────────────────────────────────────
 
   .finger-load-wrap {
     padding: 0 $gap-medium $gap-medium;
@@ -456,7 +480,7 @@ $gap-large:       20px;  // score summary divider margins
     opacity: 1;
   }
 
-  // ── 9. Hotspot chips (bigrams / words) ────────────────────────────────────
+  // ── 10. Hotspot chips (bigrams / words) ───────────────────────────────────
 
   .hotspot-section {
     padding: 0 $gap-medium $gap-small;
@@ -493,7 +517,7 @@ $gap-large:       20px;  // score summary divider margins
   .hotspot-ch   { font-size: 13px; font-weight: 600; color: var(--hard); }
   .hotspot-cost { font-size: 10px; color: var(--txt-dim); }
 
-  // ── 10. Annotated text view ───────────────────────────────────────────────
+  // ── 11. Annotated text view ───────────────────────────────────────────────
 
   .text-scroll {
     overflow-y: auto;
