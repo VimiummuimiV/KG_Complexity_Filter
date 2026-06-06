@@ -379,20 +379,13 @@ export const analyzeComplexity = (text, config = null) => {
     const pbTotal = Object.values(pb).reduce((s, v) => s + v, 0);
 
     // Char counts per penalty type — derived from the annotation sets already built
-    const penaltiedChars = new Set([
-        ...sameFingerChars.keys(),
-        ...shiftedChars,
-        ...outwardRollChars,
-        ...scissorChars,
-        ...rowJumpChars,
-    ]);
     const pbCounts = {
         sameFinger:  Math.round(sameFingerChars.size / 2), // each bigram adds 2 entries
         shiftHold:   shiftedChars.size,
         outwardRoll: Math.round(outwardRollChars.size / 2),
         scissor:     Math.round(scissorChars.size / 2),
         rowJump:     Math.round(rowJumpChars.size / 2),
-        other:       n - penaltiedChars.size, // chars not flagged by any named penalty
+        other:       null, // base cost applies to all chars — no meaningful per-char count
     };
 
     const penaltyBreakdown = pbTotal > 0
