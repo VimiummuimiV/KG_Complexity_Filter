@@ -361,7 +361,7 @@ export const analyzeComplexity = (text, config = null) => {
         for (let i = 0; i <= n; i++) {
             const ch  = i < n ? chars[i] : null;
             const key = ch ? keyOf(ch) : null;
-            const isLetter = !!key && !DIGIT_SET.has(baseOf(ch ?? ''));
+            const isLetter = !!key && /\p{L}/u.test(ch ?? '');
             if (isLetter) {
                 if (ws === -1) ws = i;
             } else if (ws !== -1) {
