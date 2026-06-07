@@ -145,9 +145,10 @@
 
 Для установки необходим браузер с расширением Tampermonkey.
 
-[b]Ссылка для установки:[/b]
+[b]Ссылки для установки:[/b]
 
-[url="https://raw.githubusercontent.com/VimiummuimiV/KG_Complexity_Filter/refs/heads/main/dist/KG_Complexity_Filter.js"]KG_Complexity_Filter.js[/url]
+[url="https://raw.githubusercontent.com/VimiummuimiV/KG_Complexity_Filter/refs/heads/main/dist/KG_Complexity_Filter.js"]GitHub[/url]
+[url="https://greasyfork.org/en/scripts/581522-kg-complexity-filter"]GreasyFork[/url]
 
 
 [b][color="#F77F00"]═══════════════════════════════════════════[/color][/b]
