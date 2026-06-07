@@ -107,7 +107,7 @@ const buildLangBtn = (panel, strings) => {
     return btn;
 };
 
-const buildHeader = (panel, strings, layoutName, score) => {
+const buildHeader = (panel, strings, score) => {
     const header = el('div', 'panel-header');
 
     const miniScore = makeScoreNode('header-score');
@@ -115,7 +115,7 @@ const buildHeader = (panel, strings, layoutName, score) => {
 
     appendAll(header,
         elText('span', 'panel-logo',  'KG'),
-        elText('span', 'panel-title', `${strings.title} · ${layoutName}`),
+        elText('span', 'panel-title', strings.title),
         miniScore,
         buildViewToggleBtn(panel, strings),
         buildThemeBtn(panel, strings),
@@ -132,7 +132,7 @@ const buildHeader = (panel, strings, layoutName, score) => {
 };
 
 const buildStats = (result, strings) => {
-    const { score, avg, length, hardPct, longWordPct, digitRowPct, lang, layoutName } = result;
+    const { score, avg, length, hardPct, longWordPct, digitRowPct, lang } = result;
     const color = scoreColor(score);
     const stats = el('div', 'stats');
 
@@ -152,7 +152,7 @@ const buildStats = (result, strings) => {
         [strings.metaChars,     length.toLocaleString(), null,       strings.tooltipChars     ],
         [strings.metaHardZones, hardPct + '%',          'hard',      strings.tooltipHardZones ],
         [strings.metaLongWords, longWordPct + '%',      'longword',  strings.tooltipLongWords ],
-        [strings.metaLayout,    layoutName,             'layout',    null                     ],
+        [strings.metaLayout,    lang.toUpperCase(),     'layout',    null                     ],
         [strings.metaDigitRow,  digitRowPct + '%',      'digitrow',  strings.tooltipDigitRow  ],
     ];
 
@@ -499,15 +499,14 @@ export const render = (result) => {
     document.getElementById(ID)?.remove();
 
     const strings = getStrings();
-    const { score, layoutName,
-            handBalance, penaltyBreakdown, fingerLoad,
-            hardestBigrams, hardestWords } = result;
+    const { score, handBalance, penaltyBreakdown,
+            fingerLoad, hardestBigrams, hardestWords } = result;
 
     const panel = el('div');
     panel.id = ID;
     panel._kgResult = result; // stored for language re-render
 
-    const { header, miniScore } = buildHeader(panel, strings, layoutName, score);
+    const { header, miniScore } = buildHeader(panel, strings, score);
     panel.appendChild(header);
     panel.appendChild(buildDifficultyBar(result));
 

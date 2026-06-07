@@ -217,10 +217,11 @@ $gap-large:       20px;  // score summary divider margins
   }
 
   .meta-info {
-    display: flex;
-    flex-direction: column;
-    gap: $gap-extra-small;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: $gap-large;
+    row-gap: $gap-extra-small;
+    align-content: center;
     flex: 1;
   }
 

@@ -121,7 +121,7 @@ export const analyzeComplexity = (text, config = null) => {
     const cfg = config ?? detectConfig(text);
     const {
         layout, weights: W, scoreMax, varWeight,
-        segEasy, segMedium, lang, layoutName,
+        segEasy, segMedium, lang,
     } = cfg;
     const { isShifted, keyOf, baseOf, charCost, bigramCost, bigramBreak, trigramPenalty } = buildLayout(cfg);
 
@@ -146,7 +146,10 @@ export const analyzeComplexity = (text, config = null) => {
     const outwardRollChars = new Set(); // indices of chars in outward-roll bigrams
     const scissorChars     = new Set(); // indices of chars in scissor bigrams
     const rowJumpChars     = new Set(); // indices of chars in row-jump bigrams
-    const fingerCounts    = new Array(10).fill(0); // per-finger keystroke counts
+    // Rolling window of recent finger presses — fatigue decays as fingers rest.
+    // Each entry stores the index at which that press occurred; entries older than
+    // fatigueBase*3 positions are discarded so cost doesn't grow without bound.
+    const fingerHistory   = Array.from({ length: 10 }, () => []); // per-finger recent press indices
     const fingerCosts     = new Array(10).fill(0); // per-finger accumulated cost
     const charFingers     = new Int8Array(n).fill(-1); // per-char finger index (0-9), -1 if unmapped
     let   digitRowCount   = 0;                     // number-row keystroke count
@@ -205,14 +208,21 @@ export const analyzeComplexity = (text, config = null) => {
             : 0;
 
         // ── Per-finger fatigue surcharge ──────────────────────────────────────
+        // Uses a rolling window: only presses within the last fatigueBase*3
+        // positions count, so fatigue decays naturally as a finger rests.
         let fatigueSurcharge = 0;
         if (key) {
-            const fi = key[0];
-            fingerCounts[fi]++;
+            const fi          = key[0];
             const fatigueBase = W.fatigueBase ?? 12;
             const fatigueStep = W.fatigueStep ?? 0.08;
-            if (fingerCounts[fi] > fatigueBase) {
-                fatigueSurcharge = (fingerCounts[fi] - fatigueBase) * fatigueStep;
+            const window      = fatigueBase * 3;
+            const hist        = fingerHistory[fi];
+            // Evict presses that are outside the rolling window
+            while (hist.length > 0 && i - hist[0] > window) hist.shift();
+            hist.push(i);
+            const recentCount = hist.length;
+            if (recentCount > fatigueBase) {
+                fatigueSurcharge = (recentCount - fatigueBase) * fatigueStep;
             }
         }
 
@@ -436,7 +446,6 @@ export const analyzeComplexity = (text, config = null) => {
         fingerLoad,
         digitRowPct,
         charFingers,
-        lang:          lang       ?? 'ru',
-        layoutName:    layoutName ?? 'ЙЦУКЕН',
+        lang:          lang ?? 'ru',
     };
 };
