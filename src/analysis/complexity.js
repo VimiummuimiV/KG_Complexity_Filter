@@ -149,7 +149,7 @@ export const analyzeComplexity = (text, config = null) => {
     // Rolling window of recent finger presses — fatigue decays as fingers rest.
     // Each entry stores the index at which that press occurred; entries older than
     // fatigueBase*3 positions are discarded so cost doesn't grow without bound.
-    const fingerHistory   = Array.from({ length: 10 }, () => []); // per-finger recent press indices
+    const fingerHistory = [...Array(10)].map(() => []); // per-finger recent press indices
     const fingerCosts     = new Array(10).fill(0); // per-finger accumulated cost
     const charFingers     = new Int8Array(n).fill(-1); // per-char finger index (0-9), -1 if unmapped
     let   digitRowCount   = 0;                     // number-row keystroke count
@@ -215,10 +215,10 @@ export const analyzeComplexity = (text, config = null) => {
             const fi          = key[0];
             const fatigueBase = W.fatigueBase ?? 12;
             const fatigueStep = W.fatigueStep ?? 0.08;
-            const window      = fatigueBase * 3;
+            const windowSize  = fatigueBase * 3;
             const hist        = fingerHistory[fi];
             // Evict presses that are outside the rolling window
-            while (hist.length > 0 && i - hist[0] > window) hist.shift();
+            while (hist.length > 0 && i - hist[0] > windowSize) hist.shift();
             hist.push(i);
             const recentCount = hist.length;
             if (recentCount > fatigueBase) {
