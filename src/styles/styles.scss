@@ -247,7 +247,7 @@ $gap-large:       20px;  // score summary divider margins
     background: var(--border);
     border-radius: 99px;
     overflow: hidden;
-    margin: $gap-medium;
+    margin: $gap-small $gap-medium;
     flex-shrink: 0;
   }
 
@@ -528,7 +528,7 @@ $gap-large:       20px;  // score summary divider margins
 
   .panel-text {
     overflow-y: auto;
-    padding: $gap-medium;
+    padding: 0 $gap-medium $gap-medium;
     flex: 1;
     min-height: 0;
     font-family: var(--font-mono);
