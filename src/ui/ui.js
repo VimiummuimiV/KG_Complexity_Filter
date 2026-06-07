@@ -49,8 +49,10 @@ const buildSection = (key, label, ...children) => {
         const collapsed = wrap.hasAttribute('data-collapsed');
         const strings   = getStrings();
         const action    = collapsed ? strings.tooltipSectionExpand : strings.tooltipSectionCollapse;
-        const solo      = strings.tooltipSectionSolo;
-        updateTooltipContent(header, `[${strings.tooltipClick}]${action} [Ctrl + ${strings.tooltipClick}]${solo}`);
+        const tip       = collapsed
+            ? `[${strings.tooltipClick}]${action} [Ctrl + ${strings.tooltipClick}]${strings.tooltipSectionSolo}`
+            : `[${strings.tooltipClick}]${action}`;
+        updateTooltipContent(header, tip);
     });
     createCustomTooltip(header, '', 'stats', 200);
     wrap.appendChild(header);
