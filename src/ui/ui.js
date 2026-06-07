@@ -162,7 +162,7 @@ const buildStats = (result, strings, onLayoutChange) => {
         scoreWrap.appendChild(node);
     }
 
-    const LANG_ICON = { ru: 'ruFlag', en: 'enFlag' };
+    const LANG_ICON = { RU: 'ruFlag', EN: 'enFlag' };
 
     const meta = el('div', 'meta-info');
     const rows = [
@@ -170,7 +170,7 @@ const buildStats = (result, strings, onLayoutChange) => {
         [strings.metaChars,     length.toLocaleString(), null,      strings.tooltipChars     ],
         [strings.metaHardZones, hardPct + '%',          'hard',     strings.tooltipHardZones ],
         [strings.metaLongWords, longWordPct + '%',      'longword', strings.tooltipLongWords ],
-        [strings.metaLayout,    lang.toUpperCase(),     'layout',   null                     ],
+        [strings.metaLayout,    lang,                   'layout',   null                     ],
         [strings.metaDigitRow,  digitRowPct + '%',      'digitrow', strings.tooltipDigitRow  ],
     ];
 

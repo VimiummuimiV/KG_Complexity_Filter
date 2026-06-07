@@ -38,5 +38,6 @@ export const frequency = {
     'z':0.06, 'x':0.20, 'c':2.73, 'v':1.06, 'b':1.54, 'n':6.80, 'm':2.53,
 };
 
-export const freqNorm = 12.60; // e — most frequent English letter
-export const lang     = 'en';
+export const freqNorm   = 12.60; // e — most frequent English letter
+export const lang       = 'EN';
+export const layoutName = 'QWERTY';

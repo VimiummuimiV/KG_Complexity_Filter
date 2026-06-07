@@ -127,7 +127,7 @@ const buildLayout = ({ layout, shiftMap, frequency, freqNorm = 11, weights: W })
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
-// langHint: optional 2-char layout hint (e.g. 'ru', 'en') — skips auto-detection when provided.
+// langHint: optional 2-char layout hint (e.g. 'RU', 'EN') — skips auto-detection when provided.
 export const analyzeComplexity = (text, langHint = null) => {
     if (!text?.length) return null;
     const cfg = (langHint && configByLang(langHint)) ?? detectConfig(text);
@@ -459,6 +459,6 @@ export const analyzeComplexity = (text, langHint = null) => {
         fingerLoad,
         digitRowPct,
         charFingers,
-        lang:          lang ?? 'ru',
+        lang:        lang ?? 'RU',
     };
 };
