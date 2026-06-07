@@ -142,7 +142,7 @@ const buildHeader = (panel, strings, score) => {
 
     const close = el('button', 'panel-btn panel-close');
     close.appendChild(createIcon('close-line'));
-    close.addEventListener('click', () => removePanel(panel));
+    close.addEventListener('click', () => panel.remove());
     createCustomTooltip(close, strings.btnClose, 'stats', 0);
     header.appendChild(close);
 
@@ -501,13 +501,6 @@ const buildDifficultyBar = ({ chars, segments }) => {
     return bar;
 };
 
-// ─── Fade-out removal ────────────────────────────────────────────────────────
-
-const removePanel = (panel) => {
-    panel.classList.add('fade-out');
-    panel.addEventListener('animationend', () => panel.remove(), { once: true });
-};
-
 // ─── Score node factory (shared by header mini-score and main score) ──────────
 
 const makeScoreNode = (cls) => el('div', cls);
@@ -534,7 +527,7 @@ const animateScore = (node, target) => {
 
 export const render = (result, vocId = null, onLangChange = null) => {
     const prev = document.getElementById(ID);
-    if (prev) removePanel(prev);
+    prev?.remove();
 
     const strings = getStrings();
     const { score, handBalance, penaltyBreakdown,

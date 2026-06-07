@@ -45,8 +45,7 @@ $gap-large:       20px;  // score summary divider margins
   opacity: 0;
   @include fade(in);
 
-  &.no-fade  { animation: none; opacity: 1; }
-  &.fade-out { @include fade(out); }
+  &.no-fade { animation: none; opacity: 1; }
 
   // ── 1. Header ─────────────────────────────────────────────────────────────
 
