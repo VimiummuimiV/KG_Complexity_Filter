@@ -71,6 +71,10 @@ export const ru = {
     tooltipPenalty_shiftHold:   'Shift зажат той же рукой, что и набираемый символ',
     tooltipPenalty_other:       'Базовая стоимость: позиция клавиши, нагрузка на палец, редкость символа',
 
+    // Layout chip in meta-info row
+    tooltipLayout:            'Нажмите, чтобы переключить раскладку',
+    alertLayoutIncompatible:  'Этот текст несовместим с выбранной раскладкой',
+
     // Language toggle — icon shows the CURRENT language (RU is active)
     langIcon:  '🇷🇺',
     langLabel: 'Switch to English',

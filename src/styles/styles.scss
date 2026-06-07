@@ -240,6 +240,27 @@ $gap-large:       20px;  // score summary divider margins
     color: var(--txt);
   }
 
+  .meta-value-btn {
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 0 4px;
+    border: 1px solid var(--border);
+    transition: background .15s, border-color .15s;
+    &:hover { background: var(--bg-hover); border-color: var(--txt-dim); }
+  }
+
+  .layout-alert {
+    font-size: 11px;
+    color: var(--hard);
+    margin-left: $gap-small;
+    animation: fade .35s cubic-bezier(.16, 1, .3, 1) 1.5s forwards reverse;
+  }
+
+  .layout-alert-shake {
+    @include shake(x);
+  }
+
+
   // ── 4. Score progress bar ──────────────────────────────────────────────────
 
   .progress-track {

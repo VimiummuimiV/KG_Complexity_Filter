@@ -113,10 +113,8 @@ const buildLangBtn = (panel, strings) => {
     createCustomTooltip(btn, strings.langLabel, 'stats', 0);
     btn.addEventListener('click', () => {
         toggleLang(panel);
-        // Re-render the whole panel in the new language.
-        // We store the last result on the panel element to avoid a re-fetch.
         const result = panel._kgResult;
-        if (result) render(result);
+        if (result) render(result, panel._kgVocId, panel._kgOnLayout);
     });
     return btn;
 };
@@ -145,7 +143,7 @@ const buildHeader = (panel, strings, score) => {
     return { header, miniScore };
 };
 
-const buildStats = (result, strings) => {
+const buildStats = (result, strings, onLayoutChange) => {
     const { score, avg, length, hardPct, longWordPct, digitRowPct, lang } = result;
     const color = scoreColor(score);
     const stats = el('div', 'stats');
@@ -162,12 +160,12 @@ const buildStats = (result, strings) => {
 
     const meta = el('div', 'meta-info');
     const rows = [
-        [strings.metaAvg,       String(avg),            'avg',      strings.tooltipAvg        ],
-        [strings.metaChars,     length.toLocaleString(), null,       strings.tooltipChars     ],
-        [strings.metaHardZones, hardPct + '%',          'hard',      strings.tooltipHardZones ],
-        [strings.metaLongWords, longWordPct + '%',      'longword',  strings.tooltipLongWords ],
-        [strings.metaLayout,    lang.toUpperCase(),     'layout',    null                     ],
-        [strings.metaDigitRow,  digitRowPct + '%',      'digitrow',  strings.tooltipDigitRow  ],
+        [strings.metaAvg,       String(avg),            'avg',      strings.tooltipAvg       ],
+        [strings.metaChars,     length.toLocaleString(), null,      strings.tooltipChars     ],
+        [strings.metaHardZones, hardPct + '%',          'hard',     strings.tooltipHardZones ],
+        [strings.metaLongWords, longWordPct + '%',      'longword', strings.tooltipLongWords ],
+        [strings.metaLayout,    lang.toUpperCase(),     'layout',   null                     ],
+        [strings.metaDigitRow,  digitRowPct + '%',      'digitrow', strings.tooltipDigitRow  ],
     ];
 
     for (const [key, val, hint, tip] of rows) {
@@ -181,6 +179,11 @@ const buildStats = (result, strings) => {
         if (hint === 'layout') {
             const iconName = LANG_ICON[lang];
             if (iconName) valNode.prepend(createIcon(iconName));
+            if (onLayoutChange) {
+                valNode.classList.add('meta-value-btn');
+                valNode.addEventListener('click', () => onLayoutChange(lang));
+                createCustomTooltip(valNode, strings.tooltipLayout, 'stats', 0);
+            }
         }
         row.appendChild(valNode);
         if (tip) createCustomTooltip(row, tip, 'stats', 0);
@@ -509,7 +512,7 @@ const animateScore = (node, target) => {
 
 // ─── Public: render(result) ───────────────────────────────────────────────────
 
-export const render = (result) => {
+export const render = (result, vocId = null, onLayoutChange = null) => {
     document.getElementById(ID)?.remove();
 
     const strings = getStrings();
@@ -518,7 +521,9 @@ export const render = (result) => {
 
     const panel = el('div');
     panel.id = ID;
-    panel._kgResult = result; // stored for language re-render
+    panel._kgResult       = result;
+    panel._kgVocId        = vocId;
+    panel._kgOnLayout     = onLayoutChange;
 
     const { header, miniScore } = buildHeader(panel, strings, score);
     panel.appendChild(header);
@@ -526,7 +531,7 @@ export const render = (result) => {
 
     const summary = el('div', 'panel-summary');
     appendAll(summary,
-        buildStats(result, strings),
+        buildStats(result, strings, onLayoutChange),
         buildBar(score),
         buildLegend(strings),
     );
@@ -555,4 +560,25 @@ export const render = (result) => {
     const mainScoreNode = panel.querySelector('.score-value');
     if (mainScoreNode) animateScore(mainScoreNode, score);
     animateScore(miniScore, score);
+};
+
+// ─── Public: showLayoutAlert ──────────────────────────────────────────────────
+// Briefly flashes the layout chip in the meta-info row to signal incompatibility.
+
+export const showLayoutAlert = () => {
+    const strings   = getStrings();
+    const panel     = document.getElementById(ID);
+    const chip      = panel?.querySelector('.meta-value-btn');
+    if (!chip) return;
+
+    const msg = el('span', 'layout-alert');
+    msg.appendChild(document.createTextNode(strings.alertLayoutIncompatible));
+    chip.after(msg);
+    chip.classList.add('layout-alert-shake');
+
+    const cleanup = () => {
+        msg.remove();
+        chip.classList.remove('layout-alert-shake');
+    };
+    setTimeout(cleanup, 2200);
 };
