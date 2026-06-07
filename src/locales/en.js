@@ -80,8 +80,9 @@ export const en = {
     langLabel: 'Switch to Russian',
 
     // Section header tooltips
-    tooltipClick:           'Click',
-    tooltipSectionExpand:   'Expand',
-    tooltipSectionCollapse: 'Collapse',
-    tooltipSectionSolo:     'Collapse all others',
+    tooltipClick:              'Click',
+    tooltipSectionExpand:      'Expand',
+    tooltipSectionCollapse:    'Collapse',
+    tooltipSectionSolo:        'Collapse all others',
+    tooltipSectionToggleAll:   'Expand / collapse all',
 };

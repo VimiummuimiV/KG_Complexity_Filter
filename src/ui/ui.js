@@ -52,11 +52,13 @@ const buildSection = (key, label, ...children) => {
     header.addEventListener('mouseenter', () => {
         const collapsed = wrap.hasAttribute('data-collapsed');
         const strings   = getStrings();
-        const action    = collapsed ? strings.tooltipSectionExpand : strings.tooltipSectionCollapse;
-        const tip       = collapsed
-            ? `[${strings.tooltipClick}]${action} [Ctrl + ${strings.tooltipClick}]${strings.tooltipSectionSolo}`
-            : `[${strings.tooltipClick}]${action}`;
-        updateTooltipContent(header, tip);
+        const click     = strings.tooltipClick;
+        const hints     = [
+            [click,             collapsed ? strings.tooltipSectionExpand : strings.tooltipSectionCollapse],
+            [`Ctrl + ${click}`, collapsed ? strings.tooltipSectionSolo  : null],
+            [`Alt + ${click}`,  strings.tooltipSectionToggleAll],
+        ];
+        updateTooltipContent(header, hints.filter(([, a]) => a).map(([m, a]) => `[${m}]${a}`).join(' '));
     });
     createCustomTooltip(header, '', 'stats', 200);
     wrap.appendChild(header);
