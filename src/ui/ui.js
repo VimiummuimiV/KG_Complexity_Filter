@@ -120,7 +120,7 @@ const buildLangBtn = (panel, strings) => {
     btn.addEventListener('click', () => {
         toggleLang(panel);
         const result = panel._kgResult;
-        if (result) render(result, panel._kgVocId, panel._kgOnLayout);
+        if (result) render(result, panel._kgVocId, panel._kgOnLang);
     });
     return btn;
 };
@@ -149,8 +149,8 @@ const buildHeader = (panel, strings, score) => {
     return { header, miniScore };
 };
 
-const buildStats = (result, strings, onLayoutChange) => {
-    const { score, avg, length, hardPct, longWordPct, digitRowPct, lang, layoutName } = result;
+const buildStats = (result, strings, onLangChange) => {
+    const { score, avg, length, hardPct, longWordPct, digitRowPct, layoutLang, layoutName } = result;
     const color = scoreColor(score);
     const stats = el('div', 'stats');
 
@@ -170,7 +170,7 @@ const buildStats = (result, strings, onLayoutChange) => {
         [strings.metaChars,     length.toLocaleString(),    null,      strings.tooltipChars     ],
         [strings.metaHardZones, hardPct + '%',             'hard',     strings.tooltipHardZones ],
         [strings.metaLongWords, longWordPct + '%',         'longword', strings.tooltipLongWords ],
-        [strings.metaLayout,    `${lang} ${layoutName}`,   'layout',   null                     ],
+        [strings.metaLayout,    layoutName,                'layout',   null                     ],
         [strings.metaDigitRow,  digitRowPct + '%',         'digitrow', strings.tooltipDigitRow  ],
     ];
 
@@ -183,12 +183,12 @@ const buildStats = (result, strings, onLayoutChange) => {
         if (hint === 'longword' && longWordPct > 0)      valNode.style.color = 'var(--medium)';
         if (hint === 'digitrow' && digitRowPct > 10)     valNode.style.color = 'var(--medium)';
         if (hint === 'layout') {
-            const iconName = LANG_ICON[lang];
+            const iconName = LANG_ICON[layoutLang];
             if (iconName) valNode.prepend(createIcon(iconName));
-            if (onLayoutChange) {
+            if (onLangChange) {
                 valNode.classList.add('meta-value-btn');
-                valNode.addEventListener('click', () => onLayoutChange(lang));
-                createCustomTooltip(valNode, strings.tooltipLayout, 'stats', 0);
+                valNode.addEventListener('click', () => onLangChange(layoutLang));
+                createCustomTooltip(valNode, `[${layoutLang} | ${layoutName}] ${strings.tooltipLayout}`, 'stats', 0);
             }
         }
         row.appendChild(valNode);
@@ -518,7 +518,7 @@ const animateScore = (node, target) => {
 
 // ─── Public: render(result) ───────────────────────────────────────────────────
 
-export const render = (result, vocId = null, onLayoutChange = null) => {
+export const render = (result, vocId = null, onLangChange = null) => {
     document.getElementById(ID)?.remove();
 
     const strings = getStrings();
@@ -527,9 +527,9 @@ export const render = (result, vocId = null, onLayoutChange = null) => {
 
     const panel = el('div');
     panel.id = ID;
-    panel._kgResult       = result;
-    panel._kgVocId        = vocId;
-    panel._kgOnLayout     = onLayoutChange;
+    panel._kgResult = result;
+    panel._kgVocId  = vocId;
+    panel._kgOnLang = onLangChange;
 
     const { header, miniScore } = buildHeader(panel, strings, score);
     panel.appendChild(header);
@@ -537,7 +537,7 @@ export const render = (result, vocId = null, onLayoutChange = null) => {
 
     const summary = el('div', 'panel-summary');
     appendAll(summary,
-        buildStats(result, strings, onLayoutChange),
+        buildStats(result, strings, onLangChange),
         buildBar(score),
         buildLegend(strings),
     );

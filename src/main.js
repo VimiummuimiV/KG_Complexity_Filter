@@ -15,12 +15,12 @@ if (gameId) {
                 return;
             }
 
-            const onLayoutChange = (currentLang) => {
+            const onLangChange = (currentLang) => {
                 const lang   = nextLang(currentLang);
                 const result = analyzeComplexity(text, lang);
-                if (!result) { notify(null, getStrings().alertLayoutIncompatible, 'error'); return; }
+                if (!result) { notify(null, getStrings().alertLangIncompatible, 'error'); return; }
                 if (vocId) setVocLayout(vocId, lang);
-                render(result, vocId, onLayoutChange);
+                render(result, vocId, onLangChange);
             };
 
             const savedLang = vocId ? getVocLayout(vocId) : null;
@@ -29,7 +29,7 @@ if (gameId) {
                 console.warn('[KG] complexity analysis returned null');
                 return;
             }
-            render(result, vocId, onLayoutChange);
+            render(result, vocId, onLangChange);
         })
         .catch(e => console.error('[KG] error ->', e.message));
 }

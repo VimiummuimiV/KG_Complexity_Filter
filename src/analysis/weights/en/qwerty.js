@@ -39,5 +39,5 @@ export const frequency = {
 };
 
 export const freqNorm   = 12.60; // e — most frequent English letter
-export const lang       = 'EN';
+export const layoutLang = 'EN';
 export const layoutName = 'QWERTY';

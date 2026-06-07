@@ -39,5 +39,5 @@ export const frequency = {
 };
 
 export const freqNorm   = 10.98; // о — most frequent Russian letter
-export const lang       = 'RU';
+export const layoutLang = 'RU';
 export const layoutName = 'ЙЦУКЕН';

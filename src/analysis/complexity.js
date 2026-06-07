@@ -16,12 +16,12 @@ const detectConfig = (text) => {
     return configs.reduce((best, cfg) => score(cfg) >= score(best) ? cfg : best);
 };
 
-const configByLang = (lang) => configs.find(cfg => cfg.lang === lang) ?? null;
+const configByLang = (lang) => configs.find(cfg => cfg.layoutLang === lang) ?? null;
 
-// Returns the lang of the next config after currentLang (wraps around).
+// Returns the layoutLang of the next config after currentLang (wraps around).
 export const nextLang = (currentLang) => {
-    const idx = configs.findIndex(cfg => cfg.lang === currentLang);
-    return configs[(idx + 1) % configs.length].lang;
+    const idx = configs.findIndex(cfg => cfg.layoutLang === currentLang);
+    return configs[(idx + 1) % configs.length].layoutLang;
 };
 
 const DIGIT_SET = new Set('1234567890');
@@ -133,7 +133,7 @@ export const analyzeComplexity = (text, langHint = null) => {
     const cfg = (langHint && configByLang(langHint)) ?? detectConfig(text);
     const {
         layout, weights: W, scoreMax, varWeight,
-        segEasy, segMedium, lang, layoutName,
+        segEasy, segMedium, layoutLang, layoutName,
     } = cfg;
     const { isShifted, keyOf, baseOf, charCost, bigramCost, bigramBreak, trigramPenalty } = buildLayout(cfg);
 
@@ -459,7 +459,7 @@ export const analyzeComplexity = (text, langHint = null) => {
         fingerLoad,
         digitRowPct,
         charFingers,
-        lang:        lang ?? 'RU',
+        layoutLang:  layoutLang ?? 'RU',
         layoutName:  layoutName ?? 'ЙЦУКЕН',
     };
 };
