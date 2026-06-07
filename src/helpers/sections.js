@@ -15,23 +15,31 @@ const load = () => {
 
 const save = (state) => localStorage.setItem(SECTIONS_KEY, JSON.stringify(state));
 
+const applyState = (panel, state) => {
+    for (const [key, open] of Object.entries(state))
+        panel.querySelector(`[data-section="${key}"]`)?.toggleAttribute('data-collapsed', !open);
+};
+
 export const toggleSection = (panel, key) => {
     const state = load();
     state[key] = !state[key];
     save(state);
-    panel.querySelector(`[data-section="${key}"]`)?.toggleAttribute('data-collapsed', !state[key]);
+    applyState(panel, state);
 };
 
-export const applyInitialSections = (panel) => {
-    const state = load();
-    for (const [key, open] of Object.entries(state))
-        panel.querySelector(`[data-section="${key}"]`)?.toggleAttribute('data-collapsed', !open);
-};
+export const applyInitialSections = (panel) => applyState(panel, load());
 
 export const collapseAllExcept = (panel, key) => {
     const state = load();
     for (const k of Object.keys(state)) state[k] = k === key;
     save(state);
-    for (const k of Object.keys(state))
-        panel.querySelector(`[data-section="${k}"]`)?.toggleAttribute('data-collapsed', k !== key);
+    applyState(panel, state);
+};
+
+export const toggleAllSections = (panel) => {
+    const state = load();
+    const open = !Object.values(state).some(v => v);
+    for (const k of Object.keys(state)) state[k] = open;
+    save(state);
+    applyState(panel, state);
 };
