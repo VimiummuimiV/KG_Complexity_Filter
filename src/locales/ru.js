@@ -77,7 +77,7 @@ export const ru = {
 
     // Language toggle — icon shows the CURRENT language (RU is active)
     langIcon:  '🇷🇺',
-    langLabel: 'Switch to English',
+    langLabel: 'Переключить на английский',
 
     // Section header tooltips
     tooltipClick:              'Клик',
