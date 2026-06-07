@@ -11,7 +11,7 @@ export const en = {
     tierHard:   'Hard',
 
     // Meta rows
-    metaAvg:        'Avg cost / char',
+    metaAvg:        'Avg cost',
     metaChars:      'Characters',
     metaHardZones:  'Hard zones',
     metaLongWords:  'Long words',

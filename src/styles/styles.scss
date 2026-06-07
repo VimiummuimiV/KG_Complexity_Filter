@@ -29,7 +29,7 @@ $gap-large:       20px;  // score summary divider margins
   --font-ui:   'Inter', 'Segoe UI', system-ui, sans-serif;
 
   position: fixed;
-  width: clamp(320px, 38vw, 560px);
+  width: 480px;
   max-height: 100vh;
   background: var(--bg);
   border: 1px solid var(--border);

@@ -11,7 +11,7 @@ export const ru = {
     tierHard:   'Сложно',
 
     // Meta rows
-    metaAvg:        'Ср. стоимость / символ',
+    metaAvg:        'Ср. стоимость',
     metaChars:      'Символов',
     metaHardZones:  'Сложные зоны',
     metaLongWords:  'Длинные слова',
