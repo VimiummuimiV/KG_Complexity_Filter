@@ -561,24 +561,3 @@ export const render = (result, vocId = null, onLayoutChange = null) => {
     if (mainScoreNode) animateScore(mainScoreNode, score);
     animateScore(miniScore, score);
 };
-
-// ─── Public: showLayoutAlert ──────────────────────────────────────────────────
-// Briefly flashes the layout chip in the meta-info row to signal incompatibility.
-
-export const showLayoutAlert = () => {
-    const strings   = getStrings();
-    const panel     = document.getElementById(ID);
-    const chip      = panel?.querySelector('.meta-value-btn');
-    if (!chip) return;
-
-    const msg = el('span', 'layout-alert');
-    msg.appendChild(document.createTextNode(strings.alertLayoutIncompatible));
-    chip.after(msg);
-    chip.classList.add('layout-alert-shake');
-
-    const cleanup = () => {
-        msg.remove();
-        chip.classList.remove('layout-alert-shake');
-    };
-    setTimeout(cleanup, 2200);
-};

@@ -1,5 +1,4 @@
 // Shared animation utility for UI.
-// One compact fade mixin containing the keyframes inline.
 
 @keyframes spin {
   from { transform: rotate(0deg);   }
@@ -13,19 +12,6 @@
   65%  { transform: rotate(-10deg); }
   80%  { transform: rotate(6deg);   }
   100% { transform: rotate(0deg);   }
-}
-
-
-@mixin shake($axis: x) {
-  $A: if($axis == x, 'X', 'Y');
-  animation: shake .35s ease;
-
-  @keyframes shake {
-    0%, 100% { transform: translate#{$A}(0);    }
-    20%       { transform: translate#{$A}(-3px); }
-    50%       { transform: translate#{$A}(3px);  }
-    80%       { transform: translate#{$A}(-2px); }
-  }
 }
 
 @mixin fade($type: in) {

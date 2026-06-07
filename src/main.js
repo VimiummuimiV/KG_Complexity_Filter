@@ -1,7 +1,9 @@
 import { getGameId, fetchGameText } from './api/gameText.js';
 import { analyzeComplexity, nextLang } from './analysis/complexity.js';
-import { render, showLayoutAlert } from './ui/ui.js';
+import { render } from './ui/ui.js';
 import { getVocLayout, setVocLayout } from './helpers/vocLayout.js';
+import { notify } from './helpers/notification.js';
+import { getStrings } from './helpers/lang.js';
 
 const gameId = getGameId();
 
@@ -16,7 +18,7 @@ if (gameId) {
             const onLayoutChange = (currentLang) => {
                 const lang   = nextLang(currentLang);
                 const result = analyzeComplexity(text, lang);
-                if (!result) { showLayoutAlert(); return; }
+                if (!result) { notify(null, getStrings().alertLayoutIncompatible, 'error'); return; }
                 if (vocId) setVocLayout(vocId, lang);
                 render(result, vocId, onLayoutChange);
             };
