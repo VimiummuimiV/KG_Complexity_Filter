@@ -74,4 +74,10 @@ export const en = {
     // Language toggle — icon shows the CURRENT language (EN is active)
     langIcon:  '🇬🇧',
     langLabel: 'Switch to Russian',
+
+    // Section header tooltips
+    tooltipClick:           'Click',
+    tooltipSectionExpand:   'Expand',
+    tooltipSectionCollapse: 'Collapse',
+    tooltipSectionSolo:     'Collapse all others',
 };

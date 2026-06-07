@@ -9,7 +9,7 @@ import { applyInitialTheme, toggleTheme }      from '../helpers/theme';
 import { applyInitialView, cycleView }         from '../helpers/view';
 import { applyInitialLang, toggleLang,
          getStrings }                          from '../helpers/lang';
-import { createCustomTooltip }                 from '../helpers/tooltip';
+import { createCustomTooltip, updateTooltipContent }           from '../helpers/tooltip';
 import { applyInitialSections, toggleSection, collapseAllExcept } from '../helpers/sections';
 
 const ID = 'complexity-filter-panel';
@@ -45,6 +45,14 @@ const buildSection = (key, label, ...children) => {
         if (e.ctrlKey) collapseAllExcept(panel, key);
         else           toggleSection(panel, key);
     });
+    header.addEventListener('mouseenter', () => {
+        const collapsed = wrap.hasAttribute('data-collapsed');
+        const strings   = getStrings();
+        const action    = collapsed ? strings.tooltipSectionExpand : strings.tooltipSectionCollapse;
+        const solo      = strings.tooltipSectionSolo;
+        updateTooltipContent(header, `[${strings.tooltipClick}]${action} [Ctrl + ${strings.tooltipClick}]${solo}`);
+    });
+    createCustomTooltip(header, '', 'stats', 200);
     wrap.appendChild(header);
 
     for (const child of children) if (child) wrap.appendChild(child);
