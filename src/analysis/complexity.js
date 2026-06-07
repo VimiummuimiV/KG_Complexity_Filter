@@ -350,25 +350,26 @@ export const analyzeComplexity = (text, langHint = null) => {
     })();
 
     // ── Bigram hotspots ───────────────────────────────────────────────────────
-    const bigramTotals = {};
+    const bigramTotals = {}; // baseKey → { pair, cost }
     for (let i = 1; i < n; i++) {
         const bc = bigramCost(chars[i - 1], chars[i]);
         if (bc > 0) {
             const key = baseOf(chars[i - 1]) + baseOf(chars[i]);
-            bigramTotals[key] = (bigramTotals[key] ?? 0) + bc;
+            if (!bigramTotals[key]) bigramTotals[key] = { pair: chars[i - 1] + chars[i], cost: 0 };
+            bigramTotals[key].cost += bc;
         }
     }
 
     // Include all bigrams whose penalty cost is at least segEasy, covering 80%
     // of total bigram cost. No arbitrary cap — quality threshold does the filtering.
-    const sorted      = Object.entries(bigramTotals)
-                              .filter(([, v]) => v >= segEasy)
-                              .sort((a, b) => b[1] - a[1]);
-    const bigramSum   = sorted.reduce((s, [, v]) => s + v, 0);
+    const sorted      = Object.values(bigramTotals)
+                              .filter(({ cost }) => cost >= segEasy)
+                              .sort((a, b) => b.cost - a.cost);
+    const bigramSum   = sorted.reduce((s, { cost }) => s + cost, 0);
     const threshold   = bigramSum * 0.8;
     let   accumulated = 0;
     const hardestBigrams  = [];
-    for (const [pair, cost] of sorted) {
+    for (const { pair, cost } of sorted) {
         hardestBigrams.push({ pair, cost: +cost.toFixed(1) });
         accumulated += cost;
         if (accumulated >= threshold) break;
