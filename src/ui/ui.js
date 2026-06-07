@@ -188,7 +188,14 @@ const buildStats = (result, strings, onLangChange) => {
             if (onLangChange) {
                 valNode.classList.add('meta-value-btn');
                 valNode.addEventListener('click', () => onLangChange(layoutLang));
-                createCustomTooltip(valNode, `[${layoutLang} | ${layoutName}] ${strings.tooltipLayout}`, 'stats', 0);
+                valNode.addEventListener('mouseenter', () => {
+                    const strings = getStrings();
+                    updateTooltipContent(valNode, [
+                        `[${layoutLang} | ${layoutName}]`,
+                        `[${strings.tooltipClick}]${strings.tooltipLang}`,
+                    ].join(' '));
+                });
+                createCustomTooltip(valNode, '', 'stats', 0);
             }
         }
         row.appendChild(valNode);

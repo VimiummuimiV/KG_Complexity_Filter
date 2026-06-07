@@ -71,8 +71,8 @@ export const en = {
     tooltipPenalty_shiftHold:   'Shift held on the same side as the key being typed',
     tooltipPenalty_other:       'Base key cost: position on keyboard, finger load, and character rarity',
 
-    // Layout chip in meta-info row
-    tooltipLayout:            'Click to switch keyboard language',
+    // Lang / Layout chip in meta-info row
+    tooltipLang:              'Switch keyboard language',
     alertLangIncompatible:    'This text is not compatible with the selected language',
 
     // Language toggle — icon shows the CURRENT language (EN is active)
