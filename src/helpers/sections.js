@@ -27,3 +27,11 @@ export const applyInitialSections = (panel) => {
     for (const [key, open] of Object.entries(state))
         panel.querySelector(`[data-section="${key}"]`)?.toggleAttribute('data-collapsed', !open);
 };
+
+export const collapseAllExcept = (panel, key) => {
+    const state = load();
+    for (const k of Object.keys(state)) state[k] = k === key;
+    save(state);
+    for (const k of Object.keys(state))
+        panel.querySelector(`[data-section="${k}"]`)?.toggleAttribute('data-collapsed', k !== key);
+};

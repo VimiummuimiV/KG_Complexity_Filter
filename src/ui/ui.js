@@ -10,7 +10,7 @@ import { applyInitialView, cycleView }         from '../helpers/view';
 import { applyInitialLang, toggleLang,
          getStrings }                          from '../helpers/lang';
 import { createCustomTooltip }                 from '../helpers/tooltip';
-import { applyInitialSections, toggleSection } from '../helpers/sections';
+import { applyInitialSections, toggleSection, collapseAllExcept } from '../helpers/sections';
 
 const ID = 'complexity-filter-panel';
 
@@ -40,7 +40,11 @@ const buildSection = (key, label, ...children) => {
     wrap.dataset.section = key;
 
     const header = elText('div', 'section-header hotspot-label', label);
-    header.addEventListener('click', () => toggleSection(header.closest(`#${ID}`), key));
+    header.addEventListener('click', (e) => {
+        const panel = header.closest(`#${ID}`);
+        if (e.ctrlKey) collapseAllExcept(panel, key);
+        else           toggleSection(panel, key);
+    });
     wrap.appendChild(header);
 
     for (const child of children) if (child) wrap.appendChild(child);
