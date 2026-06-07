@@ -1,11 +1,26 @@
 export const makeDraggable = (element, handle = element, storageKey) => {
-  let active = false;
-  let offsetX = 0;
-  let offsetY = 0;
+  let active    = false;
+  let offsetX   = 0;
+  let offsetY   = 0;
+  let intendedX = null;
+  let intendedY = null;
 
-  const place = (left, top) => {
-    element.style.left   = `${Math.min(Math.max(left, 0), window.innerWidth  - element.offsetWidth)}px`;
-    element.style.top    = `${Math.min(Math.max(top,  0), window.innerHeight - element.offsetHeight)}px`;
+  const constrain = () => {
+    const r  = element.getBoundingClientRect();
+    const mL = window.innerWidth  - r.width;
+    const mT = window.innerHeight - r.height;
+    if (r.left < 0)  element.style.left = '0px';
+    if (r.top  < 0)  element.style.top  = '0px';
+    if (r.left > mL) element.style.left = mL + 'px';
+    if (r.top  > mT) element.style.top  = mT + 'px';
+  };
+
+  const place = (x, y) => {
+    intendedX = x;
+    intendedY = y;
+    element.style.left = x + 'px';
+    element.style.top  = y + 'px';
+    constrain();
   };
 
   // Restore saved position
@@ -16,8 +31,14 @@ export const makeDraggable = (element, handle = element, storageKey) => {
   } catch {}
 
   const save = () => {
-    try { window.localStorage.setItem(storageKey, JSON.stringify({ left: element.offsetLeft, top: element.offsetTop })); }
+    try { window.localStorage.setItem(storageKey, JSON.stringify({ left: intendedX ?? element.offsetLeft, top: intendedY ?? element.offsetTop })); }
     catch {}
+  };
+
+  const onResize = () => {
+    if (intendedX !== null) element.style.left = intendedX + 'px';
+    if (intendedY !== null) element.style.top  = intendedY + 'px';
+    constrain();
   };
 
   const onPointerMove = (e) => {
@@ -48,10 +69,12 @@ export const makeDraggable = (element, handle = element, storageKey) => {
   };
 
   handle.addEventListener('pointerdown', onPointerDown);
+  window.addEventListener('resize', onResize);
 
   return () => {
     handle.removeEventListener('pointerdown', onPointerDown);
     window.removeEventListener('pointermove', onPointerMove);
     window.removeEventListener('pointerup', onPointerUp);
+    window.removeEventListener('resize', onResize);
   };
 };
