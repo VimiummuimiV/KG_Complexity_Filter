@@ -12,7 +12,7 @@ const TYPE_COLOR = {
     info:    'var(--clr-blue)',
 };
 
-const HOLD_MS   = 2000;
+const HOLD_MS   = 3000;
 const FADE_MS   = 350;
 const TOTAL_MS  = HOLD_MS + FADE_MS;
 
@@ -20,6 +20,8 @@ const TOTAL_MS  = HOLD_MS + FADE_MS;
 // panel defaults to the live panel in the DOM.
 // type defaults to 'info'.
 export const notify = (panel, message, type = 'info') => {
+    if (!message) return;
+
     const root = panel ?? document.getElementById(PANEL_ID);
     if (!root) return;
 
@@ -29,6 +31,13 @@ export const notify = (panel, message, type = 'info') => {
         stack.className = 'kg-notification-stack';
         root.appendChild(stack);
     }
+
+    // Check if this exact message is already displayed
+    const isDuplicate = Array.from(stack.children).some(
+        toast => toast.textContent === message
+    );
+
+    if (isDuplicate) return;
 
     const toast = document.createElement('div');
     toast.className = 'kg-notification';
