@@ -23,11 +23,16 @@ export const makeDraggable = (element, handle = element, storageKey) => {
     constrain(element);
   };
 
-  // Restore saved position
+  // Restore saved position, or center in viewport on first use
   try {
     const saved = JSON.parse(window.localStorage.getItem(storageKey) || 'null');
     if (saved && Number.isFinite(saved.left) && Number.isFinite(saved.top))
       place(saved.left, saved.top);
+    else
+      requestAnimationFrame(() => place(
+        (window.innerWidth  - element.offsetWidth)  / 2,
+        (window.innerHeight - element.offsetHeight) / 2,
+      ));
   } catch {}
 
   const save = () => {
