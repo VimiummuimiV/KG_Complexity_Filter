@@ -1,3 +1,13 @@
+export const constrain = (element) => {
+  const r  = element.getBoundingClientRect();
+  const mL = window.innerWidth  - r.width;
+  const mT = window.innerHeight - r.height;
+  if (r.left < 0)  element.style.left = '0px';
+  if (r.top  < 0)  element.style.top  = '0px';
+  if (r.left > mL) element.style.left = mL + 'px';
+  if (r.top  > mT) element.style.top  = mT + 'px';
+};
+
 export const makeDraggable = (element, handle = element, storageKey) => {
   let active    = false;
   let offsetX   = 0;
@@ -5,22 +15,12 @@ export const makeDraggable = (element, handle = element, storageKey) => {
   let intendedX = null;
   let intendedY = null;
 
-  const constrain = () => {
-    const r  = element.getBoundingClientRect();
-    const mL = window.innerWidth  - r.width;
-    const mT = window.innerHeight - r.height;
-    if (r.left < 0)  element.style.left = '0px';
-    if (r.top  < 0)  element.style.top  = '0px';
-    if (r.left > mL) element.style.left = mL + 'px';
-    if (r.top  > mT) element.style.top  = mT + 'px';
-  };
-
   const place = (x, y) => {
     intendedX = x;
     intendedY = y;
     element.style.left = x + 'px';
     element.style.top  = y + 'px';
-    constrain();
+    constrain(element);
   };
 
   // Restore saved position
@@ -38,7 +38,7 @@ export const makeDraggable = (element, handle = element, storageKey) => {
   const onResize = () => {
     if (intendedX !== null) element.style.left = intendedX + 'px';
     if (intendedY !== null) element.style.top  = intendedY + 'px';
-    constrain();
+    constrain(element);
   };
 
   const onPointerMove = (e) => {

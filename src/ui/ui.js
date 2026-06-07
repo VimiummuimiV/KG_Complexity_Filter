@@ -4,7 +4,7 @@
 
 import '../styles/styles.scss';
 import { createIcon }                          from '../icons/iconsIndex';
-import { makeDraggable }                       from '../helpers/drag';
+import { makeDraggable, constrain }            from '../helpers/drag';
 import { applyInitialTheme, toggleTheme }      from '../helpers/theme';
 import { applyInitialView, cycleView }         from '../helpers/view';
 import { applyInitialLang, toggleLang,
@@ -88,7 +88,7 @@ const PENALTY_META = [
 
 const buildViewToggleBtn = (panel, strings) => {
     const btn = el('button', 'panel-btn panel-view');
-    btn.addEventListener('click', () => cycleView(panel));
+    btn.addEventListener('click', () => { cycleView(panel); constrain(panel); });
     appendAll(btn,
         createIcon('eye-fill'),
         createIcon('eye-off-fill'),
