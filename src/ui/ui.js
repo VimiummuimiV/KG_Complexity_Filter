@@ -36,6 +36,9 @@ const appendAll = (parent, ...children) => {
 // ─── Collapsible section wrapper ──────────────────────────────────────────────
 
 const buildSection = (key, label, ...children) => {
+    const valid = children.filter(Boolean);
+    if (!valid.length) return null;
+
     const wrap   = el('div', 'section-wrap');
     wrap.dataset.section = key;
 
@@ -57,7 +60,7 @@ const buildSection = (key, label, ...children) => {
     createCustomTooltip(header, '', 'stats', 200);
     wrap.appendChild(header);
 
-    for (const child of children) if (child) wrap.appendChild(child);
+    for (const child of valid) wrap.appendChild(child);
     return wrap;
 };
 
