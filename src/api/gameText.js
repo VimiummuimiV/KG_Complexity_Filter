@@ -4,8 +4,11 @@ export const getGameId = () => new URL(location.href).searchParams.get('gmid')
 export const fetchGameText = async (gameId) => {
     const body = new URLSearchParams({ need_text: '1' });
 
-    const res = await fetch(`${location.origin}/g/${gameId}.info`, { method: 'POST', body });
+    const res  = await fetch(`${location.origin}/g/${gameId}.info`, { method: 'POST', body });
     const json = await res.json();
 
-    return json.text?.text ?? null;
+    return {
+        text:  json.text?.text ?? null,
+        vocId: json.params?.voc?.id ?? null,
+    };
 };

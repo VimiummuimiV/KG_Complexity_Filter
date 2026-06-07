@@ -5,12 +5,23 @@ import { configs } from './weights/weightsIndex.js';
 
 // ─── Language detection ───────────────────────────────────────────────────────
 
-// Count how many chars belong to each config's layout (ignoring whitespace/digits)
+// Count how many chars are recognised by a config: letters via layout, punctuation via shiftMap.
+// Digits and whitespace are layout-neutral and excluded from scoring.
 const detectConfig = (text) => {
-    const sample = [...text].filter(ch => /\p{L}/u.test(ch));
+    const sample = [...text].filter(ch => !/[\p{N} \n\r]/u.test(ch));
     if (sample.length === 0) return configs[0];
-    const score = (cfg) => sample.filter(ch => ch.toLowerCase() in cfg.layout).length;
+    const score = (cfg) => sample.filter(ch =>
+        ch.toLowerCase() in cfg.layout || ch in cfg.shiftMap
+    ).length;
     return configs.reduce((best, cfg) => score(cfg) >= score(best) ? cfg : best);
+};
+
+const configByLang = (lang) => configs.find(cfg => cfg.lang === lang) ?? null;
+
+// Returns the lang of the next config after currentLang (wraps around).
+export const nextLang = (currentLang) => {
+    const idx = configs.findIndex(cfg => cfg.lang === currentLang);
+    return configs[(idx + 1) % configs.length].lang;
 };
 
 const DIGIT_SET = new Set('1234567890');
@@ -116,9 +127,10 @@ const buildLayout = ({ layout, shiftMap, frequency, freqNorm = 11, weights: W })
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
-export const analyzeComplexity = (text, config = null) => {
+// langHint: optional 2-char layout hint (e.g. 'ru', 'en') — skips auto-detection when provided.
+export const analyzeComplexity = (text, langHint = null) => {
     if (!text?.length) return null;
-    const cfg = config ?? detectConfig(text);
+    const cfg = (langHint && configByLang(langHint)) ?? detectConfig(text);
     const {
         layout, weights: W, scoreMax, varWeight,
         segEasy, segMedium, lang,
