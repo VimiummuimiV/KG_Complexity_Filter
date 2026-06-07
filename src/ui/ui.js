@@ -526,6 +526,7 @@ const animateScore = (node, target) => {
 // ─── Public: render(result) ───────────────────────────────────────────────────
 
 export const render = (result, vocId = null, onLangChange = null) => {
+    const isUpdate = !!document.getElementById(ID);
     document.getElementById(ID)?.remove();
 
     const strings = getStrings();
@@ -565,6 +566,7 @@ export const render = (result, vocId = null, onLangChange = null) => {
     applyInitialView(panel);
     applyInitialLang(panel);
     applyInitialSections(panel);
+    if (isUpdate) panel.classList.add('no-fade');
 
     document.body.appendChild(panel);
     makeDraggable(panel, panel.querySelector('.panel-header'), 'complexityFilterPanelPosition');
