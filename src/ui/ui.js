@@ -150,7 +150,7 @@ const buildHeader = (panel, strings, score) => {
 };
 
 const buildStats = (result, strings, onLayoutChange) => {
-    const { score, avg, length, hardPct, longWordPct, digitRowPct, lang } = result;
+    const { score, avg, length, hardPct, longWordPct, digitRowPct, lang, layoutName } = result;
     const color = scoreColor(score);
     const stats = el('div', 'stats');
 
@@ -166,12 +166,12 @@ const buildStats = (result, strings, onLayoutChange) => {
 
     const meta = el('div', 'meta-info');
     const rows = [
-        [strings.metaAvg,       String(avg),            'avg',      strings.tooltipAvg       ],
-        [strings.metaChars,     length.toLocaleString(), null,      strings.tooltipChars     ],
-        [strings.metaHardZones, hardPct + '%',          'hard',     strings.tooltipHardZones ],
-        [strings.metaLongWords, longWordPct + '%',      'longword', strings.tooltipLongWords ],
-        [strings.metaLayout,    lang,                   'layout',   null                     ],
-        [strings.metaDigitRow,  digitRowPct + '%',      'digitrow', strings.tooltipDigitRow  ],
+        [strings.metaAvg,       String(avg),               'avg',      strings.tooltipAvg       ],
+        [strings.metaChars,     length.toLocaleString(),    null,      strings.tooltipChars     ],
+        [strings.metaHardZones, hardPct + '%',             'hard',     strings.tooltipHardZones ],
+        [strings.metaLongWords, longWordPct + '%',         'longword', strings.tooltipLongWords ],
+        [strings.metaLayout,    `${lang} ${layoutName}`,   'layout',   null                     ],
+        [strings.metaDigitRow,  digitRowPct + '%',         'digitrow', strings.tooltipDigitRow  ],
     ];
 
     for (const [key, val, hint, tip] of rows) {

@@ -133,7 +133,7 @@ export const analyzeComplexity = (text, langHint = null) => {
     const cfg = (langHint && configByLang(langHint)) ?? detectConfig(text);
     const {
         layout, weights: W, scoreMax, varWeight,
-        segEasy, segMedium, lang,
+        segEasy, segMedium, lang, layoutName,
     } = cfg;
     const { isShifted, keyOf, baseOf, charCost, bigramCost, bigramBreak, trigramPenalty } = buildLayout(cfg);
 
@@ -460,5 +460,6 @@ export const analyzeComplexity = (text, langHint = null) => {
         digitRowPct,
         charFingers,
         lang:        lang ?? 'RU',
+        layoutName:  layoutName ?? 'ЙЦУКЕН',
     };
 };
