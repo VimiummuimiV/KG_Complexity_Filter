@@ -146,14 +146,6 @@ const buildHeader = (panel, strings, score) => {
     const miniScore = makeScoreNode('header-score');
     miniScore.style.color = scoreColor(score);
 
-    const btnGroup = el('div', 'panel-btn-group');
-    appendAll(btnGroup,
-        buildViewToggleBtn(panel, strings),
-        buildThemeBtn(panel, strings),
-        buildLangBtn(panel, strings),
-        buildKeyboardBtn(panel, strings),
-    );
-
     const close = el('button', 'panel-btn panel-close');
     close.appendChild(createIcon('close-line'));
     close.addEventListener('click', () => {
@@ -162,12 +154,20 @@ const buildHeader = (panel, strings, score) => {
     });
     createCustomTooltip(close, strings.btnClose, 'stats', 0);
 
+    const btnGroup = el('div', 'panel-btn-group');
+    appendAll(btnGroup,
+        buildViewToggleBtn(panel, strings),
+        buildThemeBtn(panel, strings),
+        buildLangBtn(panel, strings),
+        buildKeyboardBtn(panel, strings),
+        close,
+    );
+
     appendAll(header,
         elText('span', 'panel-logo',  'KG'),
         elText('span', 'panel-title', strings.title),
         miniScore,
         btnGroup,
-        close,
     );
 
     return { header, miniScore };

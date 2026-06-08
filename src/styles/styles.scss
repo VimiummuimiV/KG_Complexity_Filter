@@ -31,6 +31,7 @@ $gap-large:       20px;  // score summary divider margins
 .panel-btn-group {
   display: flex;
   align-items: center;
+  gap: $gap-extra-small;
 }
 
 .panel-btn {
@@ -53,8 +54,8 @@ $gap-large:       20px;  // score summary divider margins
   }
 
   .panel-icon {
-    width: 18px;
-    height: 18px;
+    width: 18px !important;
+    height: 18px !important;
   }
 }
 
