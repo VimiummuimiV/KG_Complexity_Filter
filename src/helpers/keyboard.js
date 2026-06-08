@@ -42,17 +42,11 @@ const buildShiftLabels = (shiftMap) => {
 
 const keysByRow = (layout) => {
     const rows = { 0: [], 1: [], 2: [], 3: [] };
-    for (const [ch, [finger, row]] of Object.entries(layout)) {
-        rows[row].push({ ch, finger });
+    for (const [ch, [finger, row, pos]] of Object.entries(layout)) {
+        rows[row].push({ ch, finger, pos });
     }
     for (const r of [0, 1, 2, 3]) {
-        const seen = new Set();
-        rows[r] = rows[r].filter(({ finger }) => {
-            if (seen.has(finger)) return false;
-            seen.add(finger);
-            return true;
-        });
-        rows[r].sort((a, b) => a.finger - b.finger);
+        rows[r].sort((a, b) => a.pos - b.pos);
     }
     return rows;
 };

@@ -82,8 +82,8 @@ const buildLayout = ({ layout, shiftMap, frequency, freqNorm = 11, weights: W })
         if (!ka || !kb) return null;
         // Same key repeated (e.g. 666, ll, сс) — no repositioning, zero bigram cost
         if (baseOf(a) === baseOf(b)) return { total: 0, sameFinger: 0, outwardRoll: 0, scissor: 0, rowJump: 0, shiftAlt: 0, isOutward: false };
-        const [fa, rowa, ha] = ka;
-        const [fb, rowb, hb] = kb;
+        const [fa, rowa, , ha] = ka;
+        const [fb, rowb, , hb] = kb;
 
         let sameFinger = 0, outwardRoll = 0, scissor = 0, rowJump = 0, isOutward = false;
 
@@ -123,9 +123,9 @@ const buildLayout = ({ layout, shiftMap, frequency, freqNorm = 11, weights: W })
     const trigramPenalty = (a, b, c) => {
         const ka = keyOf(a); const kb = keyOf(b); const kc = keyOf(c);
         if (!ka || !kb || !kc) return 0;
-        const [fa,, ha] = ka;
-        const [fb,, hb] = kb;
-        const [fc,, hc] = kc;
+        const [fa,, , ha] = ka;
+        const [fb,, , hb] = kb;
+        const [fc,, , hc] = kc;
         if (ha !== hb || hb !== hc) return 0; // not same hand
         if (fa === fb || fb === fc) return 0;  // same-finger already penalised
 
@@ -213,7 +213,7 @@ export const analyzeComplexity = (text, layoutLang = null, layoutName = null) =>
 
         // ── Hand tracking + same-hand run surcharge ───────────────────────────
         if (key) {
-            const hand = key[2];
+            const hand = key[3];
             if (hand === lastHand) { handRun++; } else { handRun = 1; lastHand = hand; }
             if (hand === 'L') leftKeys++; else rightKeys++;
         } else {
@@ -263,8 +263,8 @@ export const analyzeComplexity = (text, layoutLang = null, layoutName = null) =>
 
         // ── Per-char annotation sets ──────────────────────────────────────────
         if (bg?.sameFinger > 0) {
-            const hand = key?.[2] ?? 'L';
-            sameFingerChars.set(i - 1, keyOf(chars[i - 1])?.[2] ?? hand);
+            const hand = key?.[3] ?? 'L';
+            sameFingerChars.set(i - 1, keyOf(chars[i - 1])?.[3] ?? hand);
             sameFingerChars.set(i, hand);
         }
         if (key && key[1] === 0) { digitRowCount++; }
