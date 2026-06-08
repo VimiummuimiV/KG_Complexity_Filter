@@ -27,17 +27,5 @@ export const shiftMap = {
     '<':',', '>':'.', '?':'/',
 };
 
-// Letter frequency in English text
-// Used to penalise rare letters (weaker muscle memory)
-export const frequency = {
-    // ── top row ────────────────────────────────────────────────────────────
-    'q':0.09, 'w':2.34, 'e':12.60, 'r':5.68, 't':9.37, 'y':2.04, 'u':2.85, 'i':6.71, 'o':7.70, 'p':1.66,
-    // ── home row ───────────────────────────────────────────────────────────
-    'a':8.34, 's':6.11, 'd':4.14, 'f':2.03, 'g':1.92, 'h':6.11, 'j':0.23, 'k':0.87, 'l':4.24,
-    // ── bottom row ─────────────────────────────────────────────────────────
-    'z':0.06, 'x':0.20, 'c':2.73, 'v':1.06, 'b':1.54, 'n':6.80, 'm':2.53,
-};
-
-export const freqNorm   = 12.60; // e — most frequent English letter
 export const layoutLang = 'EN';
 export const layoutName = 'QWERTY';
