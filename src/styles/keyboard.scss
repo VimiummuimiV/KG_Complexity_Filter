@@ -1,0 +1,117 @@
+// ─── styles/keyboard.scss ────────────────────────────────────────────────────
+// Styles for the virtual keyboard overlay (#kg-keyboard-overlay).
+// Finger colours reuse --hand-l / --hand-r from the theme + per-finger tints.
+
+// Finger tint mixin: left fingers lean toward --hand-l, right toward --hand-r
+@mixin finger-color($i) {
+    @if $i < 5 {
+        background: color-mix(in srgb, var(--hand-l) #{20% + $i * 8%}, var(--kb-key-bg));
+    } @else {
+        background: color-mix(in srgb, var(--hand-r) #{20% + (9 - $i) * 8%}, var(--kb-key-bg));
+    }
+}
+
+#kg-keyboard-overlay {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2100;
+    border-radius: 10px;
+    border: 1px solid var(--kb-border);
+    background: var(--kb-bg);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, .45);
+    padding: 10px 12px 14px;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    user-select: none;
+
+    // ── Header ────────────────────────────────────────────────────────────────
+
+    .kg-kb-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .kg-kb-title {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--kb-title);
+    }
+
+    .kg-kb-close {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--kb-title);
+        font-size: 18px;
+        line-height: 1;
+        padding: 0 2px;
+        border-radius: 4px;
+        transition: color .15s, background .15s;
+
+        &:hover {
+            color: var(--txt);
+            background: var(--kb-key-bg);
+        }
+    }
+
+    // ── Keyboard rows ─────────────────────────────────────────────────────────
+
+    .kg-keyboard {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .kg-kb-row {
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+    }
+
+    // ── Keys ──────────────────────────────────────────────────────────────────
+
+    .kg-key {
+        position: relative;
+        width: 38px;
+        height: 38px;
+        border-radius: 6px;
+        border: 1px solid var(--kb-key-border);
+        background: var(--kb-key-bg);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        padding-bottom: 5px;
+        box-shadow: 0 2px 0 var(--kb-key-shadow);
+        transition: filter .1s;
+
+        &:hover { filter: brightness(1.15); }
+
+        // Finger tints
+        @for $i from 0 through 9 {
+            &.kg-key--f#{$i} { @include finger-color($i); }
+        }
+    }
+
+    .kg-key-main {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--kb-key-txt);
+        line-height: 1;
+    }
+
+    .kg-key-shift {
+        position: absolute;
+        top: 4px;
+        left: 5px;
+        font-size: 9px;
+        font-weight: 500;
+        color: var(--kb-key-shift-txt);
+        line-height: 1;
+    }
+}

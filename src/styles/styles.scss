@@ -1,6 +1,7 @@
 @use 'animations' as *;
 @use 'themes/dark';
 @use 'themes/light';
+@use 'keyboard';
 
 // ── Spacing scale ──────────────────────────────────────────────────────────────
 $gap-extra-small: 4px;   // tight inline gaps (chips, dots, finger bars)

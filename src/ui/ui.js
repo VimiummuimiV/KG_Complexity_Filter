@@ -9,8 +9,9 @@ import { applyInitialTheme, toggleTheme }      from '../helpers/theme';
 import { applyInitialView, cycleView }         from '../helpers/view';
 import { applyInitialLang, toggleLang,
          getStrings }                          from '../helpers/lang';
-import { createCustomTooltip, updateTooltipContent }           from '../helpers/tooltip';
+import { createCustomTooltip, updateTooltipContent } from '../helpers/tooltip';
 import { applyInitialSections, toggleSection, collapseAllExcept, toggleAllSections } from '../helpers/sections';
+import { openKeyboard, updateKeyboard } from '../helpers/keyboard';
 
 const ID = 'complexity-filter-panel';
 
@@ -149,7 +150,7 @@ const buildHeader = (panel, strings, score) => {
     return { header, miniScore };
 };
 
-const buildStats = (result, strings, onLangChange, onLayoutChange) => {
+const buildStats = (panel, result, strings, onLangChange, onLayoutChange) => {
     const { score, avg, length, hardPct, longWordPct, digitRowPct, layoutLang, layoutName } = result;
     const color = scoreColor(score);
     const stats = el('div', 'stats');
@@ -188,8 +189,9 @@ const buildStats = (result, strings, onLangChange, onLayoutChange) => {
             if (onLangChange || onLayoutChange) {
                 valNode.classList.add('meta-value-btn');
                 valNode.addEventListener('click', (e) => {
-                    if (e.ctrlKey) onLayoutChange?.(layoutLang, layoutName);
-                    else           onLangChange?.(layoutLang, layoutName);
+                    if (e.shiftKey) { openKeyboard(panel, layoutLang, layoutName); return; }
+                    if (e.ctrlKey)  onLayoutChange?.(layoutLang, layoutName);
+                    else            onLangChange?.(layoutLang, layoutName);
                 });
                 valNode.addEventListener('mouseenter', () => {
                     const strings = getStrings();
@@ -197,6 +199,7 @@ const buildStats = (result, strings, onLangChange, onLayoutChange) => {
                         `[${layoutLang} | ${layoutName}]`,
                         `[${strings.tooltipClick}]${strings.tooltipLang}`,
                         onLayoutChange ? `[Ctrl + ${strings.tooltipClick}]${strings.tooltipLayout}` : null,
+                        `[Shift + ${strings.tooltipClick}]${strings.tooltipShowKeyboard}`,
                     ];
                     updateTooltipContent(valNode, hints.filter(Boolean).join(' '));
                 });
@@ -551,7 +554,7 @@ export const render = (result, vocId = null, onLangChange = null, onLayoutChange
 
     const summary = el('div', 'panel-summary');
     appendAll(summary,
-        buildStats(result, strings, onLangChange, onLayoutChange),
+        buildStats(panel, result, strings, onLangChange, onLayoutChange),
         buildBar(score),
         buildLegend(strings),
     );
@@ -573,6 +576,7 @@ export const render = (result, vocId = null, onLangChange = null, onLayoutChange
     applyInitialLang(panel);
     applyInitialSections(panel);
     if (prev) panel.classList.add('no-fade');
+    updateKeyboard(panel, result.layoutLang, result.layoutName);
 
     document.body.appendChild(panel);
     makeDraggable(panel, panel.querySelector('.panel-header'), 'complexityFilterPanelPosition');

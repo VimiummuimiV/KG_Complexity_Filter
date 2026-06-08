@@ -1,20 +1,39 @@
+// ── Light theme primitives ────────────────────────────────────────────────────
+$light-bg:       #f5f6fa;
+$light-border:   #dde1ef;
+$light-txt:      #1e2235;
+$light-txt-dim:  #8b92aa;
+$light-digit-bg: #ccd8f7;
+$light-chip-bg:  #eaecf5;
+
+$light-scrollbar-thumb:       #c4c9db;
+$light-scrollbar-thumb-hover: #a8afc6;
+
+$light-clr-red:    #c93030;
+$light-clr-yellow: #c9920a;
+$light-clr-green:  #2e9668;
+$light-clr-blue:   #3a6ee8;
+$light-clr-purple: #7c52d9;
+$light-clr-slate:  #9098b0;
+
+// ── Panel ─────────────────────────────────────────────────────────────────────
 #complexity-filter-panel[data-complexity-filter-theme='light'] {
-  --bg:       #f5f6fa;
-  --border:   #dde1ef;
-  --txt:      #1e2235;
-  --txt-dim:  #8b92aa;
-  --digit-bg: #ccd8f7;
-  --chip-bg:  #eaecf5;
+  --bg:       #{$light-bg};
+  --border:   #{$light-border};
+  --txt:      #{$light-txt};
+  --txt-dim:  #{$light-txt-dim};
+  --digit-bg: #{$light-digit-bg};
+  --chip-bg:  #{$light-chip-bg};
 
-  --scrollbar-thumb:       #c4c9db;
-  --scrollbar-thumb-hover: #a8afc6;
+  --scrollbar-thumb:       #{$light-scrollbar-thumb};
+  --scrollbar-thumb-hover: #{$light-scrollbar-thumb-hover};
 
-  --clr-red:    #c93030;
-  --clr-yellow: #c9920a;
-  --clr-green:  #2e9668;
-  --clr-blue:   #3a6ee8;
-  --clr-purple: #7c52d9;
-  --clr-slate:  #9098b0;
+  --clr-red:    #{$light-clr-red};
+  --clr-yellow: #{$light-clr-yellow};
+  --clr-green:  #{$light-clr-green};
+  --clr-blue:   #{$light-clr-blue};
+  --clr-purple: #{$light-clr-purple};
+  --clr-slate:  #{$light-clr-slate};
 
   --accent:  var(--clr-blue);
   --easy:    var(--clr-green);
@@ -29,4 +48,39 @@
   --penalty-row-jump:    var(--clr-green);
   --penalty-shift:       var(--clr-yellow);
   --penalty-other:       var(--clr-slate);
+
+  --kb-bg:            var(--digit-bg);
+  --kb-border:        var(--border);
+  --kb-title:         var(--txt-dim);
+  --kb-key-bg:        var(--bg);
+  --kb-key-border:    var(--scrollbar-thumb);
+  --kb-key-shadow:    var(--border);
+  --kb-key-txt:       var(--txt);
+  --kb-key-shift-txt: var(--clr-slate);
+}
+
+// ── Keyboard overlay (outside panel DOM) ──────────────────────────────────────
+#kg-keyboard-overlay[data-complexity-filter-theme='light'] {
+  --bg:              #{$light-bg};
+  --border:          #{$light-border};
+  --txt:             #{$light-txt};
+  --txt-dim:         #{$light-txt-dim};
+  --digit-bg:        #{$light-digit-bg};
+  --chip-bg:         #{$light-chip-bg};
+  --scrollbar-thumb: #{$light-scrollbar-thumb};
+  --clr-blue:        #{$light-clr-blue};
+  --clr-yellow:      #{$light-clr-yellow};
+  --clr-slate:       #{$light-clr-slate};
+
+  --hand-l:           var(--clr-blue);
+  --hand-r:           var(--clr-yellow);
+
+  --kb-bg:            var(--digit-bg);
+  --kb-border:        var(--border);
+  --kb-title:         var(--txt-dim);
+  --kb-key-bg:        var(--bg);
+  --kb-key-border:    var(--scrollbar-thumb);
+  --kb-key-shadow:    var(--border);
+  --kb-key-txt:       var(--txt);
+  --kb-key-shift-txt: var(--clr-slate);
 }
