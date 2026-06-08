@@ -11,7 +11,7 @@ import { applyInitialLang, toggleLang,
          getStrings }                          from '../helpers/lang';
 import { createCustomTooltip, updateTooltipContent } from '../helpers/tooltip';
 import { applyInitialSections, toggleSection, collapseAllExcept, toggleAllSections } from '../helpers/sections';
-import { openKeyboard, updateKeyboard } from '../helpers/keyboard';
+import { openKeyboard, updateKeyboard, closeKeyboard } from '../helpers/keyboard';
 
 const ID = 'complexity-filter-panel';
 
@@ -146,7 +146,10 @@ const buildHeader = (panel, strings, score) => {
 
     const close = el('button', 'panel-btn panel-close');
     close.appendChild(createIcon('close-line'));
-    close.addEventListener('click', () => panel.remove());
+    close.addEventListener('click', () => {
+        closeKeyboard();
+        panel.remove();
+    });
     createCustomTooltip(close, strings.btnClose, 'stats', 0);
     header.appendChild(close);
 

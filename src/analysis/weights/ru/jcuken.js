@@ -3,7 +3,7 @@
 // finger: 0=L-pinky  1=L-ring  2=L-middle  3=L-index  4=L-index-stretch
 // 5=R-index-stretch  6=R-index  7=R-middle  8=R-ring  9=R-pinky
 // row:    0=digit  1=top  2=home  3=bottom
-// pos:    physical key position within the row (used by keyboard overlay)
+// pos:    physical key position within the row (used by keyboard panel)
 // hand:   L=left  R=right
 
 export const layout = {

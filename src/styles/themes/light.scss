@@ -50,8 +50,8 @@ $light-clr-slate:  #9098b0;
   --penalty-other:       var(--clr-slate);
 }
 
-// ── Keyboard overlay (outside panel DOM) ──────────────────────────────────────
-#kg-keyboard-overlay[data-complexity-filter-theme='light'] {
+// ── Keyboard panel (outside panel DOM) ──────────────────────────────────────
+#kg-keyboard-panel[data-complexity-filter-theme='light'] {
   --bg:              #{$light-bg};
   --border:          #{$light-border};
   --txt:             #{$light-txt};

@@ -1,5 +1,5 @@
 // ─── styles/keyboard.scss ─────────────────────────────────────────────────────
-// Virtual keyboard overlay. Finger tints use --hand-l / --hand-r.
+// Virtual keyboard panel. Finger tints use --hand-l / --hand-r.
 // Special keys (Tab, Shift, Space…) get fixed widths via modifier classes.
 
 $kb-key-w:   38px;
@@ -16,7 +16,7 @@ $kb-radius:   6px;
     }
 }
 
-#kg-keyboard-overlay {
+#kg-keyboard-panel {
     position: fixed;
     bottom: 28px;
     left: 50%;
@@ -47,7 +47,6 @@ $kb-radius:   6px;
         color: var(--kb-title);
     }
 
-    // Close button — reuses .panel-btn but scoped here since overlay is outside panel
     .panel-btn {
         display: inline-flex;
         align-items: center;

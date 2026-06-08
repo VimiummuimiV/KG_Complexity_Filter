@@ -50,8 +50,8 @@ $dark-clr-slate:  #555c77;
   --penalty-other:       var(--clr-slate);
 }
 
-// ── Keyboard overlay (outside panel DOM) ──────────────────────────────────────
-#kg-keyboard-overlay[data-complexity-filter-theme='dark'] {
+// ── Keyboard panel (outside panel DOM) ──────────────────────────────────────
+#kg-keyboard-panel[data-complexity-filter-theme='dark'] {
   --bg:              #{$dark-bg};
   --border:          #{$dark-border};
   --txt:             #{$dark-txt};

@@ -1,12 +1,12 @@
 // ─── helpers/keyboard.js ─────────────────────────────────────────────────────
-// Virtual keyboard overlay — looks like a real keyboard with finger-zone tints.
+// Virtual keyboard panel — looks like a real keyboard with finger-zone tints.
 // Open:   Shift+Click on the layout chip (.meta-value-btn).
 // Update: called from render() on every lang/layout change.
 
 import { configs }     from '../analysis/weights/weightsIndex.js';
 import { createIcon }  from '../icons/iconsIndex.js';
 
-const OVERLAY_ID = 'kg-keyboard-overlay';
+const KEYBOARD_ID = 'kg-keyboard-panel';
 
 // ─── Special keys ─────────────────────────────────────────────────────────────
 // Rows 0–3: { left, right } flanking alpha keys. bottom: space row. cls → width.
@@ -126,17 +126,17 @@ const buildKeyboard = (layoutLang, layoutName) => {
     return board;
 };
 
-// ─── Overlay lifecycle ────────────────────────────────────────────────────────
+// ─── Keyboard lifecycle ───────────────────────────────────────────────────────
 
-const getOverlay = () => document.getElementById(OVERLAY_ID);
-const closeOverlay = () => getOverlay()?.remove();
+const getKeyboard = () => document.getElementById(KEYBOARD_ID);
+export const closeKeyboard = () => getKeyboard()?.remove();
 
 export const openKeyboard = (panel, layoutLang, layoutName) => {
-    closeOverlay();
+    closeKeyboard();
 
-    const overlay = el('div');
-    overlay.id = OVERLAY_ID;
-    overlay.dataset.complexityFilterTheme = panel.dataset.complexityFilterTheme ?? 'dark';
+    const keyboard = el('div');
+    keyboard.id = KEYBOARD_ID;
+    keyboard.dataset.complexityFilterTheme = panel.dataset.complexityFilterTheme ?? 'dark';
 
     const board = buildKeyboard(layoutLang, layoutName);
     if (!board) return;
@@ -149,28 +149,28 @@ export const openKeyboard = (panel, layoutLang, layoutName) => {
 
     const closeBtn = el('button', 'panel-btn kg-kb-close');
     closeBtn.appendChild(createIcon('close-line'));
-    closeBtn.addEventListener('click', closeOverlay);
+    closeBtn.addEventListener('click', closeKeyboard);
 
     header.appendChild(title);
     header.appendChild(closeBtn);
-    overlay.appendChild(header);
-    overlay.appendChild(board);
+    keyboard.appendChild(header);
+    keyboard.appendChild(board);
 
-    document.body.appendChild(overlay);
+    document.body.appendChild(keyboard);
 };
 
 export const updateKeyboard = (panel, layoutLang, layoutName) => {
-    const overlay = getOverlay();
-    if (!overlay) return;
+    const keyboard = getKeyboard();
+    if (!keyboard) return;
 
-    overlay.dataset.complexityFilterTheme = panel.dataset.complexityFilterTheme ?? 'dark';
+    keyboard.dataset.complexityFilterTheme = panel.dataset.complexityFilterTheme ?? 'dark';
 
-    const old   = overlay.querySelector('.kg-keyboard');
+    const old   = keyboard.querySelector('.kg-keyboard');
     const board = buildKeyboard(layoutLang, layoutName);
     if (!board) return;
 
-    if (old) overlay.replaceChild(board, old);
-    else     overlay.appendChild(board);
+    if (old) keyboard.replaceChild(board, old);
+    else     keyboard.appendChild(board);
 
-    overlay.querySelector('.kg-kb-title').textContent = `${layoutLang} · ${layoutName}`;
+    keyboard.querySelector('.kg-kb-title').textContent = `${layoutLang} · ${layoutName}`;
 };
