@@ -18,20 +18,20 @@ const detectConfig = (text) => {
 
 export const detectLang = (text) => detectConfig(text).layoutLang;
 
-const configByLang = (lang, layoutName = null) =>
-    configs.find(cfg => cfg.layoutLang === lang && (!layoutName || cfg.layoutName === layoutName))
-    ?? configs.find(cfg => cfg.layoutLang === lang)
+const configByLang = (layoutLang, layoutName = null) =>
+    configs.find(cfg => cfg.layoutLang === layoutLang && (!layoutName || cfg.layoutName === layoutName))
+    ?? configs.find(cfg => cfg.layoutLang === layoutLang)
     ?? null;
 
 // Returns the layoutLang of the next unique lang (wraps around).
-export const nextLang = (currentLang) => {
+export const nextLang = (currentLayoutLang) => {
     const langs = [...new Set(configs.map(cfg => cfg.layoutLang))];
-    return langs[(langs.indexOf(currentLang) + 1) % langs.length];
+    return langs[(langs.indexOf(currentLayoutLang) + 1) % langs.length];
 };
 
 // Returns the layoutName of the next layout within the same lang (wraps around).
-export const nextLayout = (currentLang, currentLayoutName) => {
-    const same = configs.filter(cfg => cfg.layoutLang === currentLang);
+export const nextLayout = (currentLayoutLang, currentLayoutName) => {
+    const same = configs.filter(cfg => cfg.layoutLang === currentLayoutLang);
     const idx  = same.findIndex(cfg => cfg.layoutName === currentLayoutName);
     return same[(idx + 1) % same.length].layoutName;
 };
@@ -139,11 +139,11 @@ const buildLayout = ({ layout, shiftMap, frequency, freqNorm = 11, weights: W })
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
-// langHint: optional lang ('RU'/'EN') — skips auto-detection when provided.
+// layoutLang: optional lang ('RU'/'EN') — skips auto-detection when provided.
 // layoutName: optional layout name within that lang — picks specific layout.
-export const analyzeComplexity = (text, langHint = null, layoutName = null) => {
+export const analyzeComplexity = (text, layoutLang = null, layoutName = null) => {
     if (!text?.length) return null;
-    const cfg = (langHint && configByLang(langHint, layoutName)) ?? detectConfig(text);
+    const cfg = (layoutLang && configByLang(layoutLang, layoutName)) ?? detectConfig(text);
     const {
         layout, weights: W, scoreMax, varWeight,
         segEasy, segMedium,

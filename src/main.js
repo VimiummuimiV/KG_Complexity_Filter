@@ -15,20 +15,21 @@ if (gameId) {
                 return;
             }
 
-            const applyResult = (lang, layoutName) => {
-                const result = analyzeComplexity(text, lang, layoutName);
+            const applyResult = (layoutLang, layoutName) => {
+                const result = analyzeComplexity(text, layoutLang, layoutName);
                 if (!result) { notify(null, getStrings().alertLangIncompatible, 'error'); return; }
                 if (vocId) setVocLang(vocId, result.layoutLang);
                 setLayout(result.layoutLang, result.layoutName);
                 render(result, vocId, onLangChange, onLayoutChange);
             };
 
-            const onLangChange   = (currentLang)                    => { const lang = nextLang(currentLang); applyResult(lang, getLayout(lang)); };
-            const onLayoutChange = (currentLang, currentLayoutName) => applyResult(currentLang, nextLayout(currentLang, currentLayoutName));
+            const onLangChange   = (currentLayoutLang)                          => { const layoutLang = nextLang(currentLayoutLang); applyResult(layoutLang, getLayout(layoutLang)); };
+            const onLayoutChange = (currentLayoutLang, currentLayoutName) => applyResult(currentLayoutLang, nextLayout(currentLayoutLang, currentLayoutName));
 
-            const savedLang = vocId ? getVocLang(vocId) : null;
-            const lang      = savedLang ?? detectLang(text);
-            const result    = analyzeComplexity(text, lang, getLayout(lang));
+            const savedLayoutLang = vocId ? getVocLang(vocId) : null;
+            const layoutLang      = savedLayoutLang ?? detectLang(text);
+            const layoutName      = getLayout(layoutLang);
+            const result          = analyzeComplexity(text, layoutLang, layoutName);
             if (!result) {
                 console.warn('[KG] complexity analysis returned null');
                 return;
