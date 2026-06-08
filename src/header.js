@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          KG_Complexity_Filter
 // @namespace     klavogonki
-// @version      1.0.4
+// @version      1.0.5
 // @description   Filters games by complexity on the game page
 // @match         *://klavogonki.ru/g/*
 // @author        Patcher

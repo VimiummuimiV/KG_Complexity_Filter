@@ -72,7 +72,8 @@ export const ru = {
     tooltipPenalty_other:       'Базовая стоимость: позиция клавиши, нагрузка на палец, редкость символа',
 
     // Lang / Layout chip in meta-info row
-    tooltipLang:              'Переключить язык',
+    tooltipLang:   'Переключить язык',
+    tooltipLayout: 'Переключить раскладку',
     alertLangIncompatible:    'Этот текст несовместим с выбранным языком',
 
     // Language toggle — icon shows the CURRENT language (RU is active)

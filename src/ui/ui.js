@@ -119,8 +119,8 @@ const buildLangBtn = (panel, strings) => {
     createCustomTooltip(btn, strings.langLabel, 'stats', 0);
     btn.addEventListener('click', () => {
         toggleLang(panel);
-        const result = panel._kgResult;
-        if (result) render(result, panel._kgVocId, panel._kgOnLang);
+        const { _kgResult, _kgVocId, _kgOnLang, _kgOnLayout } = panel;
+        if (_kgResult) render(_kgResult, _kgVocId, _kgOnLang, _kgOnLayout);
     });
     return btn;
 };
@@ -149,7 +149,7 @@ const buildHeader = (panel, strings, score) => {
     return { header, miniScore };
 };
 
-const buildStats = (result, strings, onLangChange) => {
+const buildStats = (result, strings, onLangChange, onLayoutChange) => {
     const { score, avg, length, hardPct, longWordPct, digitRowPct, layoutLang, layoutName } = result;
     const color = scoreColor(score);
     const stats = el('div', 'stats');
@@ -185,15 +185,20 @@ const buildStats = (result, strings, onLangChange) => {
         if (hint === 'layout') {
             const iconName = LANG_ICON[layoutLang];
             if (iconName) valNode.prepend(createIcon(iconName));
-            if (onLangChange) {
+            if (onLangChange || onLayoutChange) {
                 valNode.classList.add('meta-value-btn');
-                valNode.addEventListener('click', () => onLangChange(layoutLang));
+                valNode.addEventListener('click', (e) => {
+                    if (e.ctrlKey) onLayoutChange?.(layoutLang, layoutName);
+                    else           onLangChange?.(layoutLang, layoutName);
+                });
                 valNode.addEventListener('mouseenter', () => {
                     const strings = getStrings();
-                    updateTooltipContent(valNode, [
+                    const hints = [
                         `[${layoutLang} | ${layoutName}]`,
                         `[${strings.tooltipClick}]${strings.tooltipLang}`,
-                    ].join(' '));
+                        onLayoutChange ? `[Ctrl + ${strings.tooltipClick}]${strings.tooltipLayout}` : null,
+                    ];
+                    updateTooltipContent(valNode, hints.filter(Boolean).join(' '));
                 });
                 createCustomTooltip(valNode, '', 'stats', 0);
             }
@@ -525,7 +530,7 @@ const animateScore = (node, target) => {
 
 // ─── Public: render(result) ───────────────────────────────────────────────────
 
-export const render = (result, vocId = null, onLangChange = null) => {
+export const render = (result, vocId = null, onLangChange = null, onLayoutChange = null) => {
     const prev = document.getElementById(ID);
     prev?.remove();
 
@@ -535,9 +540,10 @@ export const render = (result, vocId = null, onLangChange = null) => {
 
     const panel = el('div');
     panel.id = ID;
-    panel._kgResult = result;
-    panel._kgVocId  = vocId;
-    panel._kgOnLang = onLangChange;
+    panel._kgResult   = result;
+    panel._kgVocId    = vocId;
+    panel._kgOnLang   = onLangChange;
+    panel._kgOnLayout = onLayoutChange;
 
     const { header, miniScore } = buildHeader(panel, strings, score);
     panel.appendChild(header);
@@ -545,7 +551,7 @@ export const render = (result, vocId = null, onLangChange = null) => {
 
     const summary = el('div', 'panel-summary');
     appendAll(summary,
-        buildStats(result, strings, onLangChange),
+        buildStats(result, strings, onLangChange, onLayoutChange),
         buildBar(score),
         buildLegend(strings),
     );

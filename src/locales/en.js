@@ -72,7 +72,8 @@ export const en = {
     tooltipPenalty_other:       'Base key cost: position on keyboard, finger load, and character rarity',
 
     // Lang / Layout chip in meta-info row
-    tooltipLang:              'Switch keyboard language',
+    tooltipLang:   'Switch keyboard language',
+    tooltipLayout: 'Switch keyboard layout',
     alertLangIncompatible:    'This text is not compatible with the selected language',
 
     // Language toggle — icon shows the CURRENT language (EN is active)

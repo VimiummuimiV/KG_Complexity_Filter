@@ -16,12 +16,24 @@ const detectConfig = (text) => {
     return configs.reduce((best, cfg) => score(cfg) >= score(best) ? cfg : best);
 };
 
-const configByLang = (lang) => configs.find(cfg => cfg.layoutLang === lang) ?? null;
+export const detectLang = (text) => detectConfig(text).layoutLang;
 
-// Returns the layoutLang of the next config after currentLang (wraps around).
+const configByLang = (lang, layoutName = null) =>
+    configs.find(cfg => cfg.layoutLang === lang && (!layoutName || cfg.layoutName === layoutName))
+    ?? configs.find(cfg => cfg.layoutLang === lang)
+    ?? null;
+
+// Returns the layoutLang of the next unique lang (wraps around).
 export const nextLang = (currentLang) => {
-    const idx = configs.findIndex(cfg => cfg.layoutLang === currentLang);
-    return configs[(idx + 1) % configs.length].layoutLang;
+    const langs = [...new Set(configs.map(cfg => cfg.layoutLang))];
+    return langs[(langs.indexOf(currentLang) + 1) % langs.length];
+};
+
+// Returns the layoutName of the next layout within the same lang (wraps around).
+export const nextLayout = (currentLang, currentLayoutName) => {
+    const same = configs.filter(cfg => cfg.layoutLang === currentLang);
+    const idx  = same.findIndex(cfg => cfg.layoutName === currentLayoutName);
+    return same[(idx + 1) % same.length].layoutName;
 };
 
 const DIGIT_SET = new Set('1234567890');
@@ -127,13 +139,14 @@ const buildLayout = ({ layout, shiftMap, frequency, freqNorm = 11, weights: W })
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
-// langHint: optional 2-char layout hint (e.g. 'RU', 'EN') — skips auto-detection when provided.
-export const analyzeComplexity = (text, langHint = null) => {
+// langHint: optional lang ('RU'/'EN') — skips auto-detection when provided.
+// layoutName: optional layout name within that lang — picks specific layout.
+export const analyzeComplexity = (text, langHint = null, layoutName = null) => {
     if (!text?.length) return null;
-    const cfg = (langHint && configByLang(langHint)) ?? detectConfig(text);
+    const cfg = (langHint && configByLang(langHint, layoutName)) ?? detectConfig(text);
     const {
         layout, weights: W, scoreMax, varWeight,
-        segEasy, segMedium, layoutLang, layoutName,
+        segEasy, segMedium,
     } = cfg;
     const { isShifted, keyOf, baseOf, charCost, bigramCost, bigramBreak, trigramPenalty } = buildLayout(cfg);
 
@@ -459,7 +472,7 @@ export const analyzeComplexity = (text, langHint = null) => {
         fingerLoad,
         digitRowPct,
         charFingers,
-        layoutLang:  layoutLang ?? 'RU',
-        layoutName:  layoutName ?? 'ЙЦУКЕН',
+        layoutLang:  cfg.layoutLang,
+        layoutName:  cfg.layoutName,
     };
 };
