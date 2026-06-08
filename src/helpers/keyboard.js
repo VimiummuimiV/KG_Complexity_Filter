@@ -12,10 +12,10 @@ const OVERLAY_ID = 'kg-keyboard-overlay';
 // Rows 0–3: { left, right } flanking alpha keys. bottom: space row. cls → width.
 
 const SPECIAL_KEYS = {
-    0:      { left: { label: 'Esc',   cls: 'esc'     }, right: { label: '⌫',     cls: 'backspace' } }, // Digit row
-    1:      { left: { label: 'Tab',   cls: 'tab'     }, right: { label: '\\',    cls: 'backslash' } }, // Top row
-    2:      { left: { label: 'Caps',  cls: 'caps'    }, right: { label: 'Enter', cls: 'enter'     } }, // Home row
-    3:      { left: { label: 'Shift', cls: 'shift-l' }, right: { label: 'Shift', cls: 'shift-r'  } }, // Shift row
+    0: { left: null, right: { label: '⌫', cls: 'backspace' } }, // Digit row
+    1: { left: { label: 'Tab',   cls: 'tab' }, right: null }, // Top row
+    2: { left: { label: 'Caps',  cls: 'caps' }, right: { label: 'Enter', cls: 'enter' } }, // Home row
+    3: { left: { label: 'Shift', cls: 'shift-l' }, right: { label: 'Shift', cls: 'shift-r' } }, // Shift row
     bottom: [ // Space row
         { label: 'Ctrl',  cls: 'ctrl'  },
         { label: 'Win',   cls: 'win'   },
@@ -107,11 +107,11 @@ const buildKeyboard = (layoutLang, layoutName) => {
         const rowEl = el('div', `kg-kb-row kg-kb-row--${r}`);
         const { left, right } = SPECIAL_KEYS[r];
 
-        rowEl.appendChild(buildSpecialKey(left.label, left.cls));
+        if (left) rowEl.appendChild(buildSpecialKey(left.label, left.cls));
         for (const { ch, finger } of rows[r]) {
             rowEl.appendChild(buildKey(ch, finger, shiftLabels));
         }
-        rowEl.appendChild(buildSpecialKey(right.label, right.cls));
+        if (right) rowEl.appendChild(buildSpecialKey(right.label, right.cls));
 
         board.appendChild(rowEl);
     }

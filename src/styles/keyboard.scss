@@ -147,13 +147,12 @@ $kb-radius:   6px;
 
     // ── Special key widths ────────────────────────────────────────────────────
 
-    // Digit row modifiers: Esc, Backspace
-    .kg-key--esc       { width: $kb-key-w; }
+    // Digit row modifiers: Backspace
     .kg-key--backspace { width: $kb-key-w * 2 + $kb-gap; }
 
-    // Top row modifiers: Tab, Backslash 
+    // Top row modifiers: Tab
     .kg-key--tab       { width: $kb-key-w * 1.5 + $kb-gap * 0.5; }
-    .kg-key--backslash { width: $kb-key-w * 1.5 + $kb-gap * 0.5; }
+    .kg-kb-row--1 .kg-key:last-child { flex: 1; }
 
     // Home row modifiers: Caps Lock, Enter
     .kg-key--caps      { width: $kb-key-w * 1.75 + $kb-gap * 0.75; }
