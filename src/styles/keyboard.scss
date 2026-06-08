@@ -1,28 +1,33 @@
-// ─── styles/keyboard.scss ────────────────────────────────────────────────────
-// Styles for the virtual keyboard overlay (#kg-keyboard-overlay).
-// Finger colours reuse --hand-l / --hand-r from the theme + per-finger tints.
+// ─── styles/keyboard.scss ─────────────────────────────────────────────────────
+// Virtual keyboard overlay. Finger tints use --hand-l / --hand-r.
+// Special keys (Tab, Shift, Space…) get fixed widths via modifier classes.
 
-// Finger tint mixin: left fingers lean toward --hand-l, right toward --hand-r
-@mixin finger-color($i) {
+$kb-key-w:   38px;
+$kb-key-h:   40px;
+$kb-gap:      5px;
+$kb-radius:   6px;
+
+// Finger tint: stronger mix toward index, lighter toward pinky
+@mixin finger-tint($i) {
     @if $i < 5 {
-        background: color-mix(in srgb, var(--hand-l) #{20% + $i * 8%}, var(--kb-key-bg));
+        background: color-mix(in srgb, var(--hand-l) #{14% + $i * 9%}, var(--kb-key-bg));
     } @else {
-        background: color-mix(in srgb, var(--hand-r) #{20% + (9 - $i) * 8%}, var(--kb-key-bg));
+        background: color-mix(in srgb, var(--hand-r) #{14% + (9 - $i) * 9%}, var(--kb-key-bg));
     }
 }
 
 #kg-keyboard-overlay {
     position: fixed;
-    bottom: 32px;
+    bottom: 28px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 2100;
     border-radius: 10px;
     border: 1px solid var(--kb-border);
     background: var(--kb-bg);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, .45);
-    padding: 10px 12px 14px;
-    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    box-shadow: 0 0 8px rgba(0,0,0,.25) !important;
+    padding: 10px 12px 12px;
+    font-family: var(--font-ui, 'Inter', system-ui, sans-serif);
     user-select: none;
 
     // ── Header ────────────────────────────────────────────────────────────────
@@ -31,7 +36,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
     }
 
     .kg-kb-title {
@@ -42,76 +47,132 @@
         color: var(--kb-title);
     }
 
-    .kg-kb-close {
+    // Close button — reuses .panel-btn but scoped here since overlay is outside panel
+    .panel-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
         background: none;
         border: none;
-        cursor: pointer;
         color: var(--kb-title);
-        font-size: 18px;
-        line-height: 1;
-        padding: 0 2px;
+        cursor: pointer;
+        padding: 0;
         border-radius: 4px;
         transition: color .15s, background .15s;
 
         &:hover {
-            color: var(--txt);
+            color: var(--kb-key-txt);
             background: var(--kb-key-bg);
+        }
+
+        .panel-icon {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
         }
     }
 
-    // ── Keyboard rows ─────────────────────────────────────────────────────────
+    // ── Board ─────────────────────────────────────────────────────────────────
 
     .kg-keyboard {
         display: flex;
         flex-direction: column;
-        gap: 5px;
+        gap: $kb-gap;
     }
 
     .kg-kb-row {
         display: flex;
-        gap: 5px;
-        justify-content: center;
+        gap: $kb-gap;
+        align-items: stretch;
     }
 
-    // ── Keys ──────────────────────────────────────────────────────────────────
+    // ── Base key ──────────────────────────────────────────────────────────────
 
     .kg-key {
         position: relative;
-        width: 38px;
-        height: 38px;
-        border-radius: 6px;
+        width: $kb-key-w;
+        min-width: $kb-key-w;
+        height: $kb-key-h;
+        border-radius: $kb-radius;
         border: 1px solid var(--kb-key-border);
         background: var(--kb-key-bg);
+        box-shadow: 0 2px 0px 2px var(--kb-key-shadow) !important;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: flex-end;
-        padding-bottom: 5px;
-        box-shadow: 0 2px 0 var(--kb-key-shadow);
+        padding: 4px 5px 6px;
+        cursor: default;
         transition: filter .1s;
 
-        &:hover { filter: brightness(1.15); }
+        &:hover { filter: brightness(1.12); }
 
-        // Finger tints
+        // Alpha finger tints
         @for $i from 0 through 9 {
-            &.kg-key--f#{$i} { @include finger-color($i); }
+            &.kg-key--f#{$i} { @include finger-tint($i); }
         }
     }
 
     .kg-key-main {
-        font-size: 13px;
-        font-weight: 600;
+        font-size: 14px;
+        font-weight: 700;
         color: var(--kb-key-txt);
         line-height: 1;
     }
 
     .kg-key-shift {
         position: absolute;
-        top: 4px;
-        left: 5px;
-        font-size: 9px;
-        font-weight: 500;
+        top: 5px;
+        left: 6px;
+        font-size: 10px;
+        font-weight: 600;
         color: var(--kb-key-shift-txt);
         line-height: 1;
     }
+
+    // ── Special key base ──────────────────────────────────────────────────────
+
+    .kg-key--special {
+        background: var(--kb-special-bg);
+        justify-content: flex-end;
+        align-items: flex-start;
+        padding: 5px 7px;
+    }
+
+    .kg-key-special-label {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--kb-special-txt);
+        line-height: 1;
+        white-space: nowrap;
+    }
+
+    // ── Special key widths ────────────────────────────────────────────────────
+
+    // Digit row modifiers: Esc, Backspace
+    .kg-key--esc       { width: $kb-key-w; }
+    .kg-key--backspace { width: $kb-key-w * 2 + $kb-gap; }
+
+    // Top row modifiers: Tab, Backslash 
+    .kg-key--tab       { width: $kb-key-w * 1.5 + $kb-gap * 0.5; }
+    .kg-key--backslash { width: $kb-key-w * 1.5 + $kb-gap * 0.5; }
+
+    // Home row modifiers: Caps Lock, Enter
+    .kg-key--caps      { width: $kb-key-w * 1.75 + $kb-gap * 0.75; }
+    .kg-key--enter     { width: $kb-key-w * 2.25 + $kb-gap * 1.25; }
+
+    // Bottom row modifiers: LShift, RShift
+    .kg-key--shift-l   { width: $kb-key-w * 2.25 + $kb-gap * 1.25; }
+    .kg-key--shift-r   { width: $kb-key-w * 2.75 + $kb-gap * 1.75; }
+
+    // Space row modifiers: Ctrl, Win, Alt, Menu, Space
+    .kg-key--ctrl,
+    .kg-key--win,
+    .kg-key--alt,
+    .kg-key--menu {
+        width: $kb-key-w * 1.25 + $kb-gap * 0.25;
+    }
+    .kg-key--space     { flex: 1; }
 }

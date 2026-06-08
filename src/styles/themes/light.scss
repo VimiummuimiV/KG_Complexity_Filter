@@ -48,15 +48,6 @@ $light-clr-slate:  #9098b0;
   --penalty-row-jump:    var(--clr-green);
   --penalty-shift:       var(--clr-yellow);
   --penalty-other:       var(--clr-slate);
-
-  --kb-bg:            var(--digit-bg);
-  --kb-border:        var(--border);
-  --kb-title:         var(--txt-dim);
-  --kb-key-bg:        var(--bg);
-  --kb-key-border:    var(--scrollbar-thumb);
-  --kb-key-shadow:    var(--border);
-  --kb-key-txt:       var(--txt);
-  --kb-key-shift-txt: var(--clr-slate);
 }
 
 // ── Keyboard overlay (outside panel DOM) ──────────────────────────────────────
@@ -65,7 +56,6 @@ $light-clr-slate:  #9098b0;
   --border:          #{$light-border};
   --txt:             #{$light-txt};
   --txt-dim:         #{$light-txt-dim};
-  --digit-bg:        #{$light-digit-bg};
   --chip-bg:         #{$light-chip-bg};
   --scrollbar-thumb: #{$light-scrollbar-thumb};
   --clr-blue:        #{$light-clr-blue};
@@ -75,12 +65,15 @@ $light-clr-slate:  #9098b0;
   --hand-l:           var(--clr-blue);
   --hand-r:           var(--clr-yellow);
 
-  --kb-bg:            var(--digit-bg);
+  --kb-bg:            var(--bg);
   --kb-border:        var(--border);
   --kb-title:         var(--txt-dim);
   --kb-key-bg:        var(--bg);
   --kb-key-border:    var(--scrollbar-thumb);
-  --kb-key-shadow:    var(--border);
+  --kb-key-light:     color-mix(in srgb, var(--bg) 50%, #ffffff);
+  --kb-key-shadow:    color-mix(in srgb, var(--bg) 70%, #000000);
   --kb-key-txt:       var(--txt);
-  --kb-key-shift-txt: var(--clr-slate);
+  --kb-key-shift-txt: color-mix(in srgb, var(--txt) 65%, var(--kb-key-bg));
+  --kb-special-bg:    color-mix(in srgb, var(--border) 60%, var(--bg));
+  --kb-special-txt:   var(--txt-dim);
 }
