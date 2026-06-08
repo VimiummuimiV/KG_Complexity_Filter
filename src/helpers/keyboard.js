@@ -8,33 +8,25 @@ import { createIcon }  from '../icons/iconsIndex.js';
 
 const OVERLAY_ID = 'kg-keyboard-overlay';
 
-// ─── Special keys per row ─────────────────────────────────────────────────────
-// Each entry: { label, cls }  — cls drives width via CSS modifier class.
+// ─── Special keys ─────────────────────────────────────────────────────────────
+// Rows 0–3: { left, right } flanking alpha keys. bottom: space row. cls → width.
 
-const SPECIAL_LEFT = {
-    0: { label: 'Esc',      cls: 'esc'  },
-    1: { label: 'Tab',      cls: 'tab'  },
-    2: { label: 'Caps',     cls: 'caps' },
-    3: { label: 'Shift',    cls: 'shift-l' },
+const SPECIAL_KEYS = {
+    0:      { left: { label: 'Esc',   cls: 'esc'     }, right: { label: '⌫',     cls: 'backspace' } }, // Digit row
+    1:      { left: { label: 'Tab',   cls: 'tab'     }, right: { label: '\\',    cls: 'backslash' } }, // Top row
+    2:      { left: { label: 'Caps',  cls: 'caps'    }, right: { label: 'Enter', cls: 'enter'     } }, // Home row
+    3:      { left: { label: 'Shift', cls: 'shift-l' }, right: { label: 'Shift', cls: 'shift-r'  } }, // Shift row
+    bottom: [ // Space row
+        { label: 'Ctrl',  cls: 'ctrl'  },
+        { label: 'Win',   cls: 'win'   },
+        { label: 'Alt',   cls: 'alt'   },
+        { label: 'Space', cls: 'space' },
+        { label: 'Alt',   cls: 'alt'   },
+        { label: 'Win',   cls: 'win'   },
+        { label: 'Menu',  cls: 'menu'  },
+        { label: 'Ctrl',  cls: 'ctrl'  },
+    ],
 };
-
-const SPECIAL_RIGHT = {
-    0: { label: '⌫',        cls: 'backspace' },
-    1: { label: '\\',       cls: 'backslash' },
-    2: { label: 'Enter',    cls: 'enter' },
-    3: { label: 'Shift',    cls: 'shift-r' },
-};
-
-const BOTTOM_ROW = [
-    { label: 'Ctrl',  cls: 'ctrl'  },
-    { label: 'Win',   cls: 'win'   },
-    { label: 'Alt',   cls: 'alt'   },
-    { label: 'Space', cls: 'space' },
-    { label: 'Alt',   cls: 'alt'   },
-    { label: 'Win',   cls: 'win'   },
-    { label: 'Menu',  cls: 'menu'  },
-    { label: 'Ctrl',  cls: 'ctrl'  },
-];
 
 // ─── Reverse shiftMap: base → shifted label ───────────────────────────────────
 
@@ -119,23 +111,20 @@ const buildKeyboard = (layoutLang, layoutName) => {
     // Rows 0–3: special-left · alpha keys · special-right
     for (const r of [0, 1, 2, 3]) {
         const rowEl = el('div', `kg-kb-row kg-kb-row--${r}`);
+        const { left, right } = SPECIAL_KEYS[r];
 
-        const specL = SPECIAL_LEFT[r];
-        if (specL) rowEl.appendChild(buildSpecialKey(specL.label, specL.cls));
-
+        rowEl.appendChild(buildSpecialKey(left.label, left.cls));
         for (const { ch, finger } of rows[r]) {
             rowEl.appendChild(buildKey(ch, finger, shiftLabels));
         }
-
-        const specR = SPECIAL_RIGHT[r];
-        if (specR) rowEl.appendChild(buildSpecialKey(specR.label, specR.cls));
+        rowEl.appendChild(buildSpecialKey(right.label, right.cls));
 
         board.appendChild(rowEl);
     }
 
-    // Bottom row: Ctrl Win Alt Space Alt Win Menu Ctrl
+    // Space row: Ctrl Win Alt Space Alt Win Menu Ctrl
     const bottomRow = el('div', 'kg-kb-row kg-kb-row--bottom');
-    for (const { label, cls } of BOTTOM_ROW) {
+    for (const { label, cls } of SPECIAL_KEYS.bottom) {
         bottomRow.appendChild(buildSpecialKey(label, cls));
     }
     board.appendChild(bottomRow);
@@ -174,14 +163,6 @@ export const openKeyboard = (panel, layoutLang, layoutName) => {
     overlay.appendChild(board);
 
     document.body.appendChild(overlay);
-
-    const onOutside = (e) => {
-        if (!overlay.contains(e.target)) {
-            closeOverlay();
-            document.removeEventListener('mousedown', onOutside);
-        }
-    };
-    setTimeout(() => document.addEventListener('mousedown', onOutside), 0);
 };
 
 export const updateKeyboard = (panel, layoutLang, layoutName) => {
