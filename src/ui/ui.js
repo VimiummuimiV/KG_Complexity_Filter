@@ -600,7 +600,7 @@ export const render = (result, vocId = null, onLangChange = null, onLayoutChange
     updateKeyboard(panel, result.layoutLang, result.layoutName);
 
     document.body.appendChild(panel);
-    makeDraggable(panel, panel.querySelector('.panel-header'), 'complexityFilterPanelPosition');
+    makeDraggable(panel, panel.querySelector('.panel-header'), 'complexityPanel');
 
     // Animate both score nodes with the same logic
     const mainScoreNode = panel.querySelector('.score-value');

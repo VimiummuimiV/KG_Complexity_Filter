@@ -18,9 +18,6 @@ $kb-radius:   6px;
 
 #kg-keyboard-panel {
     position: fixed;
-    bottom: 28px;
-    left: 50%;
-    transform: translateX(-50%);
     z-index: 2100;
     border-radius: 10px;
     border: 1px solid var(--kb-border);

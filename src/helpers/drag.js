@@ -8,7 +8,9 @@ export const constrain = (element) => {
   if (r.top  > mT) element.style.top  = mT + 'px';
 };
 
-export const makeDraggable = (element, handle = element, storageKey) => {
+const STORAGE_KEY = 'complexityFilterPosition';
+
+export const makeDraggable = (element, handle = element, storageField) => {
   let active    = false;
   let offsetX   = 0;
   let offsetY   = 0;
@@ -25,7 +27,8 @@ export const makeDraggable = (element, handle = element, storageKey) => {
 
   // Restore saved position, or center in viewport on first use
   try {
-    const saved = JSON.parse(window.localStorage.getItem(storageKey) || 'null');
+    const all   = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || 'null');
+    const saved = all?.[storageField];
     if (saved && Number.isFinite(saved.left) && Number.isFinite(saved.top))
       place(saved.left, saved.top);
     else
@@ -36,8 +39,11 @@ export const makeDraggable = (element, handle = element, storageKey) => {
   } catch {}
 
   const save = () => {
-    try { window.localStorage.setItem(storageKey, JSON.stringify({ left: intendedX ?? element.offsetLeft, top: intendedY ?? element.offsetTop })); }
-    catch {}
+    try {
+      const all = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || 'null') ?? {};
+      all[storageField] = { left: intendedX ?? element.offsetLeft, top: intendedY ?? element.offsetTop };
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+    } catch {}
   };
 
   const onResize = () => {

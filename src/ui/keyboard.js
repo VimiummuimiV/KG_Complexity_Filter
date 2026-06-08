@@ -3,8 +3,9 @@
 // Open:   Shift+Click on the layout chip (.meta-value-btn).
 // Update: called from render() on every lang/layout change.
 
-import { configs }     from '../analysis/weights/weightsIndex.js';
-import { createIcon }  from '../icons/iconsIndex.js';
+import { configs } from '../analysis/weights/weightsIndex.js';
+import { createIcon } from '../icons/iconsIndex.js';
+import { makeDraggable } from '../helpers/drag.js';
 
 const KEYBOARD_ID = 'kg-keyboard-panel';
 
@@ -160,6 +161,7 @@ export const openKeyboard = (panel, layoutLang, layoutName) => {
     keyboard.appendChild(board);
 
     document.body.appendChild(keyboard);
+    makeDraggable(keyboard, header, 'keyboardPanel');
 };
 
 export const updateKeyboard = (panel, layoutLang, layoutName) => {
