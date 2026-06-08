@@ -26,7 +26,7 @@ $kb-radius:   6px;
     border: 1px solid var(--kb-border);
     background: var(--kb-bg);
     box-shadow: 0 0 8px rgba(0,0,0,.25) !important;
-    padding: 10px 12px 12px;
+    padding: 12px;
     font-family: var(--font-ui, 'Inter', system-ui, sans-serif);
     user-select: none;
 
@@ -63,8 +63,8 @@ $kb-radius:   6px;
         transition: color .15s, background .15s;
 
         &:hover {
-            color: var(--kb-key-txt);
-            background: var(--kb-key-bg);
+            color: var(--txt);
+            background: var(--border);
         }
 
         .panel-icon {
@@ -98,16 +98,12 @@ $kb-radius:   6px;
         border-radius: $kb-radius;
         border: 1px solid var(--kb-key-border);
         background: var(--kb-key-bg);
-        box-shadow: 0 2px 0px 2px var(--kb-key-shadow) !important;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: flex-end;
         padding: 4px 5px 6px;
         cursor: default;
-        transition: filter .1s;
-
-        &:hover { filter: brightness(1.12); }
 
         // Alpha finger tints
         @for $i from 0 through 9 {

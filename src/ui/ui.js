@@ -107,7 +107,10 @@ const buildViewToggleBtn = (panel, strings) => {
 
 const buildThemeBtn = (panel, strings) => {
     const btn = el('button', 'panel-btn panel-theme');
-    btn.addEventListener('click', () => toggleTheme(panel));
+    btn.addEventListener('click', () => {
+        toggleTheme(panel);
+        updateKeyboard(panel);
+    });
     appendAll(btn, createIcon('sun-fill'), createIcon('moon-fill'));
     createCustomTooltip(btn, strings.btnToggleTheme, 'stats', 0);
     return btn;
