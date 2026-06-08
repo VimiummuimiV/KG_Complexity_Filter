@@ -47,32 +47,6 @@ $kb-radius:   6px;
         color: var(--kb-title);
     }
 
-    .panel-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-        background: none;
-        border: none;
-        color: var(--kb-title);
-        cursor: pointer;
-        padding: 0;
-        border-radius: 4px;
-        transition: color .15s, background .15s;
-
-        &:hover {
-            color: var(--txt);
-            background: var(--border);
-        }
-
-        .panel-icon {
-            width: 16px;
-            height: 16px;
-            fill: currentColor;
-        }
-    }
-
     // ── Board ─────────────────────────────────────────────────────────────────
 
     .kg-keyboard {

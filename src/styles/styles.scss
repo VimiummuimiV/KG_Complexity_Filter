@@ -25,6 +25,39 @@ $gap-large:       20px;  // score summary divider margins
   }
 }
 
+// ── Shared panel primitives ────────────────────────────────────────────────────
+// Used by both #complexity-filter-panel and #kg-keyboard-panel.
+
+.panel-btn-group {
+  display: flex;
+  align-items: center;
+}
+
+.panel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  color: var(--txt-dim);
+  cursor: pointer;
+  padding: 0;
+  border-radius: 4px;
+  transition: color .15s, background .15s;
+
+  &:hover {
+    color: var(--txt);
+    background: var(--border);
+  }
+
+  .panel-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
 #complexity-filter-panel {
   --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
   --font-ui:   'Inter', 'Segoe UI', system-ui, sans-serif;
@@ -77,37 +110,9 @@ $gap-large:       20px;  // score summary divider margins
     flex: 1;
   }
 
-  .panel-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    background: none;
-    border: none;
-    color: var(--txt-dim);
-    cursor: pointer;
-    padding: 0;
-    border-radius: 4px;
-    transition: color .15s, background .15s;
-
-    &:hover {
-      color: var(--txt);
-      background: var(--border);
-    }
-  }
-
   .panel-icon {
-    display: inline-block;
     width: 1em;
     height: 1em;
-    vertical-align: middle;
-    fill: currentColor;
-  }
-
-  .panel-btn .panel-icon {
-    width: 18px;
-    height: 18px;
   }
 
   // Theme toggle icon animations

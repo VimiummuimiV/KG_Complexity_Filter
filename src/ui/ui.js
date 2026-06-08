@@ -129,19 +129,29 @@ const buildLangBtn = (panel, strings) => {
     return btn;
 };
 
+const buildKeyboardBtn = (panel, strings) => {
+    const btn = el('button', 'panel-btn panel-keyboard');
+    btn.appendChild(createIcon('keyboard-fill'));
+    btn.addEventListener('click', () => {
+        const { _kgResult } = panel;
+        if (_kgResult) openKeyboard(panel, _kgResult.layoutLang, _kgResult.layoutName);
+    });
+    createCustomTooltip(btn, strings.tooltipShowKeyboard, 'stats', 0);
+    return btn;
+};
+
 const buildHeader = (panel, strings, score) => {
     const header = el('div', 'panel-header');
 
     const miniScore = makeScoreNode('header-score');
     miniScore.style.color = scoreColor(score);
 
-    appendAll(header,
-        elText('span', 'panel-logo',  'KG'),
-        elText('span', 'panel-title', strings.title),
-        miniScore,
+    const btnGroup = el('div', 'panel-btn-group');
+    appendAll(btnGroup,
         buildViewToggleBtn(panel, strings),
         buildThemeBtn(panel, strings),
         buildLangBtn(panel, strings),
+        buildKeyboardBtn(panel, strings),
     );
 
     const close = el('button', 'panel-btn panel-close');
@@ -151,7 +161,14 @@ const buildHeader = (panel, strings, score) => {
         panel.remove();
     });
     createCustomTooltip(close, strings.btnClose, 'stats', 0);
-    header.appendChild(close);
+
+    appendAll(header,
+        elText('span', 'panel-logo',  'KG'),
+        elText('span', 'panel-title', strings.title),
+        miniScore,
+        btnGroup,
+        close,
+    );
 
     return { header, miniScore };
 };
@@ -195,8 +212,7 @@ const buildStats = (panel, result, strings, onLangChange, onLayoutChange) => {
             if (onLangChange || onLayoutChange) {
                 valNode.classList.add('meta-value-btn');
                 valNode.addEventListener('click', (e) => {
-                    if (e.shiftKey) { openKeyboard(panel, layoutLang, layoutName); return; }
-                    if (e.ctrlKey)  onLayoutChange?.(layoutLang, layoutName);
+                    if (e.shiftKey) onLayoutChange?.(layoutLang, layoutName);
                     else            onLangChange?.(layoutLang, layoutName);
                 });
                 valNode.addEventListener('mouseenter', () => {
@@ -204,8 +220,7 @@ const buildStats = (panel, result, strings, onLangChange, onLayoutChange) => {
                     const hints = [
                         `[${layoutLang} | ${layoutName}]`,
                         `[${strings.tooltipClick}]${strings.tooltipLang}`,
-                        onLayoutChange ? `[Ctrl + ${strings.tooltipClick}]${strings.tooltipLayout}` : null,
-                        `[Shift + ${strings.tooltipClick}]${strings.tooltipShowKeyboard}`,
+                        onLayoutChange ? `[Shift + ${strings.tooltipClick}]${strings.tooltipLayout}` : null,
                     ];
                     updateTooltipContent(valNode, hints.filter(Boolean).join(' '));
                 });

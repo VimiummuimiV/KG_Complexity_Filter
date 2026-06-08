@@ -151,8 +151,11 @@ export const openKeyboard = (panel, layoutLang, layoutName) => {
     closeBtn.appendChild(createIcon('close-line'));
     closeBtn.addEventListener('click', closeKeyboard);
 
+    const btnGroup = el('div', 'panel-btn-group');
+    btnGroup.appendChild(closeBtn);
+
     header.appendChild(title);
-    header.appendChild(closeBtn);
+    header.appendChild(btnGroup);
     keyboard.appendChild(header);
     keyboard.appendChild(board);
 
