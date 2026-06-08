@@ -70,7 +70,6 @@ $dark-clr-slate:  #555c77;
   --kb-title:         var(--txt-dim);
   --kb-key-bg:        var(--chip-bg);
   --kb-key-border:    var(--scrollbar-thumb);
-  --kb-key-light:     color-mix(in srgb, var(--bg) 50%, #ffffff);
   --kb-key-shadow:    color-mix(in srgb, var(--bg) 70%, #000000);
   --kb-key-txt:       var(--txt);
   --kb-key-shift-txt: color-mix(in srgb, var(--txt) 70%, var(--kb-key-bg));
