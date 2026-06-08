@@ -11,7 +11,7 @@ import { applyInitialLang, toggleLang,
          getStrings }                          from '../helpers/lang';
 import { createCustomTooltip, updateTooltipContent } from '../helpers/tooltip';
 import { applyInitialSections, toggleSection, collapseAllExcept, toggleAllSections } from '../helpers/sections';
-import { openKeyboard, updateKeyboard, closeKeyboard } from '../helpers/keyboard';
+import { openKeyboard, updateKeyboard, closeKeyboard } from './keyboard';
 
 const ID = 'complexity-filter-panel';
 
