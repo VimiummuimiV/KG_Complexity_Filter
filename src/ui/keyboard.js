@@ -129,7 +129,7 @@ const buildKeyboard = (layoutLang, layoutName) => {
 
 // ─── Keyboard lifecycle ───────────────────────────────────────────────────────
 
-const getKeyboard = () => document.getElementById(KEYBOARD_ID);
+export const getKeyboard = () => document.getElementById(KEYBOARD_ID);
 export const closeKeyboard = () => getKeyboard()?.remove();
 
 export const openKeyboard = (panel, layoutLang, layoutName) => {

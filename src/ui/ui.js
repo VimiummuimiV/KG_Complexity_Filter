@@ -11,7 +11,7 @@ import { applyInitialLang, toggleLang,
          getStrings }                          from '../helpers/lang';
 import { createCustomTooltip, updateTooltipContent } from '../helpers/tooltip';
 import { applyInitialSections, toggleSection, collapseAllExcept, toggleAllSections } from '../helpers/sections';
-import { openKeyboard, updateKeyboard, closeKeyboard } from './keyboard';
+import { openKeyboard, updateKeyboard, getKeyboard, closeKeyboard } from './keyboard';
 
 const ID = 'complexity-filter-panel';
 
@@ -95,24 +95,42 @@ const PENALTY_META = [
 
 const buildViewToggleBtn = (panel, strings) => {
     const btn = el('button', 'panel-btn panel-view');
-    btn.addEventListener('click', () => { cycleView(panel); constrain(panel); });
+
+    const getTooltip = () => {
+        const strings = getStrings();
+        const view    = panel.dataset.view ?? 'full';
+        const next    = { full: 'summary', summary: 'minimal', minimal: 'full' }[view];
+        return `[${strings.tooltipClick}]${strings['tooltipView_' + next]}`;
+    };
+    const update = () => updateTooltipContent(btn, getTooltip());
+
+    btn.addEventListener('click', () => { cycleView(panel); constrain(panel); update(); });
+    btn.addEventListener('mouseenter', update);
+
     appendAll(btn,
         createIcon('eye-fill'),
         createIcon('eye-off-fill'),
         createIcon('eye-close-fill'),
     );
-    createCustomTooltip(btn, strings.btnCycleView, 'stats', 0);
+    createCustomTooltip(btn, getTooltip(), 'stats', 0);
     return btn;
 };
 
 const buildThemeBtn = (panel, strings) => {
     const btn = el('button', 'panel-btn panel-theme');
-    btn.addEventListener('click', () => {
-        toggleTheme(panel);
-        updateKeyboard(panel);
-    });
+
+    const getTooltip = () => {
+        const strings = getStrings();
+        const theme   = panel.dataset.complexityFilterTheme ?? 'dark';
+        return `[${strings.tooltipClick}]${theme === 'dark' ? strings.tooltipThemeLight : strings.tooltipThemeDark}`;
+    };
+    const update = () => updateTooltipContent(btn, getTooltip());
+
+    btn.addEventListener('click', () => { toggleTheme(panel); updateKeyboard(panel); update(); });
+    btn.addEventListener('mouseenter', update);
+
     appendAll(btn, createIcon('sun-fill'), createIcon('moon-fill'));
-    createCustomTooltip(btn, strings.btnToggleTheme, 'stats', 0);
+    createCustomTooltip(btn, getTooltip(), 'stats', 0);
     return btn;
 };
 
@@ -120,23 +138,45 @@ const buildThemeBtn = (panel, strings) => {
 const buildLangBtn = (panel, strings) => {
     const btn = el('button', 'panel-btn panel-lang');
     appendAll(btn, createIcon('ruFlag'), createIcon('enFlag'));
-    createCustomTooltip(btn, strings.langLabel, 'stats', 0);
+
+    const getTooltip = () => {
+        const strings = getStrings();
+        return `[${strings.tooltipClick}]${strings.langLabel}`;
+    };
+    const update = () => updateTooltipContent(btn, getTooltip());
+
     btn.addEventListener('click', () => {
         toggleLang(panel);
         const { _kgResult, _kgVocId, _kgOnLang, _kgOnLayout } = panel;
         if (_kgResult) render(_kgResult, _kgVocId, _kgOnLang, _kgOnLayout);
+        update();
     });
+    btn.addEventListener('mouseenter', update);
+
+    createCustomTooltip(btn, getTooltip(), 'stats', 0);
     return btn;
 };
 
 const buildKeyboardBtn = (panel, strings) => {
     const btn = el('button', 'panel-btn panel-keyboard');
     btn.appendChild(createIcon('keyboard-fill'));
+
+    const getTooltip = () => {
+        const strings = getStrings();
+        return `[${strings.tooltipClick}]${getKeyboard() ? strings.tooltipHideKeyboard : strings.tooltipShowKeyboard}`;
+    };
+    const update = () => updateTooltipContent(btn, getTooltip());
+
     btn.addEventListener('click', () => {
         const { _kgResult } = panel;
-        if (_kgResult) openKeyboard(panel, _kgResult.layoutLang, _kgResult.layoutName);
+        if (!_kgResult) return;
+        if (getKeyboard()) closeKeyboard();
+        else openKeyboard(panel, _kgResult.layoutLang, _kgResult.layoutName);
+        update();
     });
-    createCustomTooltip(btn, strings.tooltipShowKeyboard, 'stats', 0);
+    btn.addEventListener('mouseenter', update);
+
+    createCustomTooltip(btn, getTooltip(), 'stats', 0);
     return btn;
 };
 

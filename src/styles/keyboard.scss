@@ -25,7 +25,9 @@ $kb-radius:   6px;
     box-shadow: 0 0 8px rgba(0,0,0,.25) !important;
     padding: 12px;
     font-family: var(--font-ui, 'Inter', system-ui, sans-serif);
+    cursor: move;
     user-select: none;
+    touch-action: none;
 
     // ── Header ────────────────────────────────────────────────────────────────
 

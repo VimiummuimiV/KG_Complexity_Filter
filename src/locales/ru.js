@@ -1,9 +1,16 @@
 export const ru = {
     // Header
     title:          'Сложность набора',
-    btnCycleView:   'Режим отображения',
-    btnToggleTheme: 'Тема',
     btnClose:       'Закрыть',
+
+    // View mode tooltips — describe the mode you're switching TO
+    tooltipView_full:    'Переключиться на полный вид',
+    tooltipView_summary: 'Переключиться на краткий вид',
+    tooltipView_minimal: 'Переключиться на минимальный вид',
+
+    // Theme tooltips — describe the theme you're switching TO
+    tooltipThemeDark:  'Переключиться на тёмную тему',
+    tooltipThemeLight: 'Переключиться на светлую тему',
 
     // Score tiers
     tierEasy:   'Легко',
@@ -75,6 +82,7 @@ export const ru = {
     tooltipLang:           'Переключить язык',
     tooltipLayout:         'Переключить раскладку',
     tooltipShowKeyboard:   'Показать раскладку',
+    tooltipHideKeyboard:   'Скрыть раскладку',
     alertLangIncompatible: 'Этот текст несовместим с выбранным языком',
 
     // Language toggle — icon shows the CURRENT language (RU is active)

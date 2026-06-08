@@ -1,9 +1,16 @@
 export const en = {
     // Header
     title:          'Typing Complexity',
-    btnCycleView:   'Cycle view',
-    btnToggleTheme: 'Toggle theme',
     btnClose:       'Close',
+
+    // View mode tooltips — describe the mode you're switching TO
+    tooltipView_full:    'Switch to full view',
+    tooltipView_summary: 'Switch to summary view',
+    tooltipView_minimal: 'Switch to minimal view',
+
+    // Theme tooltips — describe the theme you're switching TO
+    tooltipThemeDark:  'Switch to dark theme',
+    tooltipThemeLight: 'Switch to light theme',
 
     // Score tiers
     tierEasy:   'Easy',
@@ -75,6 +82,7 @@ export const en = {
     tooltipLang:           'Switch keyboard language',
     tooltipLayout:         'Switch keyboard layout',
     tooltipShowKeyboard:   'Show keyboard layout',
+    tooltipHideKeyboard:   'Hide keyboard layout',
     alertLangIncompatible: 'This text is not compatible with the selected language',
 
     // Language toggle — icon shows the CURRENT language (EN is active)
