@@ -155,12 +155,16 @@ const buildKeyboardBtn = (panel) => {
             if (!_kgResult) return;
             if (getKeyboard()) {
                 closeKeyboard();
-                btn.classList.remove('panel-btn--active');
-                if (!e.shiftKey) setKbPref('open', false);
+                if (e.shiftKey) {
+                    setKbPref('open', false);
+                    btn.classList.remove('panel-btn--active');
+                }
             } else {
                 openKeyboard(panel, _kgResult.layoutLang, _kgResult.layoutName, _kgResult.keyCounts);
-                btn.classList.add('panel-btn--active');
-                if (!e.shiftKey) setKbPref('open', true);
+                if (e.shiftKey) {
+                    setKbPref('open', true);
+                    btn.classList.add('panel-btn--active');
+                }
             }
         },
     );
