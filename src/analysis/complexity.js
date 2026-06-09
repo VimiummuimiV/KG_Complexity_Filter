@@ -447,6 +447,20 @@ export const analyzeComplexity = (text, layoutLang = null, layoutName = null) =>
         fingerLoadTotal > 0 ? Math.round(v / fingerLoadTotal * 100) : 0
     );
 
+    // ── Per-key cost heatmap (normalised 0–1) and press counts ───────────────
+    // Single pass: accumulate both total cost and raw press count per base key.
+    const keyCostRaw  = new Map(); // base key → accumulated cost
+    const keyCounts   = new Map(); // base key → press count
+    for (let i = 0; i < n; i++) {
+        const base = baseOf(chars[i]);
+        if (base in layout) {
+            keyCostRaw.set(base, (keyCostRaw.get(base) ?? 0) + costs[i]);
+            keyCounts.set(base,  (keyCounts.get(base)  ?? 0) + 1);
+        }
+    }
+    const keyCostMax = Math.max(...keyCostRaw.values(), 1);
+    const keyCosts   = new Map([...keyCostRaw].map(([k, v]) => [k, v / keyCostMax]));
+
     // ── Number-row density ────────────────────────────────────────────────────
     const digitRowPct = Math.round(digitRowCount / n * 100);
 
@@ -472,6 +486,8 @@ export const analyzeComplexity = (text, layoutLang = null, layoutName = null) =>
         fingerLoad,
         digitRowPct,
         charFingers,
+        keyCosts,
+        keyCounts,
         layoutLang:  cfg.layoutLang,
         layoutName:  cfg.layoutName,
     };

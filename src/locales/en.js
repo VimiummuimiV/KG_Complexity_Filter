@@ -85,6 +85,12 @@ export const en = {
     tooltipHideKeyboard:   'Hide keyboard layout',
     alertLangIncompatible: 'This text is not compatible with the selected language',
 
+    // Keyboard panel button tooltips
+    tooltipKbModeHeat:  'Switch to heat map',
+    tooltipKbModeZones: 'Switch to finger zones',
+    tooltipKbCountOn:   'Show key press counts',
+    tooltipKbCountOff:  'Hide key press counts',
+
     // Language toggle — icon shows the CURRENT language (EN is active)
     langIcon:  '🇬🇧',
     langLabel: 'Switch to Russian',

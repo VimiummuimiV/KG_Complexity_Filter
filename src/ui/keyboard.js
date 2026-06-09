@@ -6,8 +6,12 @@
 import { configs } from '../analysis/weights/weightsIndex.js';
 import { createIcon } from '../icons/iconsIndex.js';
 import { makeDraggable } from '../helpers/drag.js';
+import { getStrings } from '../helpers/lang.js';
+import { createCustomTooltip, updateTooltipContent } from '../helpers/tooltip.js';
 
-const KEYBOARD_ID = 'kg-keyboard-panel';
+const KEYBOARD_ID   = 'kg-keyboard-panel';
+const KB_MODE_KEY   = 'kg-kb-mode';   // localStorage: 'zones' | 'heat'
+const KB_COUNT_KEY  = 'kg-kb-count';  // localStorage: 'on' | 'off'
 
 // ─── Special keys ─────────────────────────────────────────────────────────────
 // Rows 0–3: { left, right } flanking alpha keys. bottom: space row. cls → width.
@@ -62,9 +66,11 @@ const el = (tag, cls) => {
 
 // ─── Build one alpha/symbol key ───────────────────────────────────────────────
 
-const buildKey = (ch, finger, shiftLabels) => {
+const buildKey = (ch, finger, shiftLabels, keyCosts, keyCounts) => {
     const key = el('div', `kg-key kg-key--f${finger}`);
     key.dataset.finger = finger;
+
+    const count = el('span', 'kg-key-count');
 
     const shiftCh = shiftLabels[ch];
     if (shiftCh) {
@@ -75,6 +81,18 @@ const buildKey = (ch, finger, shiftLabels) => {
 
     const main = el('span', 'kg-key-main');
     main.textContent = ch === ch.toLowerCase() ? ch.toUpperCase() : ch;
+
+    if (keyCosts) {
+        const heat = keyCosts.get(ch) ?? 0;
+        if (heat > 0) key.style.setProperty('--key-heat', heat.toFixed(3));
+    }
+
+    if (keyCounts) {
+        const n = keyCounts.get(ch) ?? 0;
+        count.textContent = n > 0 ? n : '';
+    }
+
+    key.appendChild(count);
     key.appendChild(main);
 
     return key;
@@ -92,7 +110,7 @@ const buildSpecialKey = (label, cls) => {
 
 // ─── Build full keyboard board ────────────────────────────────────────────────
 
-const buildKeyboard = (layoutLang, layoutName) => {
+const buildKeyboard = (layoutLang, layoutName, keyCosts, keyCounts) => {
     const cfg = configs.find(c => c.layoutLang === layoutLang && c.layoutName === layoutName)
              ?? configs.find(c => c.layoutLang === layoutLang);
     if (!cfg) return null;
@@ -110,7 +128,7 @@ const buildKeyboard = (layoutLang, layoutName) => {
 
         if (left) rowEl.appendChild(buildSpecialKey(left.label, left.cls));
         for (const { ch, finger } of rows[r]) {
-            rowEl.appendChild(buildKey(ch, finger, shiftLabels));
+            rowEl.appendChild(buildKey(ch, finger, shiftLabels, keyCosts, keyCounts));
         }
         if (right) rowEl.appendChild(buildSpecialKey(right.label, right.cls));
 
@@ -127,25 +145,77 @@ const buildKeyboard = (layoutLang, layoutName) => {
     return board;
 };
 
+// ─── Toggle button factory ────────────────────────────────────────────────────
+
+const buildToggleBtn = (cls, icons, getTooltip, onClick) => {
+    const btn = el('button', `panel-btn ${cls}`);
+    for (const icon of icons) btn.appendChild(createIcon(icon));
+    const update = () => updateTooltipContent(btn, getTooltip());
+    btn.addEventListener('click', () => { onClick(); update(); });
+    btn.addEventListener('mouseenter', update);
+    createCustomTooltip(btn, getTooltip(), 'stats', 0);
+    return btn;
+};
+
+// ─── Mode toggle (zones ↔ heat) ───────────────────────────────────────────────
+
+const loadMode   = ()      => localStorage.getItem(KB_MODE_KEY)  ?? 'zones';
+const saveMode   = (mode)  => localStorage.setItem(KB_MODE_KEY,  mode);
+const applyMode  = (kb, mode)  => { kb.dataset.kbMode  = mode;  };
+
+const buildModeBtn = (keyboard) => buildToggleBtn(
+    'kg-kb-mode-btn',
+    ['fire-fill', 'contrast-fill'],
+    () => {
+        const s = getStrings();
+        return `[${s.tooltipClick}]${keyboard.dataset.kbMode === 'heat' ? s.tooltipKbModeZones : s.tooltipKbModeHeat}`;
+    },
+    () => {
+        const next = keyboard.dataset.kbMode === 'zones' ? 'heat' : 'zones';
+        applyMode(keyboard, next);
+        saveMode(next);
+    },
+);
+
+// ─── Count toggle (off ↔ on) ──────────────────────────────────────────────────
+
+const loadCount  = ()      => localStorage.getItem(KB_COUNT_KEY) ?? 'off';
+const saveCount  = (state) => localStorage.setItem(KB_COUNT_KEY, state);
+const applyCount = (kb, state) => { kb.dataset.kbCount = state; };
+
+const buildCountBtn = (keyboard) => buildToggleBtn(
+    'kg-kb-count-btn',
+    ['hashtag'],
+    () => {
+        const s = getStrings();
+        return `[${s.tooltipClick}]${keyboard.dataset.kbCount === 'on' ? s.tooltipKbCountOff : s.tooltipKbCountOn}`;
+    },
+    () => {
+        const next = keyboard.dataset.kbCount === 'on' ? 'off' : 'on';
+        applyCount(keyboard, next);
+        saveCount(next);
+    },
+);
+
 // ─── Keyboard lifecycle ───────────────────────────────────────────────────────
 
-export const getKeyboard = () => document.getElementById(KEYBOARD_ID);
+export const getKeyboard  = () => document.getElementById(KEYBOARD_ID);
 export const closeKeyboard = () => getKeyboard()?.remove();
 
-export const openKeyboard = (panel, layoutLang, layoutName) => {
+export const openKeyboard = (panel, layoutLang, layoutName, keyCosts, keyCounts) => {
     closeKeyboard();
 
     const keyboard = el('div');
     keyboard.id = KEYBOARD_ID;
     keyboard.dataset.complexityFilterTheme = panel.dataset.complexityFilterTheme ?? 'dark';
+    applyMode(keyboard,  loadMode());
+    applyCount(keyboard, loadCount());
 
-    const board = buildKeyboard(layoutLang, layoutName);
+    const board = buildKeyboard(layoutLang, layoutName, keyCosts, keyCounts);
     if (!board) return;
 
-    // Header
-    const header = el('div', 'kg-kb-header');
-
-    const title = el('span', 'kg-kb-title');
+    const header  = el('div', 'kg-kb-header');
+    const title   = el('span', 'kg-kb-title');
     title.textContent = `${layoutLang} · ${layoutName}`;
 
     const closeBtn = el('button', 'panel-btn kg-kb-close');
@@ -153,6 +223,8 @@ export const openKeyboard = (panel, layoutLang, layoutName) => {
     closeBtn.addEventListener('click', closeKeyboard);
 
     const btnGroup = el('div', 'panel-btn-group');
+    btnGroup.appendChild(buildCountBtn(keyboard));
+    btnGroup.appendChild(buildModeBtn(keyboard));
     btnGroup.appendChild(closeBtn);
 
     header.appendChild(title);
@@ -164,14 +236,14 @@ export const openKeyboard = (panel, layoutLang, layoutName) => {
     makeDraggable(keyboard, header, 'keyboardPanel');
 };
 
-export const updateKeyboard = (panel, layoutLang, layoutName) => {
+export const updateKeyboard = (panel, layoutLang, layoutName, keyCosts, keyCounts) => {
     const keyboard = getKeyboard();
     if (!keyboard) return;
 
     keyboard.dataset.complexityFilterTheme = panel.dataset.complexityFilterTheme ?? 'dark';
 
     const old   = keyboard.querySelector('.kg-keyboard');
-    const board = buildKeyboard(layoutLang, layoutName);
+    const board = buildKeyboard(layoutLang, layoutName, keyCosts, keyCounts);
     if (!board) return;
 
     if (old) keyboard.replaceChild(board, old);

@@ -85,6 +85,12 @@ export const ru = {
     tooltipHideKeyboard:   'Скрыть раскладку',
     alertLangIncompatible: 'Этот текст несовместим с выбранным языком',
 
+    // Keyboard panel button tooltips
+    tooltipKbModeHeat:  'Переключиться на тепловую карту',
+    tooltipKbModeZones: 'Переключиться на зоны пальцев',
+    tooltipKbCountOn:   'Показать счётчики нажатий',
+    tooltipKbCountOff:  'Скрыть счётчики нажатий',
+
     // Language toggle — icon shows the CURRENT language (RU is active)
     langIcon:  '🇷🇺',
     langLabel: 'Переключить на английский',

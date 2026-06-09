@@ -18,7 +18,7 @@ $kb-radius:   6px;
 
 #kg-keyboard-panel {
     position: fixed;
-    z-index: 2100;
+    z-index: 2005;
     border-radius: 10px;
     border: 1px solid var(--kb-border);
     background: var(--kb-bg);
@@ -68,7 +68,6 @@ $kb-radius:   6px;
         min-width: $kb-key-w;
         height: $kb-key-h;
         border-radius: $kb-radius;
-        border: 1px solid var(--kb-key-border);
         background: var(--kb-key-bg);
         display: flex;
         flex-direction: column;
@@ -98,6 +97,77 @@ $kb-radius:   6px;
         font-weight: 600;
         color: var(--kb-key-shift-txt);
         line-height: 1;
+    }
+
+    // ── Count label ───────────────────────────────────────────────────────────
+    // Sits at the very top of the key, full width, hidden until [data-kb-count='on'].
+
+    .kg-key-count {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        margin: 2px;
+        font-size: 9px;
+        font-weight: 600;
+        line-height: 14px;
+        text-align: center;
+        color: #cccccc;
+        border-radius: $kb-radius - 1px;
+        background: #222222;
+        pointer-events: none;
+    }
+
+    &[data-kb-count='on'] .kg-key-count { display: block; }
+
+    // Count button active state
+    &[data-kb-count='on']  .kg-kb-count-btn { color: var(--txt); background: var(--border); }
+    &[data-kb-count='off'] .kg-kb-count-btn,
+    &:not([data-kb-count]) .kg-kb-count-btn { color: var(--txt-dim); }
+
+    // ── Heat mode ─────────────────────────────────────────────────────────────
+    // [data-kb-mode='heat'] on the panel root suppresses finger-zone tints and
+    // replaces each key's background with a continuous green→yellow→red gradient
+    // driven by --key-heat (0–1) set inline per key.
+    //
+    // Gradient stops: 0.0 = green (#4caf82), 0.5 = yellow (#f0b840), 1.0 = red (#e05c5c)
+    // Implemented as two sequential color-mix stages so we get a true three-stop
+    // transition without needing a @property / Houdini approach:
+    //   low half  (heat 0→0.5): green → yellow  (heat*2 drives the mix)
+    //   high half (heat 0.5→1): yellow → red    ((heat-0.5)*2 drives the mix)
+    // A single calc() picks the right blend by clamping the percentage to 0–100%.
+
+    &[data-kb-mode='heat'] {
+        .kg-key:not(.kg-key--special) {
+            // Override finger-zone tint with heatmap background.
+            // Keys with no --key-heat (never typed) stay at the cool end.
+            $cool: #4caf82;
+            $warm: #f0b840;
+            $hot:  #e05c5c;
+
+            background: color-mix(
+                in srgb,
+                color-mix(in srgb, $warm calc(clamp(0%, var(--key-heat, 0) * 200%, 100%)), $cool),
+                $hot calc(clamp(0%, (var(--key-heat, 0) - 0.5) * 200%, 100%))
+            );
+
+            // Key label stays readable over all heat levels
+            .kg-key-main  { color: rgba(0,0,0,.75); }
+            .kg-key-shift { color: rgba(0,0,0,.50); }
+        }
+
+        // Mode button: show fire icon (active state), hide contrast icon
+        .kg-kb-mode-btn .panel-icon:first-child  { display: inline-flex; }
+        .kg-kb-mode-btn .panel-icon:last-child   { display: none;        }
+    }
+
+    // ── Zones mode (default) ──────────────────────────────────────────────────
+    // Mode button: show contrast icon, hide fire icon
+    &[data-kb-mode='zones'],
+    &:not([data-kb-mode]) {
+        .kg-kb-mode-btn .panel-icon:first-child  { display: none;        }
+        .kg-kb-mode-btn .panel-icon:last-child   { display: inline-flex; }
     }
 
     // ── Special key base ──────────────────────────────────────────────────────

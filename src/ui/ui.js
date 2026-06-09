@@ -126,7 +126,12 @@ const buildThemeBtn = (panel, strings) => {
     };
     const update = () => updateTooltipContent(btn, getTooltip());
 
-    btn.addEventListener('click', () => { toggleTheme(panel); updateKeyboard(panel); update(); });
+    btn.addEventListener('click', () => {
+        toggleTheme(panel);
+        const { _kgResult } = panel;
+        updateKeyboard(panel, _kgResult?.layoutLang, _kgResult?.layoutName, _kgResult?.keyCosts, _kgResult?.keyCounts);
+        update();
+    });
     btn.addEventListener('mouseenter', update);
 
     appendAll(btn, createIcon('sun-fill'), createIcon('moon-fill'));
@@ -171,7 +176,7 @@ const buildKeyboardBtn = (panel, strings) => {
         const { _kgResult } = panel;
         if (!_kgResult) return;
         if (getKeyboard()) closeKeyboard();
-        else openKeyboard(panel, _kgResult.layoutLang, _kgResult.layoutName);
+        else openKeyboard(panel, _kgResult.layoutLang, _kgResult.layoutName, _kgResult.keyCosts, _kgResult.keyCounts);
         update();
     });
     btn.addEventListener('mouseenter', update);
@@ -637,7 +642,7 @@ export const render = (result, vocId = null, onLangChange = null, onLayoutChange
     applyInitialLang(panel);
     applyInitialSections(panel);
     if (prev) panel.classList.add('no-fade');
-    updateKeyboard(panel, result.layoutLang, result.layoutName);
+    updateKeyboard(panel, result.layoutLang, result.layoutName, result.keyCosts, result.keyCounts);
 
     document.body.appendChild(panel);
     makeDraggable(panel, panel.querySelector('.panel-header'), 'complexityPanel');
