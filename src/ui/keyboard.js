@@ -75,6 +75,7 @@ const buildKey = (ch, finger, shiftLabels, keyCounts, keyHeat) => {
         const top = el('span', 'kg-key-shift');
         top.textContent = shiftCh;
         key.appendChild(top);
+        key.dataset.hasShift = '';
     }
 
     const main = el('span', 'kg-key-main');
@@ -143,6 +144,16 @@ const buildKeyboard = (layoutLang, layoutName, keyCounts) => {
         bottomRow.appendChild(buildSpecialKey(label, cls));
     }
     board.appendChild(bottomRow);
+
+    board.addEventListener('mousemove', (e) => {
+        const key = e.target.closest('.kg-key[data-has-shift]');
+        if (!key) return;
+        const inTopHalf = e.clientY - key.getBoundingClientRect().top < key.offsetHeight / 2;
+        key.toggleAttribute('data-count-bottom', inTopHalf);
+    });
+    board.addEventListener('mouseleave', (e) => {
+        e.target.closest('.kg-key[data-has-shift]')?.removeAttribute('data-count-bottom');
+    });
 
     return board;
 };

@@ -117,6 +117,11 @@ $kb-radius:   6px;
         border-radius: $kb-radius - 1px;
         background: var(--kb-bg);
         pointer-events: none;
+        transition: transform .2s cubic-bezier(.34, 1.56, .64, 1);
+    }
+
+    .kg-key[data-count-bottom] .kg-key-count {
+        transform: translateY(calc($kb-key-h - 14px - 4px));
     }
 
     &[data-kb-count='on'] .kg-key-count { display: block; }
