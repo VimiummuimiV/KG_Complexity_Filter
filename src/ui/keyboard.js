@@ -4,7 +4,6 @@
 // Update: called from render() on every lang/layout change.
 
 import { configs } from '../analysis/weights/weightsIndex.js';
-import { createIcon } from '../icons/iconsIndex.js';
 import { makeDraggable } from '../helpers/drag.js';
 import { getStrings } from '../helpers/lang.js';
 import { buildToggleBtn } from '../helpers/button.js';
@@ -206,9 +205,12 @@ export const openKeyboard = (panel, layoutLang, layoutName, keyCosts, keyCounts)
     const title   = el('span', 'kg-kb-title');
     title.textContent = `${layoutLang} · ${layoutName}`;
 
-    const closeBtn = el('button', 'panel-btn kg-kb-close');
-    closeBtn.appendChild(createIcon('close-line'));
-    closeBtn.addEventListener('click', closeKeyboard);
+    const closeBtn = buildToggleBtn(
+        'kg-kb-close',
+        ['close-line'],
+        () => getStrings().btnClose,
+        closeKeyboard,
+    );
 
     const btnGroup = el('div', 'panel-btn-group');
     btnGroup.appendChild(buildCountBtn(keyboard));
