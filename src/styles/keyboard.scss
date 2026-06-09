@@ -113,9 +113,9 @@ $kb-radius:   6px;
         font-weight: 600;
         line-height: 14px;
         text-align: center;
-        color: #cccccc;
+        color: var(--kb-key-shift-txt);
         border-radius: $kb-radius - 1px;
-        background: #222222;
+        background: var(--kb-bg);
         pointer-events: none;
     }
 
@@ -127,20 +127,11 @@ $kb-radius:   6px;
     &:not([data-kb-count]) .kg-kb-count-btn { color: var(--txt-dim); }
 
     // ── Heat mode ─────────────────────────────────────────────────────────────
-    // [data-kb-mode='heat'] on the panel root suppresses finger-zone tints and
-    // replaces each key's background with a continuous green→yellow→red gradient
+    // Three-stop gradient (green→yellow→red) via two color-mix stages,
     // driven by --key-heat (0–1) set inline per key.
-    //
-    // Gradient stops: 0.0 = green (#4caf82), 0.5 = yellow (#f0b840), 1.0 = red (#e05c5c)
-    // Implemented as two sequential color-mix stages so we get a true three-stop
-    // transition without needing a @property / Houdini approach:
-    //   low half  (heat 0→0.5): green → yellow  (heat*2 drives the mix)
-    //   high half (heat 0.5→1): yellow → red    ((heat-0.5)*2 drives the mix)
-    // A single calc() picks the right blend by clamping the percentage to 0–100%.
 
     &[data-kb-mode='heat'] {
         .kg-key:not(.kg-key--special) {
-            // Override finger-zone tint with heatmap background.
             // Keys with no --key-heat (never typed) stay at the cool end.
             $cool: #4caf82;
             $warm: #f0b840;
