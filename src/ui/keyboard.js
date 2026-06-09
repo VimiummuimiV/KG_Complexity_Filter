@@ -66,7 +66,8 @@ const el = (tag, cls) => {
 
 const buildKey = (ch, finger, shiftLabels, keyCounts, keyHeat) => {
     const key = el('div', `kg-key kg-key--f${finger}`);
-    key.dataset.finger = finger;
+    key.dataset.finger  = finger;
+    key.dataset.baseKey = ch;
 
     const count = el('span', 'kg-key-count');
 
@@ -239,6 +240,38 @@ export const openKeyboard = (panel, layoutLang, layoutName, keyCounts) => {
 
     document.body.appendChild(keyboard);
     makeDraggable(keyboard, header, 'keyboardPanel');
+
+    // ── Key hover: highlight matching chars in panel-text ────────────────────
+    // Delegated on keyboard so it survives board replacement in updateKeyboard.
+    // Active when heat mode or count mode is on (either gives per-key context).
+    // spansByKey built once — hover does zero DOM querying.
+    const spansByKey = new Map();
+    for (const span of panel.querySelectorAll('.panel-text span[data-key]')) {
+        for (const base of span.dataset.key.split(' ')) {
+            if (!spansByKey.has(base)) spansByKey.set(base, []);
+            spansByKey.get(base).push(span);
+        }
+    }
+
+    const isHoverActive = () => keyboard.dataset.kbMode === 'heat' || keyboard.dataset.kbCount === 'on';
+    const alphaKeyOf    = (e) => e.target.closest('.kg-key:not(.kg-key--special)');
+    let   activeSpans   = [];
+
+    keyboard.addEventListener('mouseover', (e) => {
+        const key = alphaKeyOf(e);
+        if (!key?.dataset.baseKey || !isHoverActive()) return;
+        for (const span of activeSpans) span.classList.remove('kg-key-hl');
+        activeSpans = spansByKey.get(key.dataset.baseKey) ?? [];
+        for (const span of activeSpans) span.classList.add('kg-key-hl');
+        panel.dataset.activeKey = key.dataset.baseKey;
+    });
+    keyboard.addEventListener('mouseout', (e) => {
+        const key = alphaKeyOf(e);
+        if (!key?.dataset.baseKey || key.contains(e.relatedTarget)) return;
+        for (const span of activeSpans) span.classList.remove('kg-key-hl');
+        activeSpans = [];
+        delete panel.dataset.activeKey;
+    });
 };
 
 export const updateKeyboard = (panel, layoutLang, layoutName, keyCounts) => {

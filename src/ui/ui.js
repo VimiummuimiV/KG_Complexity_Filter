@@ -459,7 +459,7 @@ const buildHardestWords = (hardestWords, strings) => {
 };
 
 const buildTextView = ({ chars, segments, longWordChars, worstZone,
-                         sameFingerChars, shiftedChars, charFingers,
+                         sameFingerChars, shiftedChars, charFingers, charBases,
                          outwardRollChars, scissorChars, rowJumpChars }, strings) => {
     const text = el('div', 'panel-text');
 
@@ -509,6 +509,14 @@ const buildTextView = ({ chars, segments, longWordChars, worstZone,
                 if (runFinger >= 0) {
                     span.dataset.finger = runFinger;
                     span.dataset.hand   = runFinger < 5 ? 'L' : 'R';
+                }
+
+                if (charBases) {
+                    const bases = new Set();
+                    for (let b = runStart; b < k; b++) {
+                        if (charBases[b] !== null) bases.add(charBases[b]);
+                    }
+                    if (bases.size) span.dataset.key = [...bases].join(' ');
                 }
 
                 const penalties = PENALTY_KEYS.filter(pk => penaltyChars[pk]?.has(runStart));

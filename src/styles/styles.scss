@@ -482,13 +482,17 @@ $gap-large:       20px;  // score summary divider margins
   // restore only those matching the hovered finger, hand, or penalty type.
   &[data-active-finger] .panel-text span,
   &[data-active-hand] .panel-text span,
-  &[data-active-penalty] .panel-text span {
+  &[data-active-penalty] .panel-text span,
+  &[data-active-key] .panel-text span {
     opacity: .15;
     transition: opacity .12s;
   }
 
   // Spaces and unmapped chars have no data-penalty — never dim them
   &[data-active-penalty] .panel-text span:not([data-penalty]) { opacity: 1; }
+
+  // Heat-mode key hover: restore spans whose base key matches the hovered key
+  &[data-active-key] .panel-text span.kg-key-hl { opacity: 1; }
 
   @for $i from 0 through 9 {
     &[data-active-finger='#{$i}'] .panel-text span[data-finger='#{$i}'] {

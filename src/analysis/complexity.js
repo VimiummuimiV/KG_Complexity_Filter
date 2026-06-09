@@ -177,6 +177,7 @@ export const analyzeComplexity = (text, layoutLang = null, layoutName = null) =>
     const fingerHistory = [...Array(10)].map(() => []); // per-finger recent press indices
     const fingerCosts     = new Array(10).fill(0); // per-finger accumulated cost
     const charFingers     = new Int8Array(n).fill(-1); // per-char finger index (0-9), -1 if unmapped
+    const charBases       = new Array(n).fill(null);   // per-char base key string, null if unmapped
     let   digitRowCount   = 0;                     // number-row keystroke count
 
     // Penalty buckets for breakdown chart
@@ -274,6 +275,7 @@ export const analyzeComplexity = (text, layoutLang = null, layoutName = null) =>
         if (key) {
             fingerCosts[key[0]] += costs[i];
             charFingers[i] = key[0];
+            charBases[i]   = baseOf(ch);
         }
 
         // ── Word-length multiplier boundary tracking ──────────────────────────
@@ -479,6 +481,7 @@ export const analyzeComplexity = (text, layoutLang = null, layoutName = null) =>
         fingerLoad,
         digitRowPct,
         charFingers,
+        charBases,
         keyCounts,
         layoutLang:  cfg.layoutLang,
         layoutName:  cfg.layoutName,
