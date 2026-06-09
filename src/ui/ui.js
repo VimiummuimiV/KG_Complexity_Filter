@@ -50,6 +50,7 @@ const buildSection = (key, label, ...children) => {
         if (e.altKey)       toggleAllSections(panel);
         else if (e.ctrlKey) collapseAllExcept(panel, key);
         else                toggleSection(panel, key);
+        constrain(panel);
     });
     header.addEventListener('mouseenter', () => {
         const collapsed = wrap.hasAttribute('data-collapsed');
