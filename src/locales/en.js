@@ -83,6 +83,8 @@ export const en = {
     tooltipLayout:         'Switch keyboard layout',
     tooltipShowKeyboard:   'Show keyboard layout',
     tooltipHideKeyboard:   'Hide keyboard layout',
+    tooltipKeyboardPin:    'Pin — open automatically next time',
+    tooltipKeyboardUnpin:  'Unpin — open manually next time',
     alertLangIncompatible: 'This text is not compatible with the selected language',
 
     // Keyboard panel button tooltips

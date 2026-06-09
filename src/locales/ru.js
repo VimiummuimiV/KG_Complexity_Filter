@@ -83,6 +83,8 @@ export const ru = {
     tooltipLayout:         'Переключить раскладку',
     tooltipShowKeyboard:   'Показать раскладку',
     tooltipHideKeyboard:   'Скрыть раскладку',
+    tooltipKeyboardPin:    'Закрепить — открывать автоматически',
+    tooltipKeyboardUnpin:  'Открепить — открывать вручную',
     alertLangIncompatible: 'Этот текст несовместим с выбранным языком',
 
     // Keyboard panel button tooltips

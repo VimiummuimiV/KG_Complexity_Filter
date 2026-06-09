@@ -13,6 +13,7 @@ import { createCustomTooltip, updateTooltipContent } from '../helpers/tooltip';
 import { applyInitialSections, toggleSection, collapseAllExcept, toggleAllSections } from '../helpers/sections';
 import { buildToggleBtn } from '../helpers/button';
 import { openKeyboard, updateKeyboard, getKeyboard, closeKeyboard } from './keyboard';
+import { getKbPref, setKbPref } from '../helpers/keyboardConfig';
 
 const ID = 'complexity-filter-panel';
 
@@ -142,13 +143,24 @@ const buildKeyboardBtn = (panel) => buildToggleBtn(
     ['keyboard-fill'],
     () => {
         const s = getStrings();
-        return `[${s.tooltipClick}]${getKeyboard() ? s.tooltipHideKeyboard : s.tooltipShowKeyboard}`;
+        const hints = [
+            `[${s.tooltipClick}]${getKeyboard() ? s.tooltipHideKeyboard : s.tooltipShowKeyboard}`,
+            `[Shift + ${s.tooltipClick}]${getKbPref('open') ? s.tooltipKeyboardUnpin : s.tooltipKeyboardPin}`,
+        ];
+        return hints.join(' ');
     },
-    () => {
+    (e) => {
         const { _kgResult } = panel;
         if (!_kgResult) return;
-        if (getKeyboard()) closeKeyboard();
-        else openKeyboard(panel, _kgResult.layoutLang, _kgResult.layoutName, _kgResult.keyCounts);
+        if (getKeyboard()) {
+            closeKeyboard();
+            panel.toggleAttribute('data-kb-open', false);
+            if (!e.shiftKey) setKbPref('open', false);
+        } else {
+            openKeyboard(panel, _kgResult.layoutLang, _kgResult.layoutName, _kgResult.keyCounts);
+            panel.toggleAttribute('data-kb-open', true);
+            if (!e.shiftKey) setKbPref('open', true);
+        }
     },
 );
 
@@ -607,8 +619,14 @@ export const render = (result, vocId = null, onLangChange = null, onLayoutChange
     applyInitialView(panel);
     applyInitialLang(panel);
     applyInitialSections(panel);
-    if (prev) panel.classList.add('no-fade');
-    updateKeyboard(panel, result.layoutLang, result.layoutName, result.keyCounts);
+    if (prev) {
+        panel.classList.add('no-fade');
+        updateKeyboard(panel, result.layoutLang, result.layoutName, result.keyCounts);
+        panel.toggleAttribute('data-kb-open', !!getKeyboard());
+    } else {
+        if (getKbPref('open')) openKeyboard(panel, result.layoutLang, result.layoutName, result.keyCounts);
+        panel.toggleAttribute('data-kb-open', !!getKeyboard());
+    }
 
     document.body.appendChild(panel);
     makeDraggable(panel, panel.querySelector('.panel-header'), 'complexityPanel');

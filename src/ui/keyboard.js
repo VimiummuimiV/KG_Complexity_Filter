@@ -240,7 +240,3 @@ export const updateKeyboard = (panel, layoutLang, layoutName, keyCounts) => {
 
     keyboard.querySelector('.kg-kb-title').textContent = `${layoutLang} · ${layoutName}`;
 };
-
-export const applyInitialKeyboard = (panel, layoutLang, layoutName, keyCounts) => {
-    if (getKbPref('open')) openKeyboard(panel, layoutLang, layoutName, keyCounts);
-};
