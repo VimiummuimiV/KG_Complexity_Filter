@@ -127,20 +127,25 @@ $kb-radius:   6px;
     &[data-kb-count='on'] .kg-key-count { display: block; }
 
     // ── Heat mode ─────────────────────────────────────────────────────────────
-    // Three-stop gradient (green→yellow→red) via two color-mix stages,
+    // Four-stop meteo gradient (blue→green→amber→red) via three color-mix stages,
     // driven by --key-heat (0–1) set inline per key.
 
     &[data-kb-mode='heat'] {
         .kg-key:not(.kg-key--special) {
-            // Keys with no --key-heat (never typed) stay at the cool end.
+            // Keys with no --key-heat (never typed) stay at the cold end.
+            $cold: #5b8dd9;
             $cool: #4caf82;
             $warm: #f0b840;
             $hot:  #e05c5c;
 
             background: color-mix(
                 in srgb,
-                color-mix(in srgb, $warm calc(clamp(0%, var(--key-heat, 0) * 200%, 100%)), $cool),
-                $hot calc(clamp(0%, (var(--key-heat, 0) - 0.5) * 200%, 100%))
+                color-mix(
+                    in srgb,
+                    color-mix(in srgb, $cool calc(clamp(0%, var(--key-heat, 0) * 300%, 100%)), $cold),
+                    $warm calc(clamp(0%, (var(--key-heat, 0) - 0.333) * 300%, 100%))
+                ),
+                $hot calc(clamp(0%, (var(--key-heat, 0) - 0.667) * 300%, 100%))
             );
 
             // Key label stays readable over all heat levels

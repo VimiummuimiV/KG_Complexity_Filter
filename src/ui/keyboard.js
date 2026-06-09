@@ -89,7 +89,7 @@ const buildKey = (ch, finger, shiftLabels, keyCounts, keyHeat) => {
 
     if (keyHeat) {
         const heat = keyHeat.get(ch) ?? 0;
-        if (heat > 0) key.style.setProperty('--key-heat', heat.toFixed(3));
+        if (heat > 0) key.style.setProperty('--key-heat', Math.max(0.12, heat).toFixed(3));
     }
 
     key.appendChild(count);
