@@ -65,7 +65,7 @@ const el = (tag, cls) => {
 
 // ─── Build one alpha/symbol key ───────────────────────────────────────────────
 
-const buildKey = (ch, finger, shiftLabels, keyCosts, keyCounts) => {
+const buildKey = (ch, finger, shiftLabels, keyCounts, keyHeat) => {
     const key = el('div', `kg-key kg-key--f${finger}`);
     key.dataset.finger = finger;
 
@@ -81,14 +81,14 @@ const buildKey = (ch, finger, shiftLabels, keyCosts, keyCounts) => {
     const main = el('span', 'kg-key-main');
     main.textContent = ch === ch.toLowerCase() ? ch.toUpperCase() : ch;
 
-    if (keyCosts) {
-        const heat = keyCosts.get(ch) ?? 0;
-        if (heat > 0) key.style.setProperty('--key-heat', heat.toFixed(3));
-    }
-
     if (keyCounts) {
         const n = keyCounts.get(ch) ?? 0;
         count.textContent = n > 0 ? n : '';
+    }
+
+    if (keyHeat) {
+        const heat = keyHeat.get(ch) ?? 0;
+        if (heat > 0) key.style.setProperty('--key-heat', heat.toFixed(3));
     }
 
     key.appendChild(count);
@@ -109,7 +109,7 @@ const buildSpecialKey = (label, cls) => {
 
 // ─── Build full keyboard board ────────────────────────────────────────────────
 
-const buildKeyboard = (layoutLang, layoutName, keyCosts, keyCounts) => {
+const buildKeyboard = (layoutLang, layoutName, keyCounts) => {
     const cfg = configs.find(c => c.layoutLang === layoutLang && c.layoutName === layoutName)
              ?? configs.find(c => c.layoutLang === layoutLang);
     if (!cfg) return null;
@@ -117,6 +117,10 @@ const buildKeyboard = (layoutLang, layoutName, keyCosts, keyCounts) => {
     const { layout, shiftMap } = cfg;
     const shiftLabels = buildShiftLabels(shiftMap);
     const rows        = keysByRow(layout);
+    const maxCount = keyCounts ? Math.max(0, ...keyCounts.values()) : 0;
+    const keyHeat  = keyCounts && maxCount > 0
+        ? new Map([...keyCounts].map(([k, v]) => [k, v / maxCount]))
+        : null;
 
     const board = el('div', 'kg-keyboard');
 
@@ -127,7 +131,7 @@ const buildKeyboard = (layoutLang, layoutName, keyCosts, keyCounts) => {
 
         if (left) rowEl.appendChild(buildSpecialKey(left.label, left.cls));
         for (const { ch, finger } of rows[r]) {
-            rowEl.appendChild(buildKey(ch, finger, shiftLabels, keyCosts, keyCounts));
+            rowEl.appendChild(buildKey(ch, finger, shiftLabels, keyCounts, keyHeat));
         }
         if (right) rowEl.appendChild(buildSpecialKey(right.label, right.cls));
 
@@ -189,7 +193,7 @@ const buildCountBtn = (keyboard) => buildToggleBtn(
 export const getKeyboard  = () => document.getElementById(KEYBOARD_ID);
 export const closeKeyboard = () => getKeyboard()?.remove();
 
-export const openKeyboard = (panel, layoutLang, layoutName, keyCosts, keyCounts) => {
+export const openKeyboard = (panel, layoutLang, layoutName, keyCounts) => {
     closeKeyboard();
 
     const keyboard = el('div');
@@ -198,7 +202,7 @@ export const openKeyboard = (panel, layoutLang, layoutName, keyCosts, keyCounts)
     applyMode(keyboard,  loadMode());
     applyCount(keyboard, loadCount());
 
-    const board = buildKeyboard(layoutLang, layoutName, keyCosts, keyCounts);
+    const board = buildKeyboard(layoutLang, layoutName, keyCounts);
     if (!board) return;
 
     const header  = el('div', 'kg-kb-header');
@@ -226,14 +230,14 @@ export const openKeyboard = (panel, layoutLang, layoutName, keyCosts, keyCounts)
     makeDraggable(keyboard, header, 'keyboardPanel');
 };
 
-export const updateKeyboard = (panel, layoutLang, layoutName, keyCosts, keyCounts) => {
+export const updateKeyboard = (panel, layoutLang, layoutName, keyCounts) => {
     const keyboard = getKeyboard();
     if (!keyboard) return;
 
     keyboard.dataset.complexityFilterTheme = panel.dataset.complexityFilterTheme ?? 'dark';
 
     const old   = keyboard.querySelector('.kg-keyboard');
-    const board = buildKeyboard(layoutLang, layoutName, keyCosts, keyCounts);
+    const board = buildKeyboard(layoutLang, layoutName, keyCounts);
     if (!board) return;
 
     if (old) keyboard.replaceChild(board, old);

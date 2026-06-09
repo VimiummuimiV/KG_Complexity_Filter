@@ -117,7 +117,7 @@ const buildThemeBtn = (panel) => buildToggleBtn(
     () => {
         toggleTheme(panel);
         const { _kgResult } = panel;
-        updateKeyboard(panel, _kgResult?.layoutLang, _kgResult?.layoutName, _kgResult?.keyCosts, _kgResult?.keyCounts);
+        updateKeyboard(panel, _kgResult?.layoutLang, _kgResult?.layoutName, _kgResult?.keyCounts);
     },
 );
 
@@ -147,7 +147,7 @@ const buildKeyboardBtn = (panel) => buildToggleBtn(
         const { _kgResult } = panel;
         if (!_kgResult) return;
         if (getKeyboard()) closeKeyboard();
-        else openKeyboard(panel, _kgResult.layoutLang, _kgResult.layoutName, _kgResult.keyCosts, _kgResult.keyCounts);
+        else openKeyboard(panel, _kgResult.layoutLang, _kgResult.layoutName, _kgResult.keyCounts);
     },
 );
 
@@ -607,7 +607,7 @@ export const render = (result, vocId = null, onLangChange = null, onLayoutChange
     applyInitialLang(panel);
     applyInitialSections(panel);
     if (prev) panel.classList.add('no-fade');
-    updateKeyboard(panel, result.layoutLang, result.layoutName, result.keyCosts, result.keyCounts);
+    updateKeyboard(panel, result.layoutLang, result.layoutName, result.keyCounts);
 
     document.body.appendChild(panel);
     makeDraggable(panel, panel.querySelector('.panel-header'), 'complexityPanel');
