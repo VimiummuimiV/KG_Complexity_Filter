@@ -31,3 +31,22 @@ export const setLayout = (layoutLang, layoutName) => {
     map[layoutLang] = layoutName;
     localStorage.setItem(KEY_LAYOUT, JSON.stringify(map));
 };
+
+// ─── Keyboard UI preferences ──────────────────────────────────────────────────
+// Single key stores { open, mode, count } together.
+
+const KEY_KB = 'complexityKbPrefs';
+
+const KB_DEFAULTS = { open: false, mode: 'zones', count: 'off' };
+
+const loadKbPrefs = () => {
+    try { return { ...KB_DEFAULTS, ...JSON.parse(localStorage.getItem(KEY_KB)) }; }
+    catch { return { ...KB_DEFAULTS }; }
+};
+
+export const getKbPref = (field)        => loadKbPrefs()[field];
+export const setKbPref = (field, value) => {
+    const prefs = loadKbPrefs();
+    prefs[field] = value;
+    localStorage.setItem(KEY_KB, JSON.stringify(prefs));
+};

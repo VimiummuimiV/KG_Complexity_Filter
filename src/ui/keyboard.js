@@ -1,16 +1,15 @@
-// ─── helpers/keyboard.js ─────────────────────────────────────────────────────
+// ─── keyboard.js ─────────────────────────────────────────────────────────────
 // Virtual keyboard panel — looks like a real keyboard with finger-zone tints.
-// Open:   Shift+Click on the layout chip (.meta-value-btn).
+// Open:   Click the keyboard button in the panel header (Shift+Click = no save).
 // Update: called from render() on every lang/layout change.
 
 import { configs } from '../analysis/weights/weightsIndex.js';
 import { makeDraggable } from '../helpers/drag.js';
 import { getStrings } from '../helpers/lang.js';
 import { buildToggleBtn } from '../helpers/button.js';
+import { getKbPref, setKbPref } from '../helpers/keyboardConfig.js';
 
-const KEYBOARD_ID   = 'kg-keyboard-panel';
-const KB_MODE_KEY   = 'kg-kb-mode';   // localStorage: 'zones' | 'heat'
-const KB_COUNT_KEY  = 'kg-kb-count';  // localStorage: 'on' | 'off'
+const KEYBOARD_ID = 'kg-keyboard-panel';
 
 // ─── Special keys ─────────────────────────────────────────────────────────────
 // Rows 0–3: { left, right } flanking alpha keys. bottom: space row. cls → width.
@@ -150,9 +149,7 @@ const buildKeyboard = (layoutLang, layoutName, keyCounts) => {
 
 // ─── Mode toggle (zones ↔ heat) ───────────────────────────────────────────────
 
-const loadMode   = ()      => localStorage.getItem(KB_MODE_KEY)  ?? 'zones';
-const saveMode   = (mode)  => localStorage.setItem(KB_MODE_KEY,  mode);
-const applyMode  = (kb, mode)  => { kb.dataset.kbMode  = mode;  };
+const applyMode  = (kb, mode)  => { kb.dataset.kbMode  = mode; };
 
 const buildModeBtn = (keyboard) => buildToggleBtn(
     'kg-kb-mode-btn',
@@ -164,14 +161,12 @@ const buildModeBtn = (keyboard) => buildToggleBtn(
     () => {
         const next = keyboard.dataset.kbMode === 'zones' ? 'heat' : 'zones';
         applyMode(keyboard, next);
-        saveMode(next);
+        setKbPref('mode', next);
     },
 );
 
 // ─── Count toggle (off ↔ on) ──────────────────────────────────────────────────
 
-const loadCount  = ()      => localStorage.getItem(KB_COUNT_KEY) ?? 'off';
-const saveCount  = (state) => localStorage.setItem(KB_COUNT_KEY, state);
 const applyCount = (kb, state) => { kb.dataset.kbCount = state; };
 
 const buildCountBtn = (keyboard) => buildToggleBtn(
@@ -184,7 +179,7 @@ const buildCountBtn = (keyboard) => buildToggleBtn(
     () => {
         const next = keyboard.dataset.kbCount === 'on' ? 'off' : 'on';
         applyCount(keyboard, next);
-        saveCount(next);
+        setKbPref('count', next);
     },
 );
 
@@ -199,8 +194,8 @@ export const openKeyboard = (panel, layoutLang, layoutName, keyCounts) => {
     const keyboard = el('div');
     keyboard.id = KEYBOARD_ID;
     keyboard.dataset.complexityFilterTheme = panel.dataset.complexityFilterTheme ?? 'dark';
-    applyMode(keyboard,  loadMode());
-    applyCount(keyboard, loadCount());
+    applyMode(keyboard,  getKbPref('mode'));
+    applyCount(keyboard, getKbPref('count'));
 
     const board = buildKeyboard(layoutLang, layoutName, keyCounts);
     if (!board) return;
@@ -244,4 +239,8 @@ export const updateKeyboard = (panel, layoutLang, layoutName, keyCounts) => {
     else     keyboard.appendChild(board);
 
     keyboard.querySelector('.kg-kb-title').textContent = `${layoutLang} · ${layoutName}`;
+};
+
+export const applyInitialKeyboard = (panel, layoutLang, layoutName, keyCounts) => {
+    if (getKbPref('open')) openKeyboard(panel, layoutLang, layoutName, keyCounts);
 };
