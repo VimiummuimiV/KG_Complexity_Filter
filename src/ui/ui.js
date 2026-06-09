@@ -463,9 +463,8 @@ const buildTextView = ({ chars, segments, longWordChars, worstZone,
                          outwardRollChars, scissorChars, rowJumpChars }, strings) => {
     const text = el('div', 'panel-text');
 
-    // Map penalty key → per-char Set for fast lookup when stamping spans
     const penaltyChars = {
-        sameFinger:  sameFingerChars, // Map — test with .has()
+        sameFinger:  sameFingerChars,
         shiftHold:   shiftedChars,
         outwardRoll: outwardRollChars,
         scissor:     scissorChars,
@@ -473,77 +472,50 @@ const buildTextView = ({ chars, segments, longWordChars, worstZone,
     };
     const PENALTY_KEYS = ['sameFinger', 'shiftHold', 'outwardRoll', 'scissor', 'rowJump'];
 
-    // Bitmask of per-char annotation flags — used to split runs when any flag changes.
-    // Bits: 1=same-finger-L, 2=same-finger-R, 4=shifted, 8=outwardRoll, 16=scissor, 32=rowJump
-    const flagOf = (k) => {
-        const sameFingerHand = sameFingerChars?.get(k);
-        return (sameFingerHand === 'L' ? 1 : sameFingerHand === 'R' ? 2 : 0) |
-               (shiftedChars?.has(k)     ?  4 : 0) |
-               (outwardRollChars?.has(k) ?  8 : 0) |
-               (scissorChars?.has(k)     ? 16 : 0) |
-               (rowJumpChars?.has(k)     ? 32 : 0);
-    };
-
     for (const seg of segments) {
         const { level, start, end } = seg;
         const isWorst = worstZone && seg === worstZone;
 
-        let runStart  = start;
-        let runLong   = longWordChars?.has(start) ?? false;
-        let runFlags  = flagOf(start);
-        let runFinger = charFingers?.[start] ?? -1;
+        for (let k = start; k <= end; k++) {
+            const span   = elText('span', level, chars[k]);
+            const isLong = longWordChars?.has(k) ?? false;
+            const sfHand = sameFingerChars?.get(k);
+            const finger = charFingers?.[k] ?? -1;
+            const isShifted = shiftedChars?.has(k) ?? false;
 
-        for (let k = start + 1; k <= end + 1; k++) {
-            const isLong = k <= end && (longWordChars?.has(k) ?? false);
-            const flags  = k <= end ? flagOf(k) : -1;
-            const finger = k <= end ? (charFingers?.[k] ?? -1) : -2;
-
-            if (k === end + 1 || isLong !== runLong || flags !== runFlags || finger !== runFinger) {
-                const span = elText('span', level, chars.slice(runStart, k).join(''));
-
-                if (runLong)        span.classList.add('long-word');
-                if (isWorst)        span.classList.add('worst-zone');
-                if (runFlags & 1)   span.classList.add('same-finger-l');
-                if (runFlags & 2)   span.classList.add('same-finger-r');
-                if (runFlags & 4)   span.classList.add('shifted-char');
-                if (runFinger >= 0) {
-                    span.dataset.finger = runFinger;
-                    span.dataset.hand   = runFinger < 5 ? 'L' : 'R';
-                }
-
-                if (charBases) {
-                    const bases = new Set();
-                    for (let b = runStart; b < k; b++) {
-                        if (charBases[b] !== null) bases.add(charBases[b]);
-                    }
-                    if (bases.size) span.dataset.key = [...bases].join(' ');
-                }
-
-                const penalties = PENALTY_KEYS.filter(pk => penaltyChars[pk]?.has(runStart));
-                if (!penalties.length && runFinger >= 0) penalties.push('other');
-                span.dataset.penalty = penalties.join(' ');
-
-                const tooltipText =
-                    runLong ? strings.tooltipLongWordText :
-                    isWorst ? strings.tooltipWorstZone :
-                    (runFlags & 1) ? strings.tooltipSameFingerL :
-                    (runFlags & 2) ? strings.tooltipSameFingerR :
-                    ({
-                        hard: strings.tooltipHardText,
-                        medium: strings.tooltipMediumText,
-                        easy: strings.tooltipEasyText,
-                    })[level];
-
-                if (tooltipText && !(runFlags & 4)) {
-                    createCustomTooltip(span, tooltipText, 'stats', 0);
-                }
-
-                text.appendChild(span);
-                runStart  = k;
-                runLong   = isLong;
-                runFlags  = flags;
-                runFinger = finger;
+            if (isLong)          span.classList.add('long-word');
+            if (isWorst)         span.classList.add('worst-zone');
+            if (sfHand === 'L')  span.classList.add('same-finger-l');
+            if (sfHand === 'R')  span.classList.add('same-finger-r');
+            if (isShifted)       span.classList.add('shifted-char');
+            if (finger >= 0) {
+                span.dataset.finger = finger;
+                span.dataset.hand   = finger < 5 ? 'L' : 'R';
             }
+
+            const base = charBases?.[k];
+            if (base != null) span.dataset.key = base;
+
+            const penalties = PENALTY_KEYS.filter(pk => penaltyChars[pk]?.has(k));
+            if (!penalties.length && finger >= 0) penalties.push('other');
+            span.dataset.penalty = penalties.join(' ');
+
+            const tooltipText =
+                isLong    ? strings.tooltipLongWordText :
+                isWorst   ? strings.tooltipWorstZone :
+                sfHand === 'L' ? strings.tooltipSameFingerL :
+                sfHand === 'R' ? strings.tooltipSameFingerR :
+                ({
+                    hard: strings.tooltipHardText,
+                    medium: strings.tooltipMediumText,
+                    easy: strings.tooltipEasyText,
+                })[level];
+
+            if (tooltipText && !isShifted) {
+                createCustomTooltip(span, tooltipText, 'stats', 0);
+            }
+
+            text.appendChild(span);
         }
     }
 
