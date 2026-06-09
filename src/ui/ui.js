@@ -11,6 +11,7 @@ import { applyInitialLang, toggleLang,
          getStrings }                          from '../helpers/lang';
 import { createCustomTooltip, updateTooltipContent } from '../helpers/tooltip';
 import { applyInitialSections, toggleSection, collapseAllExcept, toggleAllSections } from '../helpers/sections';
+import { buildToggleBtn } from '../helpers/button';
 import { openKeyboard, updateKeyboard, getKeyboard, closeKeyboard } from './keyboard';
 
 const ID = 'complexity-filter-panel';
@@ -93,97 +94,62 @@ const PENALTY_META = [
 
 // ─── Section builders ─────────────────────────────────────────────────────────
 
-const buildViewToggleBtn = (panel, strings) => {
-    const btn = el('button', 'panel-btn panel-view');
+const buildViewToggleBtn = (panel) => buildToggleBtn(
+    'panel-view',
+    ['eye-fill', 'eye-off-fill', 'eye-close-fill'],
+    () => {
+        const s    = getStrings();
+        const view = panel.dataset.view ?? 'full';
+        const next = { full: 'summary', summary: 'minimal', minimal: 'full' }[view];
+        return `[${s.tooltipClick}]${s['tooltipView_' + next]}`;
+    },
+    () => { cycleView(panel); constrain(panel); },
+);
 
-    const getTooltip = () => {
-        const strings = getStrings();
-        const view    = panel.dataset.view ?? 'full';
-        const next    = { full: 'summary', summary: 'minimal', minimal: 'full' }[view];
-        return `[${strings.tooltipClick}]${strings['tooltipView_' + next]}`;
-    };
-    const update = () => updateTooltipContent(btn, getTooltip());
-
-    btn.addEventListener('click', () => { cycleView(panel); constrain(panel); update(); });
-    btn.addEventListener('mouseenter', update);
-
-    appendAll(btn,
-        createIcon('eye-fill'),
-        createIcon('eye-off-fill'),
-        createIcon('eye-close-fill'),
-    );
-    createCustomTooltip(btn, getTooltip(), 'stats', 0);
-    return btn;
-};
-
-const buildThemeBtn = (panel, strings) => {
-    const btn = el('button', 'panel-btn panel-theme');
-
-    const getTooltip = () => {
-        const strings = getStrings();
-        const theme   = panel.dataset.complexityFilterTheme ?? 'dark';
-        return `[${strings.tooltipClick}]${theme === 'dark' ? strings.tooltipThemeLight : strings.tooltipThemeDark}`;
-    };
-    const update = () => updateTooltipContent(btn, getTooltip());
-
-    btn.addEventListener('click', () => {
+const buildThemeBtn = (panel) => buildToggleBtn(
+    'panel-theme',
+    ['sun-fill', 'moon-fill'],
+    () => {
+        const s     = getStrings();
+        const theme = panel.dataset.complexityFilterTheme ?? 'dark';
+        return `[${s.tooltipClick}]${theme === 'dark' ? s.tooltipThemeLight : s.tooltipThemeDark}`;
+    },
+    () => {
         toggleTheme(panel);
         const { _kgResult } = panel;
         updateKeyboard(panel, _kgResult?.layoutLang, _kgResult?.layoutName, _kgResult?.keyCosts, _kgResult?.keyCounts);
-        update();
-    });
-    btn.addEventListener('mouseenter', update);
-
-    appendAll(btn, createIcon('sun-fill'), createIcon('moon-fill'));
-    createCustomTooltip(btn, getTooltip(), 'stats', 0);
-    return btn;
-};
+    },
+);
 
 // Language toggle — flag icon showing the OTHER language.
-const buildLangBtn = (panel, strings) => {
-    const btn = el('button', 'panel-btn panel-lang');
-    appendAll(btn, createIcon('ruFlag'), createIcon('enFlag'));
-
-    const getTooltip = () => {
-        const strings = getStrings();
-        return `[${strings.tooltipClick}]${strings.langLabel}`;
-    };
-    const update = () => updateTooltipContent(btn, getTooltip());
-
-    btn.addEventListener('click', () => {
+const buildLangBtn = (panel) => buildToggleBtn(
+    'panel-lang',
+    ['ruFlag', 'enFlag'],
+    () => {
+        const s = getStrings();
+        return `[${s.tooltipClick}]${s.langLabel}`;
+    },
+    () => {
         toggleLang(panel);
         const { _kgResult, _kgVocId, _kgOnLang, _kgOnLayout } = panel;
         if (_kgResult) render(_kgResult, _kgVocId, _kgOnLang, _kgOnLayout);
-        update();
-    });
-    btn.addEventListener('mouseenter', update);
+    },
+);
 
-    createCustomTooltip(btn, getTooltip(), 'stats', 0);
-    return btn;
-};
-
-const buildKeyboardBtn = (panel, strings) => {
-    const btn = el('button', 'panel-btn panel-keyboard');
-    btn.appendChild(createIcon('keyboard-fill'));
-
-    const getTooltip = () => {
-        const strings = getStrings();
-        return `[${strings.tooltipClick}]${getKeyboard() ? strings.tooltipHideKeyboard : strings.tooltipShowKeyboard}`;
-    };
-    const update = () => updateTooltipContent(btn, getTooltip());
-
-    btn.addEventListener('click', () => {
+const buildKeyboardBtn = (panel) => buildToggleBtn(
+    'panel-keyboard',
+    ['keyboard-fill'],
+    () => {
+        const s = getStrings();
+        return `[${s.tooltipClick}]${getKeyboard() ? s.tooltipHideKeyboard : s.tooltipShowKeyboard}`;
+    },
+    () => {
         const { _kgResult } = panel;
         if (!_kgResult) return;
         if (getKeyboard()) closeKeyboard();
         else openKeyboard(panel, _kgResult.layoutLang, _kgResult.layoutName, _kgResult.keyCosts, _kgResult.keyCounts);
-        update();
-    });
-    btn.addEventListener('mouseenter', update);
-
-    createCustomTooltip(btn, getTooltip(), 'stats', 0);
-    return btn;
-};
+    },
+);
 
 const buildHeader = (panel, strings, score) => {
     const header = el('div', 'panel-header');
@@ -201,10 +167,10 @@ const buildHeader = (panel, strings, score) => {
 
     const btnGroup = el('div', 'panel-btn-group');
     appendAll(btnGroup,
-        buildViewToggleBtn(panel, strings),
-        buildThemeBtn(panel, strings),
-        buildLangBtn(panel, strings),
-        buildKeyboardBtn(panel, strings),
+        buildViewToggleBtn(panel),
+        buildThemeBtn(panel),
+        buildLangBtn(panel),
+        buildKeyboardBtn(panel),
         close,
     );
 

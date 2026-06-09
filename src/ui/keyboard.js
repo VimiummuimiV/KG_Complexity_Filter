@@ -7,7 +7,7 @@ import { configs } from '../analysis/weights/weightsIndex.js';
 import { createIcon } from '../icons/iconsIndex.js';
 import { makeDraggable } from '../helpers/drag.js';
 import { getStrings } from '../helpers/lang.js';
-import { createCustomTooltip, updateTooltipContent } from '../helpers/tooltip.js';
+import { buildToggleBtn } from '../helpers/button.js';
 
 const KEYBOARD_ID   = 'kg-keyboard-panel';
 const KB_MODE_KEY   = 'kg-kb-mode';   // localStorage: 'zones' | 'heat'
@@ -143,18 +143,6 @@ const buildKeyboard = (layoutLang, layoutName, keyCosts, keyCounts) => {
     board.appendChild(bottomRow);
 
     return board;
-};
-
-// ─── Toggle button factory ────────────────────────────────────────────────────
-
-const buildToggleBtn = (cls, icons, getTooltip, onClick) => {
-    const btn = el('button', `panel-btn ${cls}`);
-    for (const icon of icons) btn.appendChild(createIcon(icon));
-    const update = () => updateTooltipContent(btn, getTooltip());
-    btn.addEventListener('click', () => { onClick(); update(); });
-    btn.addEventListener('mouseenter', update);
-    createCustomTooltip(btn, getTooltip(), 'stats', 0);
-    return btn;
 };
 
 // ─── Mode toggle (zones ↔ heat) ───────────────────────────────────────────────
