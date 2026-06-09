@@ -11,7 +11,7 @@ export const buildToggleBtn = (cls, icons, getTooltip, onClick) => {
     btn.className = `panel-btn ${cls}`;
     for (const icon of icons) btn.appendChild(createIcon(icon));
     const update = () => updateTooltipContent(btn, getTooltip());
-    btn.addEventListener('click', () => { onClick(); update(); });
+    btn.addEventListener('click', (e) => { onClick(e); update(); });
     btn.addEventListener('mouseenter', update);
     createCustomTooltip(btn, getTooltip(), 'stats', 0);
     return btn;

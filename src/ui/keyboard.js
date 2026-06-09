@@ -169,19 +169,24 @@ const buildModeBtn = (keyboard) => buildToggleBtn(
 
 const applyCount = (kb, state) => { kb.dataset.kbCount = state; };
 
-const buildCountBtn = (keyboard) => buildToggleBtn(
-    'kg-kb-count-btn',
-    ['hashtag'],
-    () => {
-        const s = getStrings();
-        return `[${s.tooltipClick}]${keyboard.dataset.kbCount === 'on' ? s.tooltipKbCountOff : s.tooltipKbCountOn}`;
-    },
-    () => {
-        const next = keyboard.dataset.kbCount === 'on' ? 'off' : 'on';
-        applyCount(keyboard, next);
-        setKbPref('count', next);
-    },
-);
+const buildCountBtn = (keyboard) => {
+    const btn = buildToggleBtn(
+        'kg-kb-count-btn',
+        ['hashtag'],
+        () => {
+            const s = getStrings();
+            return `[${s.tooltipClick}]${keyboard.dataset.kbCount === 'on' ? s.tooltipKbCountOff : s.tooltipKbCountOn}`;
+        },
+        () => {
+            const next = keyboard.dataset.kbCount === 'on' ? 'off' : 'on';
+            applyCount(keyboard, next);
+            btn.classList.toggle('panel-btn--active', next === 'on');
+            setKbPref('count', next);
+        },
+    );
+    btn.classList.toggle('panel-btn--active', getKbPref('count') === 'on');
+    return btn;
+};
 
 // ─── Keyboard lifecycle ───────────────────────────────────────────────────────
 

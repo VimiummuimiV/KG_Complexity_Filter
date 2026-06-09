@@ -53,6 +53,11 @@ $gap-large:       20px;  // score summary divider margins
     background: var(--border);
   }
 
+  &--active {
+    color: var(--txt);
+    background: var(--border);
+  }
+
   .panel-icon {
     width: 18px !important;
     height: 18px !important;

@@ -138,31 +138,34 @@ const buildLangBtn = (panel) => buildToggleBtn(
     },
 );
 
-const buildKeyboardBtn = (panel) => buildToggleBtn(
-    'panel-keyboard',
-    ['keyboard-fill'],
-    () => {
-        const s = getStrings();
-        const hints = [
-            `[${s.tooltipClick}]${getKeyboard() ? s.tooltipHideKeyboard : s.tooltipShowKeyboard}`,
-            `[Shift + ${s.tooltipClick}]${getKbPref('open') ? s.tooltipKeyboardUnpin : s.tooltipKeyboardPin}`,
-        ];
-        return hints.join(' ');
-    },
-    (e) => {
-        const { _kgResult } = panel;
-        if (!_kgResult) return;
-        if (getKeyboard()) {
-            closeKeyboard();
-            panel.toggleAttribute('data-kb-open', false);
-            if (!e.shiftKey) setKbPref('open', false);
-        } else {
-            openKeyboard(panel, _kgResult.layoutLang, _kgResult.layoutName, _kgResult.keyCounts);
-            panel.toggleAttribute('data-kb-open', true);
-            if (!e.shiftKey) setKbPref('open', true);
-        }
-    },
-);
+const buildKeyboardBtn = (panel) => {
+    const btn = buildToggleBtn(
+        'panel-keyboard',
+        ['keyboard-fill'],
+        () => {
+            const s = getStrings();
+            const hints = [
+                `[${s.tooltipClick}]${getKeyboard() ? s.tooltipHideKeyboard : s.tooltipShowKeyboard}`,
+                `[Shift + ${s.tooltipClick}]${getKbPref('open') ? s.tooltipKeyboardUnpin : s.tooltipKeyboardPin}`,
+            ];
+            return hints.join(' ');
+        },
+        (e) => {
+            const { _kgResult } = panel;
+            if (!_kgResult) return;
+            if (getKeyboard()) {
+                closeKeyboard();
+                btn.classList.remove('panel-btn--active');
+                if (!e.shiftKey) setKbPref('open', false);
+            } else {
+                openKeyboard(panel, _kgResult.layoutLang, _kgResult.layoutName, _kgResult.keyCounts);
+                btn.classList.add('panel-btn--active');
+                if (!e.shiftKey) setKbPref('open', true);
+            }
+        },
+    );
+    return btn;
+};
 
 const buildHeader = (panel, strings, score) => {
     const header = el('div', 'panel-header');
@@ -622,10 +625,11 @@ export const render = (result, vocId = null, onLangChange = null, onLayoutChange
     if (prev) {
         panel.classList.add('no-fade');
         updateKeyboard(panel, result.layoutLang, result.layoutName, result.keyCounts);
-        panel.toggleAttribute('data-kb-open', !!getKeyboard());
     } else {
-        if (getKbPref('open')) openKeyboard(panel, result.layoutLang, result.layoutName, result.keyCounts);
-        panel.toggleAttribute('data-kb-open', !!getKeyboard());
+        if (getKbPref('open')) {
+            openKeyboard(panel, result.layoutLang, result.layoutName, result.keyCounts);
+            panel.querySelector('.panel-keyboard')?.classList.add('panel-btn--active');
+        }
     }
 
     document.body.appendChild(panel);

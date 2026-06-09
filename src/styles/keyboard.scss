@@ -121,11 +121,6 @@ $kb-radius:   6px;
 
     &[data-kb-count='on'] .kg-key-count { display: block; }
 
-    // Count button active state
-    &[data-kb-count='on']  .kg-kb-count-btn { color: var(--txt); background: var(--border); }
-    &[data-kb-count='off'] .kg-kb-count-btn,
-    &:not([data-kb-count]) .kg-kb-count-btn { color: var(--txt-dim); }
-
     // ── Heat mode ─────────────────────────────────────────────────────────────
     // Three-stop gradient (green→yellow→red) via two color-mix stages,
     // driven by --key-heat (0–1) set inline per key.
