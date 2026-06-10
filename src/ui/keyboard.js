@@ -273,13 +273,21 @@ export const openKeyboard = (panel, layoutLang, layoutName, keyCounts, keyCosts)
     // Delegated on keyboard so it survives board replacement in updateKeyboard.
     // Active when heat mode or count mode is on (either gives per-key context).
     // spansByKey built once — hover does zero DOM querying.
-    const spansByKey = new Map();
+    const spansByKey    = new Map();
+    const penaltyToKeys = new Map();
     for (const span of panel.querySelectorAll('.panel-text span[data-key]')) {
         for (const base of span.dataset.key.split(' ')) {
             if (!spansByKey.has(base)) spansByKey.set(base, []);
             spansByKey.get(base).push(span);
         }
+        for (const p of (span.dataset.penalty ?? '').split(' ').filter(Boolean)) {
+            if (!penaltyToKeys.has(p)) penaltyToKeys.set(p, new Set());
+            penaltyToKeys.get(p).add(span.dataset.key);
+        }
     }
+    const keyElsByBase = new Map(
+        [...board.querySelectorAll('.kg-key[data-base-key]')].map(k => [k.dataset.baseKey, k])
+    );
 
     const isHoverActive = () => keyboard.dataset.kbMode !== 'zones' || keyboard.dataset.kbCount === 'on';
     let activeSpans = [];
@@ -303,12 +311,17 @@ export const openKeyboard = (panel, layoutLang, layoutName, keyCounts, keyCosts)
     // Watches panel data attributes and mirrors them onto the keyboard element
     // so CSS can dim/highlight keys without any per-key JS iteration.
     const bridgeAttrs = ['data-active-penalty', 'data-active-finger', 'data-active-hand'];
+    let activePenaltyKeys = [];
     const observer = new MutationObserver(() => {
         for (const attr of bridgeAttrs) {
             const val = panel.getAttribute(attr);
             if (val !== null) keyboard.setAttribute(attr, val);
             else              keyboard.removeAttribute(attr);
         }
+        for (const k of activePenaltyKeys) k.classList.remove('kg-key--penalty-hl');
+        activePenaltyKeys = [...(penaltyToKeys.get(panel.dataset.activePenalty) ?? [])]
+            .map(base => keyElsByBase.get(base)).filter(Boolean);
+        for (const k of activePenaltyKeys) k.classList.add('kg-key--penalty-hl');
     });
     observer.observe(panel, { attributes: true, attributeFilter: bridgeAttrs });
     // Clean up observer when keyboard is removed from DOM

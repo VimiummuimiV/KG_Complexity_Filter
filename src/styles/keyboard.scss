@@ -212,6 +212,8 @@ $kb-radius:   6px;
         }
     }
 
+    &[data-active-penalty] .kg-key--penalty-hl { opacity: 1 !important; }
+
     // ── Special key base ──────────────────────────────────────────────────────
 
     .kg-key--special {
