@@ -485,7 +485,7 @@ $gap-large:       20px;  // score summary divider margins
   &[data-active-penalty] .panel-text span,
   &[data-active-key] .panel-text span {
     opacity: .3;
-    transition: opacity .12s;
+    transition: opacity .12s .04s;
   }
 
   // Spaces and unmapped chars have no data-penalty — never dim them

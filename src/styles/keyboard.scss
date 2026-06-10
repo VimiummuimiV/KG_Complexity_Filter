@@ -197,7 +197,7 @@ $kb-radius:   6px;
     &[data-active-hand] {
         .kg-key:not(.kg-key--special) {
             opacity: .3;
-            transition: opacity .12s;
+            transition: opacity .12s .04s;
         }
     }
 

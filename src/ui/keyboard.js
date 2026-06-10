@@ -8,6 +8,7 @@ import { makeDraggable } from '../helpers/drag.js';
 import { getStrings } from '../helpers/lang.js';
 import { buildToggleBtn } from '../helpers/button.js';
 import { getKbPref, setKbPref } from '../helpers/keyboardConfig.js';
+import { onHoverDelegate } from '../helpers/events.js';
 
 const KEYBOARD_ID = 'kg-keyboard-panel';
 
@@ -281,24 +282,22 @@ export const openKeyboard = (panel, layoutLang, layoutName, keyCounts, keyCosts)
     }
 
     const isHoverActive = () => keyboard.dataset.kbMode !== 'zones' || keyboard.dataset.kbCount === 'on';
-    const alphaKeyOf    = (e) => e.target.closest('.kg-key:not(.kg-key--special)');
-    let   activeSpans   = [];
+    let activeSpans = [];
 
-    keyboard.addEventListener('mouseover', (e) => {
-        const key = alphaKeyOf(e);
-        if (!key?.dataset.baseKey || !isHoverActive()) return;
-        for (const span of activeSpans) span.classList.remove('kg-key-hl');
-        activeSpans = spansByKey.get(key.dataset.baseKey) ?? [];
-        for (const span of activeSpans) span.classList.add('kg-key-hl');
-        panel.dataset.activeKey = key.dataset.baseKey;
-    });
-    keyboard.addEventListener('mouseout', (e) => {
-        const key = alphaKeyOf(e);
-        if (!key?.dataset.baseKey || key.contains(e.relatedTarget)) return;
-        for (const span of activeSpans) span.classList.remove('kg-key-hl');
-        activeSpans = [];
-        delete panel.dataset.activeKey;
-    });
+    onHoverDelegate(keyboard, '.kg-key:not(.kg-key--special)',
+        (t) => {
+            if (!isHoverActive()) return;
+            for (const span of activeSpans) span.classList.remove('kg-key-hl');
+            activeSpans = spansByKey.get(t.dataset.baseKey) ?? [];
+            for (const span of activeSpans) span.classList.add('kg-key-hl');
+            panel.dataset.activeKey = t.dataset.baseKey;
+        },
+        ()  => {
+            for (const span of activeSpans) span.classList.remove('kg-key-hl');
+            activeSpans = [];
+            delete panel.dataset.activeKey;
+        },
+    );
 
     // ── Cross-panel bridge: panel penalty/finger hover → keyboard key glow ───
     // Watches panel data attributes and mirrors them onto the keyboard element

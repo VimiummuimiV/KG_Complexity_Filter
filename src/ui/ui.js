@@ -12,6 +12,7 @@ import { applyInitialLang, toggleLang,
 import { createCustomTooltip, updateTooltipContent } from '../helpers/tooltip';
 import { applyInitialSections, toggleSection, collapseAllExcept, toggleAllSections } from '../helpers/sections';
 import { buildToggleBtn } from '../helpers/button';
+import { onHoverDelegate } from '../helpers/events';
 import { openKeyboard, updateKeyboard, getKeyboard, closeKeyboard } from './keyboard';
 import { getKbPref, setKbPref } from '../helpers/keyboardConfig';
 
@@ -287,7 +288,7 @@ const buildLegend = (strings) => {
     return legend;
 };
 
-const buildHandBar = ({ left, right, imbalance }, strings) => {
+const buildHandBar = ({ left, right, imbalance }, strings, panel) => {
     const total    = left + right;
     const leftPct  = total > 0 ? Math.round(left / total * 100) : 50;
     const rightPct = 100 - leftPct;
@@ -317,11 +318,10 @@ const buildHandBar = ({ left, right, imbalance }, strings) => {
     createCustomTooltip(segL, strings.tooltipHandL, 'stats', 0);
     createCustomTooltip(segR, strings.tooltipHandR, 'stats', 0);
 
-    const panel = () => track.closest('#complexity-filter-panel');
     track.addEventListener('mousemove', (e) => {
-        panel().dataset.activeHand = e.offsetX / track.offsetWidth < leftPct / 100 ? 'L' : 'R';
+        panel.dataset.activeHand = e.offsetX / track.offsetWidth < leftPct / 100 ? 'L' : 'R';
     });
-    track.addEventListener('mouseleave', () => { delete panel().dataset.activeHand; });
+    track.addEventListener('mouseleave', () => { delete panel.dataset.activeHand; });
 
     appendAll(track, segL, segR);
     wrap.appendChild(track);
@@ -350,6 +350,7 @@ const buildPenaltyBreakdown = (pb, strings) => {
         const { pct = 0, count } = pb[key] ?? {};
         if (pct === 0) continue;
         const row = el('div', 'penalty-row');
+        row.dataset.penaltyKey = key;
         const dot = el('span', 'legend-dot');
         dot.style.background = color;
         const pctNode = elText('span', 'penalty-pct', pct + '%');
@@ -365,11 +366,9 @@ const buildPenaltyBreakdown = (pb, strings) => {
         );
         const tipKey = 'tooltipPenalty_' + key;
         if (strings[tipKey]) createCustomTooltip(row, strings[tipKey], 'stats', 0);
-        const panel = () => row.closest('#complexity-filter-panel');
-        row.addEventListener('mouseenter', () => { panel().dataset.activePenalty = key; });
-        row.addEventListener('mouseleave', () => { delete panel().dataset.activePenalty; });
         legend.appendChild(row);
     }
+
     wrap.appendChild(legend);
 
     return wrap;
@@ -409,16 +408,6 @@ const buildFingerLoad = (fingerLoad, strings) => {
 
         const barWrap = el('div', 'fl-bar-wrap');
         barWrap.dataset.finger = i;
-        barWrap.addEventListener('mouseenter', () => {
-            bars.classList.add('fl-active');
-            bars.dataset.activeFinger = i;
-            barWrap.closest('#complexity-filter-panel').dataset.activeFinger = i;
-        });
-        barWrap.addEventListener('mouseleave', () => {
-            bars.classList.remove('fl-active');
-            delete bars.dataset.activeFinger;
-            delete barWrap.closest('#complexity-filter-panel').dataset.activeFinger;
-        });
 
         const fill = el('div', 'fl-bar-fill');
         fill.style.height     = Math.round(pct / max * 100) + '%';
@@ -593,7 +582,7 @@ export const render = (result, vocId = null, onLangChange = null, onLayoutChange
 
     const details = el('div', 'panel-detail');
     appendAll(details,
-        buildSection('balance',   strings.handBalance,      buildHandBar(handBalance, strings)),
+        buildSection('balance',   strings.handBalance,      buildHandBar(handBalance, strings, panel)),
         buildSection('penalties', strings.penaltyBreakdown, buildPenaltyBreakdown(penaltyBreakdown, strings)),
         buildSection('fingers',   strings.fingerLoad,       buildFingerLoad(fingerLoad, strings)),
         buildSection('bigrams',   strings.hardestBigrams,   buildHardestBigrams(hardestBigrams, strings)),
@@ -618,6 +607,15 @@ export const render = (result, vocId = null, onLangChange = null, onLayoutChange
 
     document.body.appendChild(panel);
     makeDraggable(panel, panel.querySelector('.panel-header'), 'complexityPanel');
+
+    onHoverDelegate(panel, '.penalty-row',
+        (t) => { panel.dataset.activePenalty = t.dataset.penaltyKey; },
+        ()  => { delete panel.dataset.activePenalty; },
+    );
+    onHoverDelegate(panel, '.fl-bar-wrap',
+        (t) => { panel.dataset.activeFinger = t.dataset.finger; },
+        ()  => { delete panel.dataset.activeFinger; },
+    );
 
     // Animate both score nodes with the same logic
     const mainScoreNode = panel.querySelector('.score-value');
