@@ -196,7 +196,7 @@ $kb-radius:   6px;
     &[data-active-finger],
     &[data-active-hand] {
         .kg-key:not(.kg-key--special) {
-            opacity: .2;
+            opacity: .3;
             transition: opacity .12s;
         }
     }

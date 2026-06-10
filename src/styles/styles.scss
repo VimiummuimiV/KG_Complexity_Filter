@@ -484,7 +484,7 @@ $gap-large:       20px;  // score summary divider margins
   &[data-active-hand] .panel-text span,
   &[data-active-penalty] .panel-text span,
   &[data-active-key] .panel-text span {
-    opacity: .15;
+    opacity: .3;
     transition: opacity .12s;
   }
 
