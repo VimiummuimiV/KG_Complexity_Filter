@@ -82,14 +82,8 @@ const buildKey = (ch, finger, shiftLabels, keyCounts, keyCosts, heatCount, heatC
     const main = el('span', 'kg-key-main');
     main.textContent = ch === ch.toLowerCase() ? ch.toUpperCase() : ch;
 
-    if (keyCounts) {
-        const n = keyCounts.get(ch) ?? 0;
-        count.dataset.countLabel = n > 0 ? n : '';
-    }
-    if (keyCosts) {
-        const c = keyCosts.get(ch);
-        count.dataset.costLabel = c != null ? c.toFixed(1) : '';
-    }
+    count.dataset.countLabel = keyCounts?.get(ch) || '';
+    count.dataset.costLabel  = keyCosts?.get(ch)?.toFixed(1) || '';
 
     if (heatCount) {
         const v = heatCount.get(ch) ?? 0;

@@ -101,7 +101,8 @@ $kb-radius:   6px;
 
     // ── Count label ───────────────────────────────────────────────────────────
     // Sits at the very top of the key, full width, hidden until [data-kb-count='on'].
-    // Content driven by attr(): press count by default, cost value in heat-cost mode.
+    // Content driven by attr() on ::before: press count by default, cost in heat-cost mode.
+    // (content: attr() only works on pseudo-elements, not regular block elements.)
 
     .kg-key-count {
         display: none;
@@ -110,24 +111,34 @@ $kb-radius:   6px;
         left: 0;
         right: 0;
         margin: 2px;
+        line-height: 14px;
+        border-radius: $kb-radius - 1px;
+        background: var(--kb-bg);
+        pointer-events: none;
+        transition: transform .2s cubic-bezier(.34, 1.56, .64, 1);
+    }
+
+    .kg-key-count::before {
+        // Default content is the press count, overridden to heat cost in heat-cost mode via the data-count-label attribute.
+        content: attr(data-count-label);
+        display: block;
         font-size: 9px;
         font-weight: 600;
         line-height: 14px;
         text-align: center;
         color: var(--kb-key-shift-txt);
-        border-radius: $kb-radius - 1px;
-        background: var(--kb-bg);
-        pointer-events: none;
-        transition: transform .2s cubic-bezier(.34, 1.56, .64, 1);
-        content: attr(data-count-label);
     }
 
     .kg-key[data-count-bottom] .kg-key-count {
         transform: translateY(calc($kb-key-h - 14px - 4px));
     }
 
-    &[data-kb-count='on'] .kg-key-count          { display: block; }
-    &[data-kb-mode='heat-cost'] .kg-key-count    { content: attr(data-cost-label); }
+    &[data-kb-count='on'] .kg-key-count { display: block; }
+
+    $kb-count-attrs: ('heat-count': 'data-count-label', 'heat-cost': 'data-cost-label');
+    @each $mode, $attr in $kb-count-attrs {
+        &[data-kb-mode='#{$mode}'] .kg-key-count::before { content: attr(#{$attr}); }
+    }
 
     // ── Heat modes ─────────────────────────────────────────────────────────────
     // Four-stop meteo gradient — same formula for both modes.
