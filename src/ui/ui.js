@@ -366,7 +366,9 @@ const buildPenaltyBreakdown = (pb, strings) => {
         );
         const tipKey = `tooltipPenalty_${key}`;
         if (strings[tipKey]) {
-            const tip = count != null ? `${strings[tipKey]} | ${count}` : strings[tipKey];
+            const tip = count != null
+                ? `${strings[tipKey]} | ${pct}% | ${count}`
+                : `${strings[tipKey]} | ${pct}%`;
             createCustomTooltip(row, tip, 'stats', 0);
         }
         legend.appendChild(row);
