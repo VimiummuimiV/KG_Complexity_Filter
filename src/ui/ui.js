@@ -382,6 +382,7 @@ const buildHardestBigrams = (hardestBigrams, strings) => {
     const list = el('div', 'hotspot-list');
     for (const { pair, cost } of hardestBigrams) {
         const chip = el('div', 'hotspot-chip');
+        chip.dataset.pair = pair;
         appendAll(chip,
             elText('span', 'hotspot-ch', pair),
             elText('span', 'hotspot-cost', cost),
@@ -435,6 +436,7 @@ const buildHardestWords = (hardestWords, strings) => {
     const list = el('div', 'hotspot-list');
     for (const { word, cost } of hardestWords) {
         const chip = el('div', 'hotspot-chip');
+        chip.dataset.word = word;
         appendAll(chip,
             elText('span', 'hotspot-ch', word),
             elText('span', 'hotspot-cost', cost),
@@ -615,6 +617,39 @@ export const render = (result, vocId = null, onLangChange = null, onLayoutChange
     onHoverDelegate(panel, '.fl-bar-wrap',
         (t) => { panel.dataset.activeFinger = t.dataset.finger; },
         ()  => { delete panel.dataset.activeFinger; },
+    );
+
+    const allSpans = [...panel.querySelectorAll('.panel-text span')];
+    const { chars: txtChars, charBases } = result;
+    let activeHotspotSpans = [];
+
+    onHoverDelegate(panel, '.hotspot-chip',
+        (t) => {
+            for (const s of activeHotspotSpans) s.classList.remove('hotspot-hl');
+            const spans = [];
+            if (t.dataset.pair) {
+                const pair = t.dataset.pair;
+                for (let i = 1; i < txtChars.length; i++) {
+                    if (charBases[i - 1] + charBases[i] === pair)
+                        spans.push(allSpans[i - 1], allSpans[i]);
+                }
+            } else {
+                const word = t.dataset.word.toLowerCase();
+                const len  = word.length;
+                for (let i = 0; i <= txtChars.length - len; i++) {
+                    if (txtChars.slice(i, i + len).join('').toLowerCase() === word)
+                        spans.push(...allSpans.slice(i, i + len));
+                }
+            }
+            activeHotspotSpans = spans;
+            for (const s of activeHotspotSpans) s.classList.add('hotspot-hl');
+            panel.dataset.activeHotspot = '';
+        },
+        () => {
+            for (const s of activeHotspotSpans) s.classList.remove('hotspot-hl');
+            activeHotspotSpans = [];
+            delete panel.dataset.activeHotspot;
+        },
     );
 
     // Animate both score nodes with the same logic

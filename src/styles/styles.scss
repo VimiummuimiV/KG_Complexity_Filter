@@ -483,7 +483,8 @@ $gap-large:       20px;  // score summary divider margins
   &[data-active-finger] .panel-text span,
   &[data-active-hand] .panel-text span,
   &[data-active-penalty] .panel-text span,
-  &[data-active-key] .panel-text span {
+  &[data-active-key] .panel-text span,
+  &[data-active-hotspot] .panel-text span {
     opacity: .3;
     transition: opacity .12s .04s;
   }
@@ -493,6 +494,9 @@ $gap-large:       20px;  // score summary divider margins
 
   // Heat-mode key hover: restore spans whose base key matches the hovered key
   &[data-active-key] .panel-text span.kg-key-hl { opacity: 1; }
+
+  // Bigram/word chip hover: restore only the exact matching spans
+  &[data-active-hotspot] .panel-text span.hotspot-hl { opacity: 1; }
 
   @for $i from 0 through 9 {
     &[data-active-finger='#{$i}'] .panel-text span[data-finger='#{$i}'] {
@@ -546,6 +550,7 @@ $gap-large:       20px;  // score summary divider margins
     background: var(--chip-bg);
     border-radius: 5px;
     font-family: var(--font-mono);
+    cursor: default;
   }
 
   .hotspot-ch   { font-size: 13px; font-weight: 600; color: var(--hard); }
