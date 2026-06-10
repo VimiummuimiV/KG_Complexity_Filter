@@ -11,6 +11,7 @@ import { getKbPref, setKbPref } from '../helpers/keyboardConfig.js';
 import { onHoverDelegate } from '../helpers/events.js';
 
 const KEYBOARD_ID = 'kg-keyboard-panel';
+let bridgeObserver = null;
 
 // ─── Special keys ─────────────────────────────────────────────────────────────
 // Rows 0–3: { left, right } flanking alpha keys. bottom: space row. cls → width.
@@ -232,7 +233,7 @@ const buildCountBtn = (keyboard) => {
 // ─── Keyboard lifecycle ───────────────────────────────────────────────────────
 
 export const getKeyboard  = () => document.getElementById(KEYBOARD_ID);
-export const closeKeyboard = () => getKeyboard()?.remove();
+export const closeKeyboard = () => { bridgeObserver?.disconnect(); bridgeObserver = null; getKeyboard()?.remove(); };
 
 export const openKeyboard = (panel, layoutLang, layoutName, keyCounts, keyCosts) => {
     closeKeyboard();
@@ -312,7 +313,7 @@ export const openKeyboard = (panel, layoutLang, layoutName, keyCounts, keyCosts)
     // so CSS can dim/highlight keys without any per-key JS iteration.
     const bridgeAttrs = ['data-active-penalty', 'data-active-finger', 'data-active-hand'];
     let activePenaltyKeys = [];
-    const observer = new MutationObserver(() => {
+    bridgeObserver = new MutationObserver(() => {
         for (const attr of bridgeAttrs) {
             const val = panel.getAttribute(attr);
             if (val !== null) keyboard.setAttribute(attr, val);
@@ -323,11 +324,7 @@ export const openKeyboard = (panel, layoutLang, layoutName, keyCounts, keyCosts)
             .map(base => keyElsByBase.get(base)).filter(Boolean);
         for (const k of activePenaltyKeys) k.classList.add('kg-key--penalty-hl');
     });
-    observer.observe(panel, { attributes: true, attributeFilter: bridgeAttrs });
-    // Clean up observer when keyboard is removed from DOM
-    new MutationObserver((_, obs) => {
-        if (!document.contains(keyboard)) { observer.disconnect(); obs.disconnect(); }
-    }).observe(document.body, { childList: true });
+    bridgeObserver.observe(panel, { attributes: true, attributeFilter: bridgeAttrs });
 };
 
 export const updateKeyboard = (panel, layoutLang, layoutName, keyCounts, keyCosts) => {
