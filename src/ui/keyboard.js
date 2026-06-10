@@ -64,7 +64,7 @@ const el = (tag, cls) => {
 
 // ─── Build one alpha/symbol key ───────────────────────────────────────────────
 
-const buildKey = (ch, finger, shiftLabels, keyCounts, keyHeat) => {
+const buildKey = (ch, finger, shiftLabels, keyCounts, heatCount, heatCost, keyCosts) => {
     const key = el('div', `kg-key kg-key--f${finger}`);
     key.dataset.finger  = finger;
     key.dataset.baseKey = ch;
@@ -86,10 +86,18 @@ const buildKey = (ch, finger, shiftLabels, keyCounts, keyHeat) => {
         const n = keyCounts.get(ch) ?? 0;
         count.textContent = n > 0 ? n : '';
     }
+    if (keyCosts) {
+        const c = keyCosts.get(ch);
+        count.dataset.costLabel = c != null ? c.toFixed(1) : '';
+    }
 
-    if (keyHeat) {
-        const heat = keyHeat.get(ch) ?? 0;
-        if (heat > 0) key.style.setProperty('--key-heat', Math.max(0.12, heat).toFixed(3));
+    if (heatCount) {
+        const v = heatCount.get(ch) ?? 0;
+        if (v > 0) key.style.setProperty('--key-heat-count', Math.max(0.12, v).toFixed(3));
+    }
+    if (heatCost) {
+        const v = heatCost.get(ch) ?? 0;
+        if (v > 0) key.style.setProperty('--key-heat-cost', Math.max(0.12, v).toFixed(3));
     }
 
     key.appendChild(count);
@@ -110,7 +118,7 @@ const buildSpecialKey = (label, cls) => {
 
 // ─── Build full keyboard board ────────────────────────────────────────────────
 
-const buildKeyboard = (layoutLang, layoutName, keyCounts) => {
+const buildKeyboard = (layoutLang, layoutName, keyCounts, keyCosts) => {
     const cfg = configs.find(c => c.layoutLang === layoutLang && c.layoutName === layoutName)
              ?? configs.find(c => c.layoutLang === layoutLang);
     if (!cfg) return null;
@@ -118,10 +126,16 @@ const buildKeyboard = (layoutLang, layoutName, keyCounts) => {
     const { layout, shiftMap } = cfg;
     const shiftLabels = buildShiftLabels(shiftMap);
     const rows        = keysByRow(layout);
-    const maxCount = keyCounts ? Math.max(0, ...keyCounts.values()) : 0;
-    const keyHeat  = keyCounts && maxCount > 0
-        ? new Map([...keyCounts].map(([k, v]) => [k, v / maxCount]))
-        : null;
+
+    // --key-heat-count and --key-heat-cost are both normalised and stored per key.
+    // CSS aliases --key-heat to the active one based on [data-kb-mode].
+    const normalize = (map) => {
+        if (!map) return null;
+        const max = Math.max(0, ...map.values());
+        return max > 0 ? new Map([...map].map(([k, v]) => [k, v / max])) : null;
+    };
+    const heatCount = normalize(keyCounts);
+    const heatCost  = normalize(keyCosts);
 
     const board = el('div', 'kg-keyboard');
 
@@ -132,7 +146,7 @@ const buildKeyboard = (layoutLang, layoutName, keyCounts) => {
 
         if (left) rowEl.appendChild(buildSpecialKey(left.label, left.cls));
         for (const { ch, finger } of rows[r]) {
-            rowEl.appendChild(buildKey(ch, finger, shiftLabels, keyCounts, keyHeat));
+            rowEl.appendChild(buildKey(ch, finger, shiftLabels, keyCounts, heatCount, heatCost, keyCosts));
         }
         if (right) rowEl.appendChild(buildSpecialKey(right.label, right.cls));
 
@@ -159,19 +173,37 @@ const buildKeyboard = (layoutLang, layoutName, keyCounts) => {
     return board;
 };
 
-// ─── Mode toggle (zones ↔ heat) ───────────────────────────────────────────────
+// ─── Mode toggle (zones ↔ heat-count ↔ heat-cost) ────────────────────────────
 
-const applyMode  = (kb, mode)  => { kb.dataset.kbMode  = mode; };
+const MODES = ['zones', 'heat-count', 'heat-cost'];
+
+const applyMode = (kb, mode) => {
+    kb.dataset.kbMode = mode;
+    // Update the mode suffix in the title (the part after the · separator)
+    const title = kb.querySelector('.kg-kb-title');
+    if (title) {
+        const s       = getStrings();
+        const base    = title.dataset.titleBase ?? title.textContent.split(' · ')[0];
+        title.dataset.titleBase = base;
+        const shortKey = { 'heat-count': 'tooltipKbModeCountShort', 'heat-cost': 'tooltipKbModeCostShort' };
+        const suffix   = shortKey[mode] ? s[shortKey[mode]] : '';
+        title.textContent = suffix ? `${base} · ${suffix}` : base;
+    }
+};
 
 const buildModeBtn = (keyboard) => buildToggleBtn(
     'kg-kb-mode-btn',
-    ['fire-fill', 'contrast-fill'],
+    ['fire-fill', 'coin-fill', 'contrast-fill'],
     () => {
-        const s = getStrings();
-        return `[${s.tooltipClick}]${keyboard.dataset.kbMode === 'heat' ? s.tooltipKbModeZones : s.tooltipKbModeHeat}`;
+        const s    = getStrings();
+        const mode = keyboard.dataset.kbMode ?? 'zones';
+        const next = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
+        const tooltipKey = { zones: 'tooltipKbModeZones', 'heat-count': 'tooltipKbModeHeatCount', 'heat-cost': 'tooltipKbModeHeatCost' };
+        return `[${s.tooltipClick}]${s[tooltipKey[next]]}`;
     },
     () => {
-        const next = keyboard.dataset.kbMode === 'zones' ? 'heat' : 'zones';
+        const mode = keyboard.dataset.kbMode ?? 'zones';
+        const next = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
         applyMode(keyboard, next);
         setKbPref('mode', next);
     },
@@ -205,7 +237,7 @@ const buildCountBtn = (keyboard) => {
 export const getKeyboard  = () => document.getElementById(KEYBOARD_ID);
 export const closeKeyboard = () => getKeyboard()?.remove();
 
-export const openKeyboard = (panel, layoutLang, layoutName, keyCounts) => {
+export const openKeyboard = (panel, layoutLang, layoutName, keyCounts, keyCosts) => {
     closeKeyboard();
 
     const keyboard = el('div');
@@ -214,12 +246,13 @@ export const openKeyboard = (panel, layoutLang, layoutName, keyCounts) => {
     applyMode(keyboard,  getKbPref('mode'));
     applyCount(keyboard, getKbPref('count'));
 
-    const board = buildKeyboard(layoutLang, layoutName, keyCounts);
+    const board = buildKeyboard(layoutLang, layoutName, keyCounts, keyCosts);
     if (!board) return;
 
     const header  = el('div', 'kg-kb-header');
     const title   = el('span', 'kg-kb-title');
-    title.textContent = `${layoutLang} · ${layoutName}`;
+    title.dataset.titleBase = `${layoutLang} · ${layoutName}`;
+    title.textContent       = title.dataset.titleBase;
 
     const closeBtn = buildToggleBtn(
         'kg-kb-close',
@@ -237,6 +270,8 @@ export const openKeyboard = (panel, layoutLang, layoutName, keyCounts) => {
     header.appendChild(btnGroup);
     keyboard.appendChild(header);
     keyboard.appendChild(board);
+    // Re-apply mode now that title is in the DOM so the suffix renders.
+    applyMode(keyboard, getKbPref('mode'));
 
     document.body.appendChild(keyboard);
     makeDraggable(keyboard, header, 'keyboardPanel');
@@ -253,7 +288,7 @@ export const openKeyboard = (panel, layoutLang, layoutName, keyCounts) => {
         }
     }
 
-    const isHoverActive = () => keyboard.dataset.kbMode === 'heat' || keyboard.dataset.kbCount === 'on';
+    const isHoverActive = () => keyboard.dataset.kbMode !== 'zones' || keyboard.dataset.kbCount === 'on';
     const alphaKeyOf    = (e) => e.target.closest('.kg-key:not(.kg-key--special)');
     let   activeSpans   = [];
 
@@ -272,20 +307,39 @@ export const openKeyboard = (panel, layoutLang, layoutName, keyCounts) => {
         activeSpans = [];
         delete panel.dataset.activeKey;
     });
+
+    // ── Cross-panel bridge: panel penalty/finger hover → keyboard key glow ───
+    // Watches panel data attributes and mirrors them onto the keyboard element
+    // so CSS can dim/highlight keys without any per-key JS iteration.
+    const bridgeAttrs = ['data-active-penalty', 'data-active-finger', 'data-active-hand'];
+    const observer = new MutationObserver(() => {
+        for (const attr of bridgeAttrs) {
+            const val = panel.getAttribute(attr);
+            if (val !== null) keyboard.setAttribute(attr, val);
+            else              keyboard.removeAttribute(attr);
+        }
+    });
+    observer.observe(panel, { attributes: true, attributeFilter: bridgeAttrs });
+    // Clean up observer when keyboard is removed from DOM
+    new MutationObserver((_, obs) => {
+        if (!document.contains(keyboard)) { observer.disconnect(); obs.disconnect(); }
+    }).observe(document.body, { childList: true });
 };
 
-export const updateKeyboard = (panel, layoutLang, layoutName, keyCounts) => {
+export const updateKeyboard = (panel, layoutLang, layoutName, keyCounts, keyCosts) => {
     const keyboard = getKeyboard();
     if (!keyboard) return;
 
     keyboard.dataset.complexityFilterTheme = panel.dataset.complexityFilterTheme ?? 'dark';
 
     const old   = keyboard.querySelector('.kg-keyboard');
-    const board = buildKeyboard(layoutLang, layoutName, keyCounts);
+    const board = buildKeyboard(layoutLang, layoutName, keyCounts, keyCosts);
     if (!board) return;
 
     if (old) keyboard.replaceChild(board, old);
     else     keyboard.appendChild(board);
 
-    keyboard.querySelector('.kg-kb-title').textContent = `${layoutLang} · ${layoutName}`;
+    const title = keyboard.querySelector('.kg-kb-title');
+    title.dataset.titleBase = `${layoutLang} · ${layoutName}`;
+    applyMode(keyboard, keyboard.dataset.kbMode ?? 'zones');
 };

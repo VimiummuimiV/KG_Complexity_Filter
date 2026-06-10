@@ -88,10 +88,13 @@ export const ru = {
     alertLangIncompatible: 'Этот текст несовместим с выбранным языком',
 
     // Keyboard panel button tooltips
-    tooltipKbModeHeat:  'Переключиться на тепловую карту',
-    tooltipKbModeZones: 'Переключиться на зоны пальцев',
-    tooltipKbCountOn:   'Показать счётчики нажатий',
-    tooltipKbCountOff:  'Скрыть счётчики нажатий',
+    tooltipKbModeZones:      'Переключиться на зоны пальцев',
+    tooltipKbModeHeatCount:  'Переключиться на тепловую карту (нажатия)',
+    tooltipKbModeHeatCost:   'Переключиться на тепловую карту (стоимость)',
+    tooltipKbModeCountShort: 'нажатия',
+    tooltipKbModeCostShort:  'стоимость',
+    tooltipKbCountOn:        'Показать счётчики клавиш',
+    tooltipKbCountOff:       'Скрыть счётчики клавиш',
 
     // Language toggle — icon shows the CURRENT language (RU is active)
     langIcon:  '🇷🇺',

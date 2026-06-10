@@ -449,11 +449,15 @@ export const analyzeComplexity = (text, layoutLang = null, layoutName = null) =>
         fingerLoadTotal > 0 ? Math.round(v / fingerLoadTotal * 100) : 0
     );
 
-    // ── Per-key press counts ──────────────────────────────────────────────────
+    // ── Per-key press counts and accumulated costs ────────────────────────────
     const keyCounts = new Map(); // base key → press count
+    const keyCosts  = new Map(); // base key → total accumulated cost
     for (let i = 0; i < n; i++) {
         const base = baseOf(chars[i]);
-        if (base in layout) keyCounts.set(base, (keyCounts.get(base) ?? 0) + 1);
+        if (base in layout) {
+            keyCounts.set(base, (keyCounts.get(base) ?? 0) + 1);
+            keyCosts.set(base,  (keyCosts.get(base)  ?? 0) + costs[i]);
+        }
     }
 
     // ── Number-row density ────────────────────────────────────────────────────
@@ -483,6 +487,7 @@ export const analyzeComplexity = (text, layoutLang = null, layoutName = null) =>
         charFingers,
         charBases,
         keyCounts,
+        keyCosts,
         layoutLang:  cfg.layoutLang,
         layoutName:  cfg.layoutName,
     };

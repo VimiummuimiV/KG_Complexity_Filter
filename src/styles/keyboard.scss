@@ -126,44 +126,86 @@ $kb-radius:   6px;
 
     &[data-kb-count='on'] .kg-key-count { display: block; }
 
-    // ── Heat mode ─────────────────────────────────────────────────────────────
-    // Four-stop meteo gradient (blue→green→amber→red) via three color-mix stages,
-    // driven by --key-heat (0–1) set inline per key.
+    // ── Heat modes ─────────────────────────────────────────────────────────────
+    // Four-stop meteo gradient — same formula for both modes.
+    // Each key stores --key-heat-count and --key-heat-cost independently.
+    // The active mode aliases --key-heat to whichever is relevant via the rule below.
 
-    &[data-kb-mode='heat'] {
-        .kg-key:not(.kg-key--special) {
-            // Keys with no --key-heat (never typed) stay at the cold end.
-            $cold: #5b8dd9;
-            $cool: #4caf82;
-            $warm: #f0b840;
-            $hot:  #e05c5c;
+    @mixin heat-gradient {
+        $cold: #5b8dd9;
+        $cool: #4caf82;
+        $warm: #f0b840;
+        $hot:  #e05c5c;
 
-            background: color-mix(
+        background: color-mix(
+            in srgb,
+            color-mix(
                 in srgb,
-                color-mix(
-                    in srgb,
-                    color-mix(in srgb, $cool calc(clamp(0%, var(--key-heat, 0) * 300%, 100%)), $cold),
-                    $warm calc(clamp(0%, (var(--key-heat, 0) - 0.333) * 300%, 100%))
-                ),
-                $hot calc(clamp(0%, (var(--key-heat, 0) - 0.667) * 300%, 100%))
-            );
+                color-mix(in srgb, $cool calc(clamp(0%, var(--key-heat, 0) * 300%, 100%)), $cold),
+                $warm calc(clamp(0%, (var(--key-heat, 0) - 0.333) * 300%, 100%))
+            ),
+            $hot calc(clamp(0%, (var(--key-heat, 0) - 0.667) * 300%, 100%))
+        );
 
-            // Key label stays readable over all heat levels
-            .kg-key-main  { color: rgba(0,0,0,.75); }
-            .kg-key-shift { color: rgba(0,0,0,.50); }
-        }
-
-        // Mode button: show fire icon (active state), hide contrast icon
-        .kg-kb-mode-btn .panel-icon:first-child  { display: inline-flex; }
-        .kg-kb-mode-btn .panel-icon:last-child   { display: none;        }
+        .kg-key-main  { color: rgba(0,0,0,.75); }
+        .kg-key-shift { color: rgba(0,0,0,.50); }
     }
 
-    // ── Zones mode (default) ──────────────────────────────────────────────────
-    // Mode button: show contrast icon, hide fire icon
-    &[data-kb-mode='zones'],
+    $heat-modes: ('heat-count': '--key-heat-count', 'heat-cost': '--key-heat-cost');
+    @each $mode, $src in $heat-modes {
+        &[data-kb-mode='#{$mode}'] .kg-key:not(.kg-key--special) {
+            --key-heat: var(#{$src}, 0);
+            @include heat-gradient;
+        }
+    }
+
+    // In heat-cost mode: hide the count text, show cost via pseudo
+    &[data-kb-mode='heat-cost'] .kg-key-count {
+        color: transparent;
+        &::before {
+            content: attr(data-cost-label);
+            color: var(--kb-key-shift-txt);
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+    // ── Mode button icon visibility (3 icons: fire=heat-count, coin=heat-cost, contrast=zones) ──
+
+    $kb-modes: ('heat-count': 1, 'heat-cost': 2, 'zones': 3);
+    @each $mode, $icon in $kb-modes {
+        &[data-kb-mode='#{$mode}'] {
+            .kg-kb-mode-btn .panel-icon:not(:nth-child(#{$icon})) { display: none; }
+        }
+    }
     &:not([data-kb-mode]) {
-        .kg-kb-mode-btn .panel-icon:first-child  { display: none;        }
-        .kg-kb-mode-btn .panel-icon:last-child   { display: inline-flex; }
+        .kg-kb-mode-btn .panel-icon:not(:nth-child(3)) { display: none; }
+    }
+
+    // ── Cross-panel bridge: dim keys when panel penalty/finger/hand is hovered ──
+    // Mirrors panel's data-active-* attributes via MutationObserver in keyboard.js.
+
+    &[data-active-penalty],
+    &[data-active-finger],
+    &[data-active-hand] {
+        .kg-key:not(.kg-key--special) {
+            opacity: .2;
+            transition: opacity .12s;
+        }
+    }
+
+    @for $i from 0 through 9 {
+        &[data-active-finger='#{$i}'] .kg-key--f#{$i} { opacity: 1 !important; }
+    }
+
+    $hand-fingers: ('L': 0, 'R': 5);
+    @each $hand, $start in $hand-fingers {
+        @for $i from $start through $start + 4 {
+            &[data-active-hand='#{$hand}'] .kg-key[data-finger='#{$i}'] { opacity: 1 !important; }
+        }
     }
 
     // ── Special key base ──────────────────────────────────────────────────────

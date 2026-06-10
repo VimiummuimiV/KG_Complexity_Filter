@@ -119,7 +119,7 @@ const buildThemeBtn = (panel) => buildToggleBtn(
     () => {
         toggleTheme(panel);
         const { _kgResult } = panel;
-        updateKeyboard(panel, _kgResult?.layoutLang, _kgResult?.layoutName, _kgResult?.keyCounts);
+        updateKeyboard(panel, _kgResult?.layoutLang, _kgResult?.layoutName, _kgResult?.keyCounts, _kgResult?.keyCosts);
     },
 );
 
@@ -160,7 +160,7 @@ const buildKeyboardBtn = (panel) => {
                     btn.classList.remove('panel-btn--active');
                 }
             } else {
-                openKeyboard(panel, _kgResult.layoutLang, _kgResult.layoutName, _kgResult.keyCounts);
+                openKeyboard(panel, _kgResult.layoutLang, _kgResult.layoutName, _kgResult.keyCounts, _kgResult.keyCosts);
                 if (e.shiftKey) {
                     setKbPref('open', true);
                     btn.classList.add('panel-btn--active');
@@ -608,10 +608,10 @@ export const render = (result, vocId = null, onLangChange = null, onLayoutChange
     applyInitialSections(panel);
     if (prev) {
         panel.classList.add('no-fade');
-        updateKeyboard(panel, result.layoutLang, result.layoutName, result.keyCounts);
+        updateKeyboard(panel, result.layoutLang, result.layoutName, result.keyCounts, result.keyCosts);
     } else {
         if (getKbPref('open')) {
-            openKeyboard(panel, result.layoutLang, result.layoutName, result.keyCounts);
+            openKeyboard(panel, result.layoutLang, result.layoutName, result.keyCounts, result.keyCosts);
             panel.querySelector('.panel-keyboard')?.classList.add('panel-btn--active');
         }
     }

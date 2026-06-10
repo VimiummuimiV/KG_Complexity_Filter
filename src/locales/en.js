@@ -88,10 +88,13 @@ export const en = {
     alertLangIncompatible: 'This text is not compatible with the selected language',
 
     // Keyboard panel button tooltips
-    tooltipKbModeHeat:  'Switch to heat map',
-    tooltipKbModeZones: 'Switch to finger zones',
-    tooltipKbCountOn:   'Show key press counts',
-    tooltipKbCountOff:  'Hide key press counts',
+    tooltipKbModeZones:      'Switch to finger zones',
+    tooltipKbModeHeatCount:  'Switch to heat map (count)',
+    tooltipKbModeHeatCost:   'Switch to heat map (cost)',
+    tooltipKbModeCountShort: 'count',
+    tooltipKbModeCostShort:  'cost',
+    tooltipKbCountOn:        'Show counts on keyboard keys',
+    tooltipKbCountOff:       'Hide counts on keyboard keys',
 
     // Language toggle — icon shows the CURRENT language (EN is active)
     langIcon:  '🇬🇧',
