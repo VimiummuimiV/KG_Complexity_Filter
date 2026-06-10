@@ -101,6 +101,7 @@ $kb-radius:   6px;
 
     // ── Count label ───────────────────────────────────────────────────────────
     // Sits at the very top of the key, full width, hidden until [data-kb-count='on'].
+    // Content driven by attr(): press count by default, cost value in heat-cost mode.
 
     .kg-key-count {
         display: none;
@@ -118,13 +119,15 @@ $kb-radius:   6px;
         background: var(--kb-bg);
         pointer-events: none;
         transition: transform .2s cubic-bezier(.34, 1.56, .64, 1);
+        content: attr(data-count-label);
     }
 
     .kg-key[data-count-bottom] .kg-key-count {
         transform: translateY(calc($kb-key-h - 14px - 4px));
     }
 
-    &[data-kb-count='on'] .kg-key-count { display: block; }
+    &[data-kb-count='on'] .kg-key-count          { display: block; }
+    &[data-kb-mode='heat-cost'] .kg-key-count    { content: attr(data-cost-label); }
 
     // ── Heat modes ─────────────────────────────────────────────────────────────
     // Four-stop meteo gradient — same formula for both modes.
@@ -156,20 +159,6 @@ $kb-radius:   6px;
         &[data-kb-mode='#{$mode}'] .kg-key:not(.kg-key--special) {
             --key-heat: var(#{$src}, 0);
             @include heat-gradient;
-        }
-    }
-
-    // In heat-cost mode: hide the count text, show cost via pseudo
-    &[data-kb-mode='heat-cost'] .kg-key-count {
-        color: transparent;
-        &::before {
-            content: attr(data-cost-label);
-            color: var(--kb-key-shift-txt);
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
     }
 

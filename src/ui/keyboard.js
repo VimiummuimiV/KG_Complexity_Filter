@@ -64,7 +64,7 @@ const el = (tag, cls) => {
 
 // ─── Build one alpha/symbol key ───────────────────────────────────────────────
 
-const buildKey = (ch, finger, shiftLabels, keyCounts, heatCount, heatCost, keyCosts) => {
+const buildKey = (ch, finger, shiftLabels, keyCounts, keyCosts, heatCount, heatCost) => {
     const key = el('div', `kg-key kg-key--f${finger}`);
     key.dataset.finger  = finger;
     key.dataset.baseKey = ch;
@@ -84,7 +84,7 @@ const buildKey = (ch, finger, shiftLabels, keyCounts, heatCount, heatCost, keyCo
 
     if (keyCounts) {
         const n = keyCounts.get(ch) ?? 0;
-        count.textContent = n > 0 ? n : '';
+        count.dataset.countLabel = n > 0 ? n : '';
     }
     if (keyCosts) {
         const c = keyCosts.get(ch);
@@ -146,7 +146,7 @@ const buildKeyboard = (layoutLang, layoutName, keyCounts, keyCosts) => {
 
         if (left) rowEl.appendChild(buildSpecialKey(left.label, left.cls));
         for (const { ch, finger } of rows[r]) {
-            rowEl.appendChild(buildKey(ch, finger, shiftLabels, keyCounts, heatCount, heatCost, keyCosts));
+            rowEl.appendChild(buildKey(ch, finger, shiftLabels, keyCounts, keyCosts, heatCount, heatCost));
         }
         if (right) rowEl.appendChild(buildSpecialKey(right.label, right.cls));
 
