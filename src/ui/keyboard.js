@@ -189,7 +189,7 @@ const setTitle = (kb, layoutLang, layoutName, mode) => {
 
 const buildModeBtn = (keyboard, layoutLang, layoutName) => buildToggleBtn(
     'kg-kb-mode-btn',
-    ['fire-fill', 'coin-fill', 'contrast-fill'],
+    ['fire-fill', 'contrast-fill'],
     () => {
         const s    = getStrings();
         const mode = keyboard.dataset.kbMode ?? 'zones';

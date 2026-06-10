@@ -173,17 +173,21 @@ $kb-radius:   6px;
         }
     }
 
-    // ── Mode button icon visibility (3 icons: fire=heat-count, coin=heat-cost, contrast=zones) ──
+    // ── Mode button icon visibility (2 icons: fire=heat modes, contrast=zones) ──
+    // The fire icon is recolored per heat mode: green for count, yellow for cost.
 
-    $kb-modes: ('heat-count': 1, 'heat-cost': 2, 'zones': 3);
+    $kb-modes: ('heat-count': 1, 'heat-cost': 1, 'zones': 2);
     @each $mode, $icon in $kb-modes {
         &[data-kb-mode='#{$mode}'] {
             .kg-kb-mode-btn .panel-icon:not(:nth-child(#{$icon})) { display: none; }
         }
     }
     &:not([data-kb-mode]) {
-        .kg-kb-mode-btn .panel-icon:not(:nth-child(3)) { display: none; }
+        .kg-kb-mode-btn .panel-icon:not(:nth-child(2)) { display: none; }
     }
+
+    &[data-kb-mode='heat-count'] .kg-kb-mode-btn .panel-icon { color: var(--clr-green); }
+    &[data-kb-mode='heat-cost']  .kg-kb-mode-btn .panel-icon { color: var(--clr-yellow); }
 
     // ── Cross-panel bridge: dim keys when panel penalty/finger/hand is hovered ──
     // Mirrors panel's data-active-* attributes via MutationObserver in keyboard.js.
