@@ -364,8 +364,11 @@ const buildPenaltyBreakdown = (pb, strings) => {
             countNode,
             elText('span', 'penalty-key', strings[strKey]),
         );
-        const tipKey = 'tooltipPenalty_' + key;
-        if (strings[tipKey]) createCustomTooltip(row, strings[tipKey], 'stats', 0);
+        const tipKey = `tooltipPenalty_${key}`;
+        if (strings[tipKey]) {
+            const tip = count != null ? `${strings[tipKey]} | ${count}` : strings[tipKey];
+            createCustomTooltip(row, tip, 'stats', 0);
+        }
         legend.appendChild(row);
     }
 
@@ -380,14 +383,14 @@ const buildHardestBigrams = (hardestBigrams, strings) => {
     const wrap = el('div', 'hotspot-section');
 
     const list = el('div', 'hotspot-list');
-    for (const { pair, cost } of hardestBigrams) {
+    for (const { pair, cost, count } of hardestBigrams) {
         const chip = el('div', 'hotspot-chip');
         chip.dataset.pair = pair;
         appendAll(chip,
             elText('span', 'hotspot-ch', pair),
             elText('span', 'hotspot-cost', cost),
         );
-        createCustomTooltip(chip, strings.tooltipBigram, 'stats', 0);
+        createCustomTooltip(chip, `${strings.tooltipBigram} | ${count}`, 'stats', 0);
         list.appendChild(chip);
     }
 
@@ -396,7 +399,7 @@ const buildHardestBigrams = (hardestBigrams, strings) => {
 };
 
 // Per-finger load bars
-const buildFingerLoad = (fingerLoad, strings) => {
+const buildFingerLoad = (fingerLoad, fingerCounts, strings) => {
     const wrap = el('div', 'finger-load-wrap');
 
     const bars = el('div', 'finger-load-bars');
@@ -414,7 +417,7 @@ const buildFingerLoad = (fingerLoad, strings) => {
         fill.style.height     = Math.round(pct / max * 100) + '%';
         fill.style.background = col;
         barWrap.appendChild(fill);
-        createCustomTooltip(barWrap, strings.fingers[i] + ': ' + pct + '%', 'stats', 0);
+        createCustomTooltip(barWrap, `${strings.fingers[i]}: ${pct}% | ${fingerCounts[i]}`, 'stats', 0);
 
         appendAll(item,
             barWrap,
@@ -434,14 +437,14 @@ const buildHardestWords = (hardestWords, strings) => {
     const wrap = el('div', 'hotspot-section');
 
     const list = el('div', 'hotspot-list');
-    for (const { word, cost } of hardestWords) {
+    for (const { word, cost, count } of hardestWords) {
         const chip = el('div', 'hotspot-chip');
         chip.dataset.word = word;
         appendAll(chip,
             elText('span', 'hotspot-ch', word),
             elText('span', 'hotspot-cost', cost),
         );
-        createCustomTooltip(chip, strings.tooltipTopWord, 'stats', 0);
+        createCustomTooltip(chip, `${strings.tooltipTopWord} | ${count}`, 'stats', 0);
         list.appendChild(chip);
     }
 
@@ -561,7 +564,7 @@ export const render = (result, vocId = null, onLangChange = null, onLayoutChange
 
     const strings = getStrings();
     const { score, handBalance, penaltyBreakdown,
-            fingerLoad, hardestBigrams, hardestWords } = result;
+            fingerLoad, fingerCounts, hardestBigrams, hardestWords } = result;
 
     const panel = el('div');
     panel.id = ID;
@@ -586,7 +589,7 @@ export const render = (result, vocId = null, onLangChange = null, onLayoutChange
     appendAll(details,
         buildSection('balance',   strings.handBalance,      buildHandBar(handBalance, strings, panel)),
         buildSection('penalties', strings.penaltyBreakdown, buildPenaltyBreakdown(penaltyBreakdown, strings)),
-        buildSection('fingers',   strings.fingerLoad,       buildFingerLoad(fingerLoad, strings)),
+        buildSection('fingers',   strings.fingerLoad,       buildFingerLoad(fingerLoad, fingerCounts, strings)),
         buildSection('bigrams',   strings.hardestBigrams,   buildHardestBigrams(hardestBigrams, strings)),
         buildSection('words',     strings.hardestWords,     buildHardestWords(hardestWords, strings)),
     );

@@ -176,6 +176,7 @@ export const analyzeComplexity = (text, layoutLang = null, layoutName = null) =>
     // fatigueBase*3 positions are discarded so cost doesn't grow without bound.
     const fingerHistory = [...Array(10)].map(() => []); // per-finger recent press indices
     const fingerCosts     = new Array(10).fill(0); // per-finger accumulated cost
+    const fingerCounts    = new Array(10).fill(0); // per-finger key press count
     const charFingers     = new Int8Array(n).fill(-1); // per-char finger index (0-9), -1 if unmapped
     const charBases       = new Array(n).fill(null);   // per-char base key string, null if unmapped
     let   digitRowCount   = 0;                     // number-row keystroke count
@@ -273,7 +274,8 @@ export const analyzeComplexity = (text, layoutLang = null, layoutName = null) =>
 
         // ── Per-finger cost accumulation ──────────────────────────────────────
         if (key) {
-            fingerCosts[key[0]] += costs[i];
+            fingerCosts[key[0]]  += costs[i];
+            fingerCounts[key[0]] += 1;
             charFingers[i] = key[0];
             charBases[i]   = baseOf(ch);
         }
@@ -370,8 +372,9 @@ export const analyzeComplexity = (text, layoutLang = null, layoutName = null) =>
         const bc = bigramCost(chars[i - 1], chars[i]);
         if (bc > 0) {
             const key = baseOf(chars[i - 1]) + baseOf(chars[i]);
-            if (!bigramTotals[key]) bigramTotals[key] = { pair: chars[i - 1] + chars[i], cost: 0 };
-            bigramTotals[key].cost += bc;
+            if (!bigramTotals[key]) bigramTotals[key] = { pair: chars[i - 1] + chars[i], cost: 0, count: 0 };
+            bigramTotals[key].cost  += bc;
+            bigramTotals[key].count += 1;
         }
     }
 
@@ -384,8 +387,8 @@ export const analyzeComplexity = (text, layoutLang = null, layoutName = null) =>
     const threshold   = bigramSum * 0.8;
     let   accumulated = 0;
     const hardestBigrams  = [];
-    for (const { pair, cost } of sorted) {
-        hardestBigrams.push({ pair, cost: +cost.toFixed(1) });
+    for (const { pair, cost, count } of sorted) {
+        hardestBigrams.push({ pair, cost: +cost.toFixed(1), count });
         accumulated += cost;
         if (accumulated >= threshold) break;
     }
@@ -394,7 +397,7 @@ export const analyzeComplexity = (text, layoutLang = null, layoutName = null) =>
     // Re-derive word boundaries from the final costs array (after multipliers).
     // Deduplicate by lowercase form, keeping the highest cost occurrence.
     // Only include words whose avg cost/char reaches at least the medium threshold.
-    const wordBest = new Map(); // normalised word → { word, cost }
+    const wordBest = new Map(); // normalised word → { word, cost, count }
     {
         let ws = -1;
         for (let i = 0; i <= n; i++) {
@@ -410,7 +413,10 @@ export const analyzeComplexity = (text, layoutLang = null, layoutName = null) =>
                 if (wordAvg >= segEasy) {
                     const norm = word.toLowerCase();
                     const prev = wordBest.get(norm);
-                    if (!prev || wordSum > prev.cost) wordBest.set(norm, { word, cost: +wordSum.toFixed(1) });
+                    if (!prev || wordSum > prev.cost)
+                        wordBest.set(norm, { word, cost: +wordSum.toFixed(1), count: (prev?.count ?? 0) + 1 });
+                    else
+                        prev.count += 1;
                 }
                 ws = -1;
             }
@@ -483,6 +489,7 @@ export const analyzeComplexity = (text, layoutLang = null, layoutName = null) =>
         penaltyBreakdown,
         handBalance:  { left: leftKeys, right: rightKeys, imbalance: +imbalance.toFixed(3) },
         fingerLoad,
+        fingerCounts,
         digitRowPct,
         charFingers,
         charBases,
