@@ -171,21 +171,23 @@ const buildKeyboard = (layoutLang, layoutName, keyCounts, keyCosts) => {
 
 const MODES = ['zones', 'heat-count', 'heat-cost'];
 
-const applyMode = (kb, mode) => {
-    kb.dataset.kbMode = mode;
-    // Update the mode suffix in the title (the part after the · separator)
-    const title = kb.querySelector('.kg-kb-title');
-    if (title) {
-        const s       = getStrings();
-        const base    = title.dataset.titleBase ?? title.textContent.split(' · ')[0];
-        title.dataset.titleBase = base;
-        const shortKey = { 'heat-count': 'tooltipKbModeCountShort', 'heat-cost': 'tooltipKbModeCostShort' };
-        const suffix   = shortKey[mode] ? s[shortKey[mode]] : '';
-        title.textContent = suffix ? `${base} · ${suffix}` : base;
-    }
+const MODE_TITLE_KEY = {
+    zones:        'tooltipKbModeZonesShort',
+    'heat-count': 'tooltipKbModeCountShort',
+    'heat-cost':  'tooltipKbModeCostShort',
 };
 
-const buildModeBtn = (keyboard) => buildToggleBtn(
+const setTitle = (kb, layoutLang, layoutName, mode) => {
+    kb.dataset.kbMode = mode;
+    const title = kb.querySelector('.kg-kb-title');
+    if (!title) return;
+    const s      = getStrings();
+    const base   = `${layoutLang} · ${layoutName}`;
+    const suffix = s[MODE_TITLE_KEY[mode]] ?? '';
+    title.textContent = suffix ? `${base} · ${suffix}` : base;
+};
+
+const buildModeBtn = (keyboard, layoutLang, layoutName) => buildToggleBtn(
     'kg-kb-mode-btn',
     ['fire-fill', 'coin-fill', 'contrast-fill'],
     () => {
@@ -198,7 +200,7 @@ const buildModeBtn = (keyboard) => buildToggleBtn(
     () => {
         const mode = keyboard.dataset.kbMode ?? 'zones';
         const next = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
-        applyMode(keyboard, next);
+        setTitle(keyboard, layoutLang, layoutName, next);
         setKbPref('mode', next);
     },
 );
@@ -237,7 +239,6 @@ export const openKeyboard = (panel, layoutLang, layoutName, keyCounts, keyCosts)
     const keyboard = el('div');
     keyboard.id = KEYBOARD_ID;
     keyboard.dataset.complexityFilterTheme = panel.dataset.complexityFilterTheme ?? 'dark';
-    applyMode(keyboard,  getKbPref('mode'));
     applyCount(keyboard, getKbPref('count'));
 
     const board = buildKeyboard(layoutLang, layoutName, keyCounts, keyCosts);
@@ -245,8 +246,6 @@ export const openKeyboard = (panel, layoutLang, layoutName, keyCounts, keyCosts)
 
     const header  = el('div', 'kg-kb-header');
     const title   = el('span', 'kg-kb-title');
-    title.dataset.titleBase = `${layoutLang} · ${layoutName}`;
-    title.textContent       = title.dataset.titleBase;
 
     const closeBtn = buildToggleBtn(
         'kg-kb-close',
@@ -257,15 +256,14 @@ export const openKeyboard = (panel, layoutLang, layoutName, keyCounts, keyCosts)
 
     const btnGroup = el('div', 'panel-btn-group');
     btnGroup.appendChild(buildCountBtn(keyboard));
-    btnGroup.appendChild(buildModeBtn(keyboard));
+    btnGroup.appendChild(buildModeBtn(keyboard, layoutLang, layoutName));
     btnGroup.appendChild(closeBtn);
 
     header.appendChild(title);
     header.appendChild(btnGroup);
     keyboard.appendChild(header);
     keyboard.appendChild(board);
-    // Re-apply mode now that title is in the DOM so the suffix renders.
-    applyMode(keyboard, getKbPref('mode'));
+    setTitle(keyboard, layoutLang, layoutName, getKbPref('mode'));
 
     document.body.appendChild(keyboard);
     makeDraggable(keyboard, header, 'keyboardPanel');
@@ -333,7 +331,5 @@ export const updateKeyboard = (panel, layoutLang, layoutName, keyCounts, keyCost
     if (old) keyboard.replaceChild(board, old);
     else     keyboard.appendChild(board);
 
-    const title = keyboard.querySelector('.kg-kb-title');
-    title.dataset.titleBase = `${layoutLang} · ${layoutName}`;
-    applyMode(keyboard, keyboard.dataset.kbMode ?? 'zones');
+    setTitle(keyboard, layoutLang, layoutName, keyboard.dataset.kbMode ?? 'zones');
 };

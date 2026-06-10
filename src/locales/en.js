@@ -91,6 +91,7 @@ export const en = {
     tooltipKbModeZones:      'Switch to finger zones',
     tooltipKbModeHeatCount:  'Switch to heat map (count)',
     tooltipKbModeHeatCost:   'Switch to heat map (cost)',
+    tooltipKbModeZonesShort: 'zones',
     tooltipKbModeCountShort: 'count',
     tooltipKbModeCostShort:  'cost',
     tooltipKbCountOn:        'Show counts on keyboard keys',

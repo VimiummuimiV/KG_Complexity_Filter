@@ -91,6 +91,7 @@ export const ru = {
     tooltipKbModeZones:      'Переключиться на зоны пальцев',
     tooltipKbModeHeatCount:  'Переключиться на тепловую карту (нажатия)',
     tooltipKbModeHeatCost:   'Переключиться на тепловую карту (стоимость)',
+    tooltipKbModeZonesShort: 'зоны',
     tooltipKbModeCountShort: 'нажатия',
     tooltipKbModeCostShort:  'стоимость',
     tooltipKbCountOn:        'Показать счётчики клавиш',
