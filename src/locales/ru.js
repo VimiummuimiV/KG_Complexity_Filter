@@ -97,6 +97,8 @@ export const ru = {
     tooltipKbModeToggle:     'Переключать между ($1 и $2)',
     tooltipKbCountOn:        'Показать счётчики клавиш',
     tooltipKbCountOff:       'Скрыть счётчики клавиш',
+    tooltipKbCostSum:        'Показать суммарную стоимость клавиши',
+    tooltipKbCostAvg:        'Показать среднюю стоимость нажатия',
 
     // Language toggle — icon shows the CURRENT language (RU is active)
     langIcon:  '🇷🇺',

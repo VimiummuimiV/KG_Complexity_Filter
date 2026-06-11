@@ -135,10 +135,11 @@ $kb-radius:   6px;
 
     &[data-kb-count='on'] .kg-key-count { display: block; }
 
-    $kb-count-attrs: ('heat-count': 'data-count-label', 'heat-cost': 'data-cost-label');
+    $kb-count-attrs: ('heat-count': 'data-count-label', 'heat-cost': 'data-sum-cost-label');
     @each $mode, $attr in $kb-count-attrs {
         &[data-kb-mode='#{$mode}'] .kg-key-count::before { content: attr(#{$attr}); }
     }
+    &[data-kb-mode='heat-cost'][data-kb-cost-mode='avg'] .kg-key-count::before { content: attr(data-avg-cost-label); }
 
     // ── Heat modes ─────────────────────────────────────────────────────────────
     // Four-stop meteo gradient — same formula for both modes.

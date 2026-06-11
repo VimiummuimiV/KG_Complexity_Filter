@@ -37,7 +37,7 @@ export const setLayout = (layoutLang, layoutName) => {
 
 const KEY_KB = 'complexityKbPrefs';
 
-const KB_DEFAULTS = { open: false, mode: 'zones', count: 'off' };
+const KB_DEFAULTS = { open: false, mode: 'zones', count: 'off', costMode: 'sum' };
 
 const loadKbPrefs = () => {
     try { return { ...KB_DEFAULTS, ...JSON.parse(localStorage.getItem(KEY_KB)) }; }

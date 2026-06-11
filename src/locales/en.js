@@ -97,6 +97,8 @@ export const en = {
     tooltipKbModeToggle:     'Toggle between ($1 and $2)',
     tooltipKbCountOn:        'Show counts on keyboard keys',
     tooltipKbCountOff:       'Hide counts on keyboard keys',
+    tooltipKbCostSum:        'Show total cost per key',
+    tooltipKbCostAvg:        'Show average cost per press',
 
     // Language toggle — icon shows the CURRENT language (EN is active)
     langIcon:  '🇬🇧',

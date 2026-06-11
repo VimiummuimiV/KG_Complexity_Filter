@@ -86,8 +86,11 @@ const buildKey = (ch, finger, shiftLabels, keyCounts, keyCosts, heatCount, heatC
     const main = el('span', 'kg-key-main');
     main.textContent = ch === ch.toLowerCase() ? ch.toUpperCase() : ch;
 
-    count.dataset.countLabel = keyCounts?.get(ch) || '';
-    count.dataset.costLabel  = keyCosts?.get(ch)?.toFixed(1) || '';
+    const keyCount = keyCounts?.get(ch) || 0;
+    const keyCost  = keyCosts?.get(ch)  || 0;
+    count.dataset.countLabel   = keyCount || '';
+    count.dataset.sumCostLabel = keyCost ? keyCost.toFixed(1) : '';
+    count.dataset.avgCostLabel = (keyCost && keyCount) ? (keyCost / keyCount).toFixed(2) : '';
 
     if (heatCount) {
         const v = heatCount.get(ch) ?? 0;
@@ -241,18 +244,29 @@ const buildModeBtn = (keyboard, layoutLang, layoutName) => {
 const applyCount = (kb, state) => { kb.dataset.kbCount = state; };
 
 const buildCountBtn = (keyboard) => {
+    const getTooltip = () => {
+        const s = getStrings();
+        const countLine = `[${s.tooltipClick}]${keyboard.dataset.kbCount === 'on' ? s.tooltipKbCountOff : s.tooltipKbCountOn}`;
+        const costLine  = `[Shift + ${s.tooltipClick}]${keyboard.dataset.kbCostMode === 'avg' ? s.tooltipKbCostSum : s.tooltipKbCostAvg}`;
+        return [countLine, costLine].join(' ');
+    };
+
     const btn = buildToggleBtn(
         'kg-kb-count-btn',
         ['hashtag'],
-        () => {
-            const s = getStrings();
-            return `[${s.tooltipClick}]${keyboard.dataset.kbCount === 'on' ? s.tooltipKbCountOff : s.tooltipKbCountOn}`;
-        },
-        () => {
-            const next = keyboard.dataset.kbCount === 'on' ? 'off' : 'on';
-            applyCount(keyboard, next);
-            btn.classList.toggle('panel-btn--active', next === 'on');
-            setKbPref('count', next);
+        getTooltip,
+        (e) => {
+            if (e.shiftKey) {
+                const next = keyboard.dataset.kbCostMode === 'avg' ? 'sum' : 'avg';
+                keyboard.dataset.kbCostMode = next;
+                setKbPref('costMode', next);
+            } else {
+                const next = keyboard.dataset.kbCount === 'on' ? 'off' : 'on';
+                applyCount(keyboard, next);
+                btn.classList.toggle('panel-btn--active', next === 'on');
+                setKbPref('count', next);
+            }
+            updateTooltipContent(btn, getTooltip());
         },
     );
     btn.classList.toggle('panel-btn--active', getKbPref('count') === 'on');
@@ -276,6 +290,7 @@ export const openKeyboard = (panel, layoutLang, layoutName, keyCounts, keyCosts)
     keyboard.id = KEYBOARD_ID;
     keyboard.dataset.complexityFilterTheme = panel.dataset.complexityFilterTheme ?? 'dark';
     applyCount(keyboard, getKbPref('count'));
+    keyboard.dataset.kbCostMode = getKbPref('costMode') ?? 'sum';
 
     const board = buildKeyboard(layoutLang, layoutName, keyCounts, keyCosts);
     if (!board) return;
