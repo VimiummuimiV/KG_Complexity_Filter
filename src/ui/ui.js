@@ -259,9 +259,11 @@ const buildStats = (panel, result, strings, onLangChange, onLayoutChange) => {
             }
         }
         row.appendChild(valNode);
-        if (tip) createCustomTooltip(row, tip, 'stats', 0);
+        if (tip) row.dataset.tip = tip;
         meta.appendChild(row);
     }
+
+    createCustomTooltip(meta, null, 'stats', 0, '.meta-row[data-tip]');
 
     appendAll(stats, scoreWrap, meta);
     return stats;
@@ -369,10 +371,12 @@ const buildPenaltyBreakdown = (pb, strings) => {
             const tip = count != null
                 ? `${strings[tipKey]} | ${pct}% | ${count}`
                 : `${strings[tipKey]} | ${pct}%`;
-            createCustomTooltip(row, tip, 'stats', 0);
+            row.dataset.tip = tip;
         }
         legend.appendChild(row);
     }
+
+    createCustomTooltip(legend, null, 'stats', 0, '.penalty-row[data-tip]');
 
     wrap.appendChild(legend);
 
@@ -393,9 +397,11 @@ const buildHardestBigrams = (hardestBigrams, strings) => {
             elText('span', 'hotspot-ch', pair),
             elText('span', 'hotspot-cost', cost),
         );
-        createCustomTooltip(chip, `${strings.tooltipBigram} | ${count}`, 'stats', 0);
+        chip.dataset.tip = `${strings.tooltipBigram} | ${count}`;
         list.appendChild(chip);
     }
+
+    createCustomTooltip(list, null, 'stats', 0, '.hotspot-chip[data-tip]');
 
     wrap.appendChild(list);
     return wrap;
@@ -420,7 +426,7 @@ const buildFingerLoad = (fingerLoad, fingerCounts, strings) => {
         fill.style.height     = Math.round(pct / max * 100) + '%';
         fill.style.background = col;
         barWrap.appendChild(fill);
-        createCustomTooltip(barWrap, `${strings.fingers[i]}: ${pct}% | ${fingerCounts[i]}`, 'stats', 0);
+        barWrap.dataset.tip = `${strings.fingers[i]}: ${pct}% | ${fingerCounts[i]}`;
 
         appendAll(item,
             barWrap,
@@ -428,6 +434,8 @@ const buildFingerLoad = (fingerLoad, fingerCounts, strings) => {
         );
         bars.appendChild(item);
     }
+
+    createCustomTooltip(bars, null, 'stats', 0, '.fl-bar-wrap[data-tip]');
 
     wrap.appendChild(bars);
     return wrap;
@@ -447,9 +455,11 @@ const buildHardestWords = (hardestWords, strings) => {
             elText('span', 'hotspot-ch', word),
             elText('span', 'hotspot-cost', cost),
         );
-        createCustomTooltip(chip, `${strings.tooltipTopWord} | ${count}`, 'stats', 0);
+        chip.dataset.tip = `${strings.tooltipTopWord} | ${count}`;
         list.appendChild(chip);
     }
+
+    createCustomTooltip(list, null, 'stats', 0, '.hotspot-chip[data-tip]');
 
     wrap.appendChild(list);
     return wrap;
