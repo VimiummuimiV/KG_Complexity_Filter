@@ -61,9 +61,79 @@ new MutationObserver(() => {
   if (tooltipCurrentTarget && !document.contains(tooltipCurrentTarget)) hideTooltipElement();
 }).observe(document, { childList: true, subtree: true });
 
-export function createCustomTooltip(element, tooltipContent, type = 'info', delay = null) {
+// Lazily create (and cache) the single shared tooltip popup element.
+const ensureTooltipEl = () => tooltipEl ||= (() => {
+  const tooltipDiv = document.createElement('div');
+  tooltipDiv.classList.add('custom-tooltip-popup');
+  tooltipDiv.style.display = 'none';
+  tooltipDiv.style.opacity = '0';
+  document.body.appendChild(tooltipDiv);
+
+  return tooltipDiv;
+})();
+
+// Show (or instantly swap) the tooltip's content at the given position.
+const showTooltip = (target, content, clientX, clientY, delay) => {
+  tooltipIsVisible = true;
+  tooltipCurrentTarget = target;
+  clearTimeout(tooltipHideTimer);
+  clearTimeout(tooltipShowTimer);
+
+  ensureTooltipEl();
+  tooltipEl.innerHTML = highlightTooltipActions(content);
+  tooltipEl.style.display = 'flex';
+  positionTooltip(clientX, clientY);
+  document.addEventListener('mousemove', tooltipTrackMouse);
+
+  if (tooltipIsShown) {
+    // Already visible from a previous element — swap content instantly
+    tooltipEl.style.opacity = '1';
+  } else {
+    // First appearance — fade in after delay
+    tooltipEl.style.opacity = '0';
+    tooltipEl.offsetHeight; // force reflow for transition
+    tooltipShowTimer = setTimeout(() => {
+      tooltipEl.style.opacity = '1';
+      tooltipIsShown = true;
+    }, delay ?? 150);
+  }
+};
+
+const hideTooltip = () => {
+  hideTooltipElement();
+  document.removeEventListener('mousemove', tooltipTrackMouse);
+};
+
+export function createCustomTooltip(element, tooltipContent, type = 'info', delay = null, delegate = null) {
+  // ── Delegation mode ──────────────────────────────────────────────────────
+  // `element` is the container, `delegate` is a CSS selector for children
+  // that supply their own content via `dataset.tip`.
+  if (delegate) {
+    element._tooltipDelegated ??= new Set();
+    if (element._tooltipDelegated.has(delegate)) return;
+    element._tooltipDelegated.add(delegate);
+
+    const selectorOf = () => [...element._tooltipDelegated].join(',');
+
+    element.addEventListener('mouseover', (e) => {
+      const target = e.target.closest(selectorOf());
+      if (!target || !element.contains(target) || !target.dataset.tip) return;
+      if (tooltipCurrentTarget === target) return;
+      showTooltip(target, target.dataset.tip, e.clientX, e.clientY, delay ?? 0);
+    });
+
+    element.addEventListener('mouseout', (e) => {
+      const target = e.target.closest(selectorOf());
+      if (!target || !element.contains(target)) return;
+      if (e.relatedTarget?.closest(selectorOf()) === target) return;
+      hideTooltip();
+    });
+
+    return;
+  }
+
   if (tooltipContent == null) return; // Skip if content is null/undefined
-  
+
   // Always update the tooltip content stored on the element.
   element._tooltipContent = tooltipContent;
   element._tooltipType = type;
@@ -84,53 +154,11 @@ export function createCustomTooltip(element, tooltipContent, type = 'info', dela
   if (!element._tooltipInitialized) {
     element._tooltipInitialized = true;
 
-    tooltipEl ||= (() => {
-      const tooltipDiv = document.createElement('div');
-      tooltipDiv.classList.add("custom-tooltip-popup");
-      tooltipDiv.style.display = 'none';
-      tooltipDiv.style.opacity = '0';
-      document.body.appendChild(tooltipDiv);
-      return tooltipDiv;
-    })();
-
     element.addEventListener('mouseenter', e => {
-      tooltipIsVisible = true;
-      tooltipCurrentTarget = element;
-      clearTimeout(tooltipHideTimer);
-      clearTimeout(tooltipShowTimer);
-
-      // Highlight [Action]Message pairs and headers in the tooltip content
-      tooltipEl.innerHTML = highlightTooltipActions(element._tooltipContent);
-      tooltipEl.style.display = 'flex';
-      positionTooltip(e.clientX, e.clientY);
-      document.addEventListener('mousemove', tooltipTrackMouse);
-
-      if (tooltipIsShown) {
-        // Already visible from a previous element — swap content instantly
-        tooltipEl.style.opacity = '1';
-      } else {
-        // First appearance — fade in after delay
-        const showDelay = element._tooltipDelay ?? 150;
-        tooltipEl.style.opacity = '0';
-        tooltipEl.offsetHeight; // force reflow for transition
-        tooltipShowTimer = setTimeout(() => {
-          tooltipEl.style.opacity = '1';
-          tooltipIsShown = true;
-        }, showDelay);
-      }
+      showTooltip(element, element._tooltipContent, e.clientX, e.clientY, element._tooltipDelay);
     });
 
-    element.addEventListener('mouseleave', () => {
-      hideTooltipElement();
-      document.removeEventListener('mousemove', tooltipTrackMouse);
-    });
-
-    element.addEventListener('wheel', e => {
-      if (!tooltipEl || tooltipEl.style.display === 'none') return;
-      if (tooltipEl.scrollHeight <= tooltipEl.clientHeight) return;
-      e.preventDefault();
-      tooltipEl.scrollTop += e.deltaY;
-    }, { passive: false });
+    element.addEventListener('mouseleave', hideTooltip);
   }
 }
 
@@ -146,11 +174,11 @@ export function updateTooltipContent(element, newContent, type = 'info') {
     createCustomTooltip(element, newContent, type);
     return;
   }
-  
+
   // Update the stored content and type
   element._tooltipContent = newContent;
   element._tooltipType = type;
-  
+
   // If this element is currently being hovered (even if tooltip isn't fully shown yet)
   if (tooltipCurrentTarget === element && tooltipIsVisible && tooltipEl) {
     tooltipEl.innerHTML = highlightTooltipActions(newContent);

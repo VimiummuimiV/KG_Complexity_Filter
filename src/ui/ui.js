@@ -509,13 +509,14 @@ const buildTextView = ({ chars, segments, longWordChars, worstZone,
                 })[level];
 
             if (tooltipText && !isShifted) {
-                createCustomTooltip(span, tooltipText, 'stats', 0);
+                span.dataset.tip = tooltipText;
             }
 
             text.appendChild(span);
         }
     }
 
+    createCustomTooltip(text, null, 'stats', 0, 'span[data-tip]');
     return text;
 };
 
