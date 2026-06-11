@@ -190,6 +190,12 @@ $kb-radius:   6px;
     &[data-kb-mode='heat-count'] .kg-kb-mode-btn .panel-icon { color: var(--clr-green); }
     &[data-kb-mode='heat-cost']  .kg-kb-mode-btn .panel-icon { color: var(--clr-yellow); }
 
+    // Count button: tint by cost-mode (sum/avg), only meaningful in heat-cost mode
+    &[data-kb-mode='heat-cost'] {
+        &[data-kb-cost-mode='avg'] .kg-kb-count-btn .panel-icon { color: var(--clr-purple); }
+        &[data-kb-cost-mode='sum'] .kg-kb-count-btn .panel-icon { color: var(--clr-yellow); }
+    }
+
     // ── Cross-panel bridge: dim keys when panel penalty/finger/hand is hovered ──
     // Mirrors panel's data-active-* attributes via MutationObserver in keyboard.js.
 
