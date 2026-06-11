@@ -105,8 +105,10 @@ const buildLayout = ({ layout, shiftMap, frequency, freqNorm = 11, weights: W })
             else                  shiftAlt =   W.shiftAltPenalty ?? 0.4;  // same side
         }
 
-        if (fa === fb) {
+        // Same physical finger (includes index-stretch ↔ index pairs like 3↔4, 6↔5)
+        if (fa === fb || physFinger(fa) === physFinger(fb)) {
             sameFinger = W.sameFinger;
+        // Same hand — row jump only applies here; independent hands move freely across rows
         } else if (ha === hb) {
             outwardRoll += W.sameHand + Math.abs(fa - fb) * W.colJump;
             // Scissor: adjacent fingers spanning 2+ rows — physically awkward
@@ -114,8 +116,8 @@ const buildLayout = ({ layout, shiftMap, frequency, freqNorm = 11, weights: W })
             // Inward rolls are natural; outward rolls (away from index) resist
             if (ha === 'L' && fb < fa) { outwardRoll += W.outwardRoll; isOutward = true; }
             if (ha === 'R' && fb > fa) { outwardRoll += W.outwardRoll; isOutward = true; }
+            rowJump = Math.abs(rowa - rowb) * W.rowJump;
         }
-        rowJump = Math.abs(rowa - rowb) * W.rowJump;
 
         const total = sameFinger + outwardRoll + scissor + rowJump + shiftAlt;
         return { total, sameFinger, outwardRoll, scissor, rowJump, shiftAlt, isOutward };
