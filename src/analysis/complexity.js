@@ -38,6 +38,12 @@ export const nextLayout = (currentLayoutLang, currentLayoutName) => {
 
 const DIGIT_SET = new Set('1234567890');
 
+// Index-stretch fingers (4 = L-index-stretch, 5 = R-index-stretch) are
+// physically the same finger as their adjacent index columns (3, 6) —
+// used to detect same-finger runs for highlighting purposes.
+const PHYSICAL_FINGER = { 4: 3, 5: 6 };
+const physFinger = (f) => PHYSICAL_FINGER[f] ?? f;
+
 // ─── Layout builder ───────────────────────────────────────────────────────────
 
 const buildLayout = ({ layout, shiftMap, frequency, freqNorm = 11, weights: W }) => {
@@ -264,10 +270,12 @@ export const analyzeComplexity = (text, layoutLang = null, layoutName = null) =>
         costs[i] = cc + bc + tc + runSurcharge + punctSurcharge + fatigueSurcharge;
 
         // ── Per-char annotation sets ──────────────────────────────────────────
-        if (bg?.sameFinger > 0) {
-            const hand = key?.[3] ?? 'L';
-            sameFingerChars.set(i - 1, keyOf(chars[i - 1])?.[3] ?? hand);
-            sameFingerChars.set(i, hand);
+        if (key && i > 0) {
+            const prevKey = keyOf(chars[i - 1]);
+            if (prevKey && physFinger(prevKey[0]) === physFinger(key[0])) {
+                sameFingerChars.set(i - 1, prevKey[3]);
+                sameFingerChars.set(i, key[3]);
+            }
         }
         if (key && key[1] === 0) { digitRowCount++; }
         if (isShifted(ch))       shiftedChars.add(i);
