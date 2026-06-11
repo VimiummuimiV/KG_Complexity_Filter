@@ -135,7 +135,7 @@ const buildLayout = ({ layout, shiftMap, frequency, freqNorm = 11, weights: W })
         const [fb,, , hb] = kb;
         const [fc,, , hc] = kc;
         if (ha !== hb || hb !== hc) return 0; // not same hand
-        if (fa === fb || fb === fc) return 0;  // same-finger already penalised
+        if (physFinger(fa) === physFinger(fb) || physFinger(fb) === physFinger(fc)) return 0;  // same-finger already penalised
 
         const goingRight = fb > fa;
         const redirect   = goingRight ? fc < fb : fc > fb;
