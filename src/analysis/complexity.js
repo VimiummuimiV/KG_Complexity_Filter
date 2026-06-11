@@ -372,7 +372,7 @@ export const analyzeComplexity = (text, layoutLang = null, layoutName = null) =>
         const bc = bigramCost(chars[i - 1], chars[i]);
         if (bc > 0) {
             const key = baseOf(chars[i - 1]) + baseOf(chars[i]);
-            if (!bigramTotals[key]) bigramTotals[key] = { pair: chars[i - 1] + chars[i], cost: 0, count: 0 };
+            if (!bigramTotals[key]) bigramTotals[key] = { pair: chars[i - 1] + chars[i], basePair: key, cost: 0, count: 0 };
             bigramTotals[key].cost  += bc;
             bigramTotals[key].count += 1;
         }
@@ -387,8 +387,8 @@ export const analyzeComplexity = (text, layoutLang = null, layoutName = null) =>
     const threshold   = bigramSum * 0.8;
     let   accumulated = 0;
     const hardestBigrams  = [];
-    for (const { pair, cost, count } of sorted) {
-        hardestBigrams.push({ pair, cost: +cost.toFixed(1), count });
+    for (const { pair, basePair, cost, count } of sorted) {
+        hardestBigrams.push({ pair, basePair, cost: +cost.toFixed(1), count });
         accumulated += cost;
         if (accumulated >= threshold) break;
     }

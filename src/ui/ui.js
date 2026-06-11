@@ -385,9 +385,10 @@ const buildHardestBigrams = (hardestBigrams, strings) => {
     const wrap = el('div', 'hotspot-section');
 
     const list = el('div', 'hotspot-list');
-    for (const { pair, cost, count } of hardestBigrams) {
+    for (const { pair, basePair, cost, count } of hardestBigrams) {
         const chip = el('div', 'hotspot-chip');
-        chip.dataset.pair = pair;
+        chip.dataset.pair     = pair;
+        chip.dataset.basePair = basePair;
         appendAll(chip,
             elText('span', 'hotspot-ch', pair),
             elText('span', 'hotspot-cost', cost),
@@ -633,9 +634,9 @@ export const render = (result, vocId = null, onLangChange = null, onLayoutChange
             for (const s of activeHotspotSpans) s.classList.remove('hotspot-hl');
             const spans = [];
             if (t.dataset.pair) {
-                const pair = t.dataset.pair;
+                const basePair = t.dataset.basePair;
                 for (let i = 1; i < txtChars.length; i++) {
-                    if (charBases[i - 1] + charBases[i] === pair)
+                    if (charBases[i - 1] + charBases[i] === basePair)
                         spans.push(allSpans[i - 1], allSpans[i]);
                 }
             } else {
