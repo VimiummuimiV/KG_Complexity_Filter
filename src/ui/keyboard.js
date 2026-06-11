@@ -7,11 +7,13 @@ import { configs } from '../analysis/weights/weightsIndex.js';
 import { makeDraggable } from '../helpers/drag.js';
 import { getStrings } from '../helpers/lang.js';
 import { buildToggleBtn } from '../helpers/button.js';
+import { updateTooltipContent } from '../helpers/tooltip.js';
 import { getKbPref, setKbPref } from '../helpers/keyboardConfig.js';
 import { onHoverDelegate } from '../helpers/events.js';
 
 const KEYBOARD_ID = 'kg-keyboard-panel';
 let bridgeObserver = null;
+let onShiftUp      = null;
 
 // ─── Special keys ─────────────────────────────────────────────────────────────
 // Rows 0–3: { left, right } flanking alpha keys. bottom: space row. cls → width.
@@ -194,24 +196,26 @@ const buildModeBtn = (keyboard, layoutLang, layoutName) => {
     const shortKey   = { zones: 'tooltipKbModeZonesShort', 'heat-count': 'tooltipKbModeCountShort', 'heat-cost': 'tooltipKbModeCostShort' };
     const setMode    = (mode) => { setTitle(keyboard, layoutLang, layoutName, mode); setKbPref('mode', mode); };
 
-    // anchor: first mode of the Shift+click pair. Set on first Shift+click, cleared on regular click.
+    // anchor: first mode of the Shift+click pair. Set on first Shift+click, cleared on regular click or Shift-up.
     let anchor = null;
 
-    return buildToggleBtn(
+    const getTooltip = () => {
+        const s      = getStrings();
+        const cur    = keyboard.dataset.kbMode ?? 'zones';
+        const fwd    = MODES[(MODES.indexOf(cur) + 1) % MODES.length];
+        const a      = anchor ?? cur;
+        const b      = MODES[(MODES.indexOf(a) + 1) % MODES.length];
+        const toggle = s.tooltipKbModeToggle.replace('$1', s[shortKey[a]]).replace('$2', s[shortKey[b]]);
+        return [
+            `[${s.tooltipClick}]${s[tooltipKey[fwd]]}`,
+            `[Shift + ${s.tooltipClick}]${toggle}`,
+        ].join(' ');
+    };
+
+    const btn = buildToggleBtn(
         'kg-kb-mode-btn',
         ['fire-fill', 'contrast-fill'],
-        () => {
-            const s      = getStrings();
-            const cur    = keyboard.dataset.kbMode ?? 'zones';
-            const fwd    = MODES[(MODES.indexOf(cur) + 1) % MODES.length];
-            const a      = anchor ?? cur;
-            const b      = MODES[(MODES.indexOf(a) + 1) % MODES.length];
-            const toggle = s.tooltipKbModeToggle.replace('$1', s[shortKey[a]]).replace('$2', s[shortKey[b]]);
-            return [
-                `[${s.tooltipClick}]${s[tooltipKey[fwd]]}`,
-                `[Shift + ${s.tooltipClick}]${toggle}`,
-            ].join(' ');
-        },
+        getTooltip,
         (e) => {
             const cur = keyboard.dataset.kbMode ?? 'zones';
             if (e.shiftKey) {
@@ -225,6 +229,11 @@ const buildModeBtn = (keyboard, layoutLang, layoutName) => {
             }
         },
     );
+
+    onShiftUp = (e) => { if (e.key === 'Shift') { anchor = null; updateTooltipContent(btn, getTooltip()); } };
+    document.addEventListener('keyup', onShiftUp);
+
+    return btn;
 };
 
 // ─── Count toggle (off ↔ on) ──────────────────────────────────────────────────
@@ -253,7 +262,12 @@ const buildCountBtn = (keyboard) => {
 // ─── Keyboard lifecycle ───────────────────────────────────────────────────────
 
 export const getKeyboard  = () => document.getElementById(KEYBOARD_ID);
-export const closeKeyboard = () => { bridgeObserver?.disconnect(); bridgeObserver = null; getKeyboard()?.remove(); };
+export const closeKeyboard = () => {
+    bridgeObserver?.disconnect();
+    bridgeObserver = null;
+    if (onShiftUp) { document.removeEventListener('keyup', onShiftUp); onShiftUp = null; }
+    getKeyboard()?.remove();
+};
 
 export const openKeyboard = (panel, layoutLang, layoutName, keyCounts, keyCosts) => {
     closeKeyboard();
