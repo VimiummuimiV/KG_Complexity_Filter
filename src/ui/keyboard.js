@@ -189,23 +189,43 @@ const setTitle = (kb, layoutLang, layoutName, mode) => {
     title.textContent = suffix ? `${base} · ${suffix}` : base;
 };
 
-const buildModeBtn = (keyboard, layoutLang, layoutName) => buildToggleBtn(
-    'kg-kb-mode-btn',
-    ['fire-fill', 'contrast-fill'],
-    () => {
-        const s    = getStrings();
-        const mode = keyboard.dataset.kbMode ?? 'zones';
-        const next = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
-        const tooltipKey = { zones: 'tooltipKbModeZones', 'heat-count': 'tooltipKbModeHeatCount', 'heat-cost': 'tooltipKbModeHeatCost' };
-        return `[${s.tooltipClick}]${s[tooltipKey[next]]}`;
-    },
-    () => {
-        const mode = keyboard.dataset.kbMode ?? 'zones';
-        const next = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
-        setTitle(keyboard, layoutLang, layoutName, next);
-        setKbPref('mode', next);
-    },
-);
+const buildModeBtn = (keyboard, layoutLang, layoutName) => {
+    const tooltipKey = { zones: 'tooltipKbModeZones', 'heat-count': 'tooltipKbModeHeatCount', 'heat-cost': 'tooltipKbModeHeatCost' };
+    const shortKey   = { zones: 'tooltipKbModeZonesShort', 'heat-count': 'tooltipKbModeCountShort', 'heat-cost': 'tooltipKbModeCostShort' };
+    const setMode    = (mode) => { setTitle(keyboard, layoutLang, layoutName, mode); setKbPref('mode', mode); };
+
+    // anchor: first mode of the Shift+click pair. Set on first Shift+click, cleared on regular click.
+    let anchor = null;
+
+    return buildToggleBtn(
+        'kg-kb-mode-btn',
+        ['fire-fill', 'contrast-fill'],
+        () => {
+            const s      = getStrings();
+            const cur    = keyboard.dataset.kbMode ?? 'zones';
+            const fwd    = MODES[(MODES.indexOf(cur) + 1) % MODES.length];
+            const a      = anchor ?? cur;
+            const b      = MODES[(MODES.indexOf(a) + 1) % MODES.length];
+            const toggle = s.tooltipKbModeToggle.replace('$1', s[shortKey[a]]).replace('$2', s[shortKey[b]]);
+            return [
+                `[${s.tooltipClick}]${s[tooltipKey[fwd]]}`,
+                `[Shift + ${s.tooltipClick}]${toggle}`,
+            ].join(' ');
+        },
+        (e) => {
+            const cur = keyboard.dataset.kbMode ?? 'zones';
+            if (e.shiftKey) {
+                if (anchor === null) anchor = cur;
+                const a = MODES.indexOf(anchor);
+                const b = (a + 1) % MODES.length;
+                setMode(keyboard.dataset.kbMode === anchor ? MODES[b] : anchor);
+            } else {
+                anchor = null;
+                setMode(MODES[(MODES.indexOf(cur) + 1) % MODES.length]);
+            }
+        },
+    );
+};
 
 // ─── Count toggle (off ↔ on) ──────────────────────────────────────────────────
 

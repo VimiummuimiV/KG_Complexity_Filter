@@ -94,6 +94,7 @@ export const ru = {
     tooltipKbModeZonesShort: 'зоны',
     tooltipKbModeCountShort: 'нажатия',
     tooltipKbModeCostShort:  'стоимость',
+    tooltipKbModeToggle:     'Переключать между ($1 и $2)',
     tooltipKbCountOn:        'Показать счётчики клавиш',
     tooltipKbCountOff:       'Скрыть счётчики клавиш',
 

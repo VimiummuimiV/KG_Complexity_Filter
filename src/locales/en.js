@@ -94,6 +94,7 @@ export const en = {
     tooltipKbModeZonesShort: 'zones',
     tooltipKbModeCountShort: 'count',
     tooltipKbModeCostShort:  'cost',
+    tooltipKbModeToggle:     'Toggle between ($1 and $2)',
     tooltipKbCountOn:        'Show counts on keyboard keys',
     tooltipKbCountOff:       'Hide counts on keyboard keys',
 
