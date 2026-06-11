@@ -12,3 +12,4 @@ export const frequency = {
 
 export const freqNorm = 10.98; // о — most frequent Russian letter
 export const layoutLang = 'RU';
+export const wordLengthBase = 10; // Russian words average ~5.5 chars; penalise from 10

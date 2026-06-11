@@ -11,3 +11,4 @@ export const frequency = {
 
 export const freqNorm = 12.60; // e — most frequent English letter
 export const layoutLang = 'EN';
+export const wordLengthBase = 8; // English words average ~4.5 chars; penalise from 8

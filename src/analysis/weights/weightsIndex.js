@@ -11,7 +11,11 @@ const freqCtx  = require.context('.', true, /^\.\/[^/]+\/_frequency\.js$/);
 const freqByLang = {};
 for (const key of freqCtx.keys()) {
     const mod = freqCtx(key);
-    freqByLang[mod.layoutLang] = { frequency: mod.frequency, freqNorm: mod.freqNorm };
+    freqByLang[mod.layoutLang] = {
+        frequency: mod.frequency,
+        freqNorm: mod.freqNorm,
+        wordLengthBase: mod.wordLengthBase
+    };
 }
 
 // Collect layout configs — skip _-prefixed files.

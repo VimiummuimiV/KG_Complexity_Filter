@@ -154,7 +154,7 @@ export const analyzeComplexity = (text, layoutLang = null, layoutName = null) =>
     const cfg = (layoutLang && configByLang(layoutLang, layoutName)) ?? detectConfig(text);
     const {
         layout, weights: W, scoreMax, varWeight,
-        segEasy, segMedium,
+        segEasy, segMedium, wordLengthBase,
     } = cfg;
     const { isShifted, keyOf, baseOf, charCost, bigramCost, bigramBreak, trigramPenalty } = buildLayout(cfg);
 
@@ -198,11 +198,11 @@ export const analyzeComplexity = (text, layoutLang = null, layoutName = null) =>
         const wordLen = end - wordStart;
         const mult = Math.min(
             W.wordLengthMax,
-            1 + Math.max(0, wordLen - W.wordLengthBase) * W.wordLengthStep,
+            1 + Math.max(0, wordLen - wordLengthBase) * W.wordLengthStep,
         );
         if (mult > 1) {
             for (let j = wordStart; j < end; j++) costs[j] *= mult;
-            for (let j = wordStart + W.wordLengthBase; j < end; j++) longWordChars.add(j);
+            for (let j = wordStart + wordLengthBase; j < end; j++) longWordChars.add(j);
             longWords++;
         }
         wordCount++;
