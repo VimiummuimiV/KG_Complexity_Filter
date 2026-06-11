@@ -644,12 +644,14 @@ export const render = (result, vocId = null, onLangChange = null, onLayoutChange
         (t) => {
             for (const s of activeHotspotSpans) s.classList.remove('hotspot-hl');
             const spans = [];
+            const bases = new Set();
             if (t.dataset.pair) {
                 const basePair = t.dataset.basePair;
                 for (let i = 1; i < txtChars.length; i++) {
                     if (charBases[i - 1] + charBases[i] === basePair)
                         spans.push(allSpans[i - 1], allSpans[i]);
                 }
+                if (basePair) for (const ch of basePair) bases.add(ch);
             } else {
                 const word = t.dataset.word.toLowerCase();
                 const len  = word.length;
@@ -657,15 +659,21 @@ export const render = (result, vocId = null, onLangChange = null, onLayoutChange
                     if (txtChars.slice(i, i + len).join('').toLowerCase() === word)
                         spans.push(...allSpans.slice(i, i + len));
                 }
+                for (const s of spans) {
+                    const b = s.dataset.key;
+                    if (b) for (const ch of b.split(' ')) bases.add(ch);
+                }
             }
             activeHotspotSpans = spans;
             for (const s of activeHotspotSpans) s.classList.add('hotspot-hl');
             panel.dataset.activeHotspot = '';
+            if (bases.size) panel.dataset.activeHotspotKeys = [...bases].join(' ');
         },
         () => {
             for (const s of activeHotspotSpans) s.classList.remove('hotspot-hl');
             activeHotspotSpans = [];
             delete panel.dataset.activeHotspot;
+            delete panel.dataset.activeHotspotKeys;
         },
     );
 

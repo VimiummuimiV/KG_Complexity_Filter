@@ -345,18 +345,23 @@ export const openKeyboard = (panel, layoutLang, layoutName, keyCounts, keyCosts)
     // ── Cross-panel bridge: panel penalty/finger hover → keyboard key glow ───
     // Watches panel data attributes and mirrors them onto the keyboard element
     // so CSS can dim/highlight keys without any per-key JS iteration.
-    const bridgeAttrs = ['data-active-penalty', 'data-active-finger', 'data-active-hand'];
-    let activePenaltyKeys = [];
+    const bridgeAttrs = ['data-active-penalty', 'data-active-finger', 'data-active-hand', 'data-active-hotspot-keys'];
+    const activePenaltyKeys = [];
+    const activeHotspotKeys = [];
+    const applyKeyHl = (activeArr, newKeys, cls) => {
+        for (const k of activeArr) k.classList.remove(cls);
+        activeArr.length = 0;
+        activeArr.push(...newKeys.map(base => keyElsByBase.get(base)).filter(Boolean));
+        for (const k of activeArr) k.classList.add(cls);
+    };
     bridgeObserver = new MutationObserver(() => {
         for (const attr of bridgeAttrs) {
             const val = panel.getAttribute(attr);
             if (val !== null) keyboard.setAttribute(attr, val);
             else              keyboard.removeAttribute(attr);
         }
-        for (const k of activePenaltyKeys) k.classList.remove('kg-key--penalty-hl');
-        activePenaltyKeys = [...(penaltyToKeys.get(panel.dataset.activePenalty) ?? [])]
-            .map(base => keyElsByBase.get(base)).filter(Boolean);
-        for (const k of activePenaltyKeys) k.classList.add('kg-key--penalty-hl');
+        applyKeyHl(activePenaltyKeys, [...(penaltyToKeys.get(panel.dataset.activePenalty) ?? [])], 'kg-key--penalty-hl');
+        applyKeyHl(activeHotspotKeys, (panel.dataset.activeHotspotKeys ?? '').split(' '),          'kg-key--hotspot-hl');
     });
     bridgeObserver.observe(panel, { attributes: true, attributeFilter: bridgeAttrs });
 };

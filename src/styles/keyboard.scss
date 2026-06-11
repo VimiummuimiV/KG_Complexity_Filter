@@ -194,7 +194,8 @@ $kb-radius:   6px;
 
     &[data-active-penalty],
     &[data-active-finger],
-    &[data-active-hand] {
+    &[data-active-hand],
+    &[data-active-hotspot-keys] {
         .kg-key:not(.kg-key--special) {
             opacity: .3;
             transition: opacity .12s .04s;
@@ -212,7 +213,8 @@ $kb-radius:   6px;
         }
     }
 
-    &[data-active-penalty] .kg-key--penalty-hl { opacity: 1 !important; }
+    &[data-active-penalty] .kg-key--penalty-hl  { opacity: 1 !important; }
+    &[data-active-hotspot-keys] .kg-key--hotspot-hl { opacity: 1 !important; }
 
     // ── Special key base ──────────────────────────────────────────────────────
 
