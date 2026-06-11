@@ -139,7 +139,7 @@
 
 Если не хочется читать всё описание, можно посмотреть короткую демонстрацию работы скрипта:
 
-[url="https://i.imgur.com/bk5lIZC.mp4"]Видео: Демонстрация KG_Complexity_Filter[/url]
+[url="https://i.imgur.com/tQeeZNi.mp4"]Видео: Демонстрация KG_Complexity_Filter[/url]
 
 [b][color="#FF6B9D"]10.2. Установка скрипта[/color][/b]
 
