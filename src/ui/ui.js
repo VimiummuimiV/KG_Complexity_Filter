@@ -40,8 +40,15 @@ const appendAll = (parent, ...children) => {
 // ─── Collapsible section ──────────────────────────────────────────────
 
 const animateBars = (root) => {
-    for (const fill of root.querySelectorAll('[data-target-h]'))
+    for (const fill of root.querySelectorAll('[data-target-h]')) {
+        fill.offsetHeight; // flush the current (0) height before changing it
         fill.style.height = fill.dataset.targetH;
+    }
+};
+
+const resetBars = (root) => {
+    for (const fill of root.querySelectorAll('[data-target-h]'))
+        fill.style.height = '0';
 };
 
 const buildSection = (key, label, ...children) => {
@@ -58,8 +65,12 @@ const buildSection = (key, label, ...children) => {
         else if (e.ctrlKey) collapseAllExcept(panel, key);
         else                toggleSection(panel, key);
         constrain(panel);
-        if (!section.hasAttribute('data-collapsed'))
-            requestAnimationFrame(() => animateBars(section));
+        for (const sec of panel.querySelectorAll('[data-section]')) {
+            if (!sec.hasAttribute('data-collapsed'))
+                requestAnimationFrame(() => animateBars(sec));
+            else
+                resetBars(sec);
+        }
     });
     header.addEventListener('mouseenter', () => {
         const collapsed = section.hasAttribute('data-collapsed');
