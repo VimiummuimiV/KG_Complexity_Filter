@@ -46,7 +46,6 @@ export const en = {
     fingerLoad:       'Finger load',
     hardestWords:     'Hardest words',
     handBalance:      'Hand balance',
-    costHistogram:    'Cost distribution',
 
     // Finger names — shown as bar labels in the finger-load chart
     fingers: ['L pinky', 'L ring', 'L mid', 'L idx+', 'L idx', 'R idx', 'R idx+', 'R mid', 'R ring', 'R pinky'],

@@ -483,39 +483,6 @@ const buildHardestWords = (hardestWords, strings) => {
     return root;
 };
 
-const BUCKETS = 10;
-
-const buildCostHistogram = ({ costs }) => {
-    const max = Math.max(...costs);
-    if (!max) return null;
-
-    const SEG_EASY   = 3.0;
-    const SEG_MEDIUM = 5.5;
-    const bucketSize = max / BUCKETS;
-    const counts     = new Array(BUCKETS).fill(0);
-    for (const c of costs) counts[Math.min(BUCKETS - 1, Math.floor(c / bucketSize))]++;
-
-    const peak = Math.max(...counts);
-    const root = el('div', 'cost-hist');
-
-    for (let i = 0; i < BUCKETS; i++) {
-        const midCost = (i + 0.5) * bucketSize;
-        const color   = midCost < SEG_EASY   ? 'var(--easy)'
-                      : midCost < SEG_MEDIUM ? 'var(--medium)'
-                      : 'var(--hard)';
-        const bar  = el('div', 'bar');
-        const fill = el('div', 'bar-fill');
-        fill.dataset.targetH  = Math.round(counts[i] / peak * 100) + '%';
-        fill.style.background = color;
-        bar.appendChild(fill);
-        bar.dataset.tip = `${midCost.toFixed(1)}: ${counts[i]}`;
-        root.appendChild(bar);
-    }
-
-    createCustomTooltip(root, null, 'stats', 0, '.bar[data-tip]');
-    return root;
-};
-
 const buildTextView = ({ chars, segments, longWordChars, worstZone,
                          sameFingerChars, shiftedChars, charFingers, charBases,
                          outwardRollChars, scissorChars, rowJumpChars }, strings) => {
@@ -654,7 +621,6 @@ export const render = (result, vocId = null, onLangChange = null, onLayoutChange
     appendAll(details,
         buildSection('balance',   strings.handBalance,      buildHandBar(handBalance, strings, panel)),
         buildSection('penalties', strings.penaltyBreakdown, buildPenaltyBreakdown(penaltyBreakdown, strings)),
-        buildSection('histogram', strings.costHistogram,    buildCostHistogram(result)),
         buildSection('fingers',   strings.fingerLoad,       buildFingerLoad(fingerLoad, fingerCounts, strings)),
         buildSection('bigrams',   strings.hardestBigrams,   buildHardestBigrams(hardestBigrams, strings)),
         buildSection('words',     strings.hardestWords,     buildHardestWords(hardestWords, strings)),

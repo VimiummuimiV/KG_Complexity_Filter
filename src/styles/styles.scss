@@ -479,18 +479,6 @@ $gap-large:       20px;  // score summary divider margins
     max-width: 100%;
   }
 
-  .cost-hist {
-    display: flex;
-    align-items: flex-end;
-    gap: 2px;
-    padding: 0 0 $gap-small;
-
-    .bar {
-      flex: 1;
-      height: 36px;
-    }
-  }
-
   // Finger-highlight / hand-highlight / penalty-highlight: dim all panel-text-block spans on hover,
   // restore only those matching the hovered finger, hand, or penalty type.
   &[data-active-finger] .panel-text span,
