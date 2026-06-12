@@ -456,7 +456,7 @@ $gap-large:       20px;  // score summary divider margins
     width: 100%;
     display: flex;
     align-items: flex-end;
-    background: var(--chip-bg);
+    background: var(--chip-bg) !important;
     border-radius: 3px;
     overflow: hidden;
     cursor: default;
