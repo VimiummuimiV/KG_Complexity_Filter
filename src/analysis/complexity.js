@@ -504,6 +504,7 @@ export const analyzeComplexity = (text, layoutLang = null, layoutName = null) =>
         charFingers,
         charBases,
         keyCounts,
+        costs,
         keyCosts,
         layoutLang:  cfg.layoutLang,
         layoutName:  cfg.layoutName,

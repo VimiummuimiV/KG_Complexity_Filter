@@ -46,6 +46,7 @@ export const ru = {
     fingerLoad:     'Нагрузка на пальцы',
     hardestWords:   'Сложные слова',
     handBalance:    'Баланс рук',
+    costHistogram:  'Распределение стоимости',
 
     // Finger names — shown as bar labels in the finger-load chart
     fingers: ['Мизинец Л', 'Безымян Л', 'Средний Л', 'Указ+ Л', 'Указат Л', 'Указат П', 'Указ+ П', 'Средний П', 'Безымян П', 'Мизинец П'],

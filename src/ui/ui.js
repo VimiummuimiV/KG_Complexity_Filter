@@ -37,14 +37,19 @@ const appendAll = (parent, ...children) => {
     return parent;
 };
 
-// ─── Collapsible section wrapper ──────────────────────────────────────────────
+// ─── Collapsible section ──────────────────────────────────────────────
+
+const animateBars = (root) => {
+    for (const fill of root.querySelectorAll('[data-target-h]'))
+        fill.style.height = fill.dataset.targetH;
+};
 
 const buildSection = (key, label, ...children) => {
     const valid = children.filter(Boolean);
     if (!valid.length) return null;
 
-    const wrap   = el('div', 'section-wrap');
-    wrap.dataset.section = key;
+    const section   = el('div', 'section');
+    section.dataset.section = key;
 
     const header = elText('div', 'section-header hotspot-label', label);
     header.addEventListener('click', (e) => {
@@ -53,9 +58,11 @@ const buildSection = (key, label, ...children) => {
         else if (e.ctrlKey) collapseAllExcept(panel, key);
         else                toggleSection(panel, key);
         constrain(panel);
+        if (!section.hasAttribute('data-collapsed'))
+            requestAnimationFrame(() => animateBars(section));
     });
     header.addEventListener('mouseenter', () => {
-        const collapsed = wrap.hasAttribute('data-collapsed');
+        const collapsed = section.hasAttribute('data-collapsed');
         const strings   = getStrings();
         const click     = strings.tooltipClick;
         const hints     = [
@@ -66,10 +73,10 @@ const buildSection = (key, label, ...children) => {
         updateTooltipContent(header, hints.filter(([, a]) => a).map(([m, a]) => `[${m}]${a}`).join(' '));
     });
     createCustomTooltip(header, '', 'stats', 200);
-    wrap.appendChild(header);
+    section.appendChild(header);
 
-    for (const child of valid) wrap.appendChild(child);
-    return wrap;
+    for (const child of valid) section.appendChild(child);
+    return section;
 };
 
 // ─── Score tiers ──────────────────────────────────────────────────────────────
@@ -210,11 +217,11 @@ const buildStats = (panel, result, strings, onLangChange, onLayoutChange) => {
     const stats = el('div', 'stats');
 
     // Score column
-    const scoreWrap = el('div', 'score-summary');
+    const scoreSummary = el('div', 'score-summary');
     for (const [cls, str] of [['score-value', String(score)], ['score-label', scoreLabel(score, strings)]]) {
         const node = elText('div', cls, str);
         node.style.color = color;
-        scoreWrap.appendChild(node);
+        scoreSummary.appendChild(node);
     }
 
     const LANG_ICON = { RU: 'ruFlag', EN: 'enFlag' };
@@ -265,7 +272,7 @@ const buildStats = (panel, result, strings, onLangChange, onLayoutChange) => {
 
     createCustomTooltip(meta, null, 'stats', 0, '.meta-row[data-tip]');
 
-    appendAll(stats, scoreWrap, meta);
+    appendAll(stats, scoreSummary, meta);
     return stats;
 };
 
@@ -295,7 +302,7 @@ const buildHandBar = ({ left, right, imbalance }, strings, panel) => {
     const leftPct  = total > 0 ? Math.round(left / total * 100) : 50;
     const rightPct = 100 - leftPct;
 
-    const wrap  = el('div', 'hand-bar-wrap');
+    const root  = el('div', 'hand-balance');
     const label = el('div', 'hand-bar-label');
     const labelL = elText('span', 'hand-label hand-l', `L ${leftPct}%`);
     const labelR = elText('span', 'hand-label hand-r', `${rightPct}% R`);
@@ -310,7 +317,7 @@ const buildHandBar = ({ left, right, imbalance }, strings, panel) => {
     label.appendChild(labelL);
     if (imbalanceLabel) label.appendChild(elText('span', 'hand-imbalance', imbalanceLabel));
     label.appendChild(labelR);
-    wrap.appendChild(label);
+    root.appendChild(label);
 
     const track = el('div', 'hand-bar-track');
     const segL  = el('div', 'hand-seg hand-seg-l');
@@ -326,15 +333,15 @@ const buildHandBar = ({ left, right, imbalance }, strings, panel) => {
     track.addEventListener('mouseleave', () => { delete panel.dataset.activeHand; });
 
     appendAll(track, segL, segR);
-    wrap.appendChild(track);
+    root.appendChild(track);
 
-    return wrap;
+    return root;
 };
 
 const buildPenaltyBreakdown = (pb, strings) => {
     if (!pb) return null;
 
-    const wrap = el('div', 'penalty-wrap');
+    const root = el('div', 'penalties');
 
     const track = el('div', 'penalty-track');
     for (const { key, color } of PENALTY_META) {
@@ -345,7 +352,7 @@ const buildPenaltyBreakdown = (pb, strings) => {
         seg.style.background = color;
         track.appendChild(seg);
     }
-    wrap.appendChild(track);
+    root.appendChild(track);
 
     const legend = el('div', 'penalty-legend');
     for (const { key, strKey, color } of PENALTY_META) {
@@ -378,15 +385,15 @@ const buildPenaltyBreakdown = (pb, strings) => {
 
     createCustomTooltip(legend, null, 'stats', 0, '.penalty-row[data-tip]');
 
-    wrap.appendChild(legend);
+    root.appendChild(legend);
 
-    return wrap;
+    return root;
 };
 
 const buildHardestBigrams = (hardestBigrams, strings) => {
     if (!hardestBigrams?.length) return null;
 
-    const wrap = el('div', 'hotspot-section');
+    const root = el('div', 'hotspot-section');
 
     const list = el('div', 'hotspot-list');
     for (const { pair, basePair, cost, count } of hardestBigrams) {
@@ -403,13 +410,13 @@ const buildHardestBigrams = (hardestBigrams, strings) => {
 
     createCustomTooltip(list, null, 'stats', 0, '.hotspot-chip[data-tip]');
 
-    wrap.appendChild(list);
-    return wrap;
+    root.appendChild(list);
+    return root;
 };
 
 // Per-finger load bars
 const buildFingerLoad = (fingerLoad, fingerCounts, strings) => {
-    const wrap = el('div', 'finger-load-wrap');
+    const root = el('div', 'finger-load');
 
     const bars = el('div', 'finger-load-bars');
     const max  = Math.max(...fingerLoad, 1);
@@ -419,33 +426,33 @@ const buildFingerLoad = (fingerLoad, fingerCounts, strings) => {
         const col  = i < 5 ? 'var(--hand-l)' : 'var(--hand-r)';
         const item = el('div', 'fl-item');
 
-        const barWrap = el('div', 'fl-bar-wrap');
-        barWrap.dataset.finger = i;
+        const bar = el('div', 'bar');
+        bar.dataset.finger = i;
 
-        const fill = el('div', 'fl-bar-fill');
-        fill.style.height     = Math.round(pct / max * 100) + '%';
+        const fill = el('div', 'bar-fill');
+        fill.dataset.targetH  = Math.round(pct / max * 100) + '%';
         fill.style.background = col;
-        barWrap.appendChild(fill);
-        barWrap.dataset.tip = `${strings.fingers[i]}: ${pct}% | ${fingerCounts[i]}`;
+        bar.appendChild(fill);
+        bar.dataset.tip = `${strings.fingers[i]}: ${pct}% | ${fingerCounts[i]}`;
 
         appendAll(item,
-            barWrap,
+            bar,
             elText('span', 'fl-label', strings.fingers[i]),
         );
         bars.appendChild(item);
     }
 
-    createCustomTooltip(bars, null, 'stats', 0, '.fl-bar-wrap[data-tip]');
+    createCustomTooltip(bars, null, 'stats', 0, '.bar[data-tip]');
 
-    wrap.appendChild(bars);
-    return wrap;
+    root.appendChild(bars);
+    return root;
 };
 
 // Hardest words
 const buildHardestWords = (hardestWords, strings) => {
     if (!hardestWords?.length) return null;
 
-    const wrap = el('div', 'hotspot-section');
+    const root = el('div', 'hotspot-section');
 
     const list = el('div', 'hotspot-list');
     for (const { word, cost, count } of hardestWords) {
@@ -461,8 +468,41 @@ const buildHardestWords = (hardestWords, strings) => {
 
     createCustomTooltip(list, null, 'stats', 0, '.hotspot-chip[data-tip]');
 
-    wrap.appendChild(list);
-    return wrap;
+    root.appendChild(list);
+    return root;
+};
+
+const BUCKETS = 10;
+
+const buildCostHistogram = ({ costs }) => {
+    const max = Math.max(...costs);
+    if (!max) return null;
+
+    const SEG_EASY   = 3.0;
+    const SEG_MEDIUM = 5.5;
+    const bucketSize = max / BUCKETS;
+    const counts     = new Array(BUCKETS).fill(0);
+    for (const c of costs) counts[Math.min(BUCKETS - 1, Math.floor(c / bucketSize))]++;
+
+    const peak = Math.max(...counts);
+    const root = el('div', 'cost-hist');
+
+    for (let i = 0; i < BUCKETS; i++) {
+        const midCost = (i + 0.5) * bucketSize;
+        const color   = midCost < SEG_EASY   ? 'var(--easy)'
+                      : midCost < SEG_MEDIUM ? 'var(--medium)'
+                      : 'var(--hard)';
+        const bar  = el('div', 'bar');
+        const fill = el('div', 'bar-fill');
+        fill.dataset.targetH  = Math.round(counts[i] / peak * 100) + '%';
+        fill.style.background = color;
+        bar.appendChild(fill);
+        bar.dataset.tip = `${midCost.toFixed(1)}: ${counts[i]}`;
+        root.appendChild(bar);
+    }
+
+    createCustomTooltip(root, null, 'stats', 0, '.bar[data-tip]');
+    return root;
 };
 
 const buildTextView = ({ chars, segments, longWordChars, worstZone,
@@ -603,6 +643,7 @@ export const render = (result, vocId = null, onLangChange = null, onLayoutChange
     appendAll(details,
         buildSection('balance',   strings.handBalance,      buildHandBar(handBalance, strings, panel)),
         buildSection('penalties', strings.penaltyBreakdown, buildPenaltyBreakdown(penaltyBreakdown, strings)),
+        buildSection('histogram', strings.costHistogram,    buildCostHistogram(result)),
         buildSection('fingers',   strings.fingerLoad,       buildFingerLoad(fingerLoad, fingerCounts, strings)),
         buildSection('bigrams',   strings.hardestBigrams,   buildHardestBigrams(hardestBigrams, strings)),
         buildSection('words',     strings.hardestWords,     buildHardestWords(hardestWords, strings)),
@@ -625,13 +666,14 @@ export const render = (result, vocId = null, onLangChange = null, onLayoutChange
     }
 
     document.body.appendChild(panel);
+    requestAnimationFrame(() => animateBars(panel));
     makeDraggable(panel, panel.querySelector('.panel-header'), 'complexityPanel');
 
     onHoverDelegate(panel, '.penalty-row',
         (t) => { panel.dataset.activePenalty = t.dataset.penaltyKey; },
         ()  => { delete panel.dataset.activePenalty; },
     );
-    onHoverDelegate(panel, '.fl-bar-wrap',
+    onHoverDelegate(panel, '.bar',
         (t) => { panel.dataset.activeFinger = t.dataset.finger; },
         ()  => { delete panel.dataset.activeFinger; },
     );

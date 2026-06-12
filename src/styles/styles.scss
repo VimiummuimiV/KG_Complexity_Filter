@@ -306,7 +306,7 @@ $gap-large:       20px;  // score summary divider margins
 
   // ── 6. Collapsible sections ───────────────────────────────────────────────
 
-  .section-wrap {
+  .section {
     flex: 0 0 100%;
 
     &[data-collapsed] {
@@ -329,7 +329,7 @@ $gap-large:       20px;  // score summary divider margins
 
   // ── 7. Hand balance bar ────────────────────────────────────────────────────
 
-  .hand-bar-wrap {
+  .hand-balance {
     padding: 0 0 $gap-small;
     flex-shrink: 0;
   }
@@ -378,7 +378,7 @@ $gap-large:       20px;  // score summary divider margins
 
   // ── 8. Penalty breakdown ──────────────────────────────────────────────────
 
-  .penalty-wrap {
+  .penalties {
     padding: 0 0 $gap-small;
     flex-shrink: 0;
   }
@@ -431,7 +431,7 @@ $gap-large:       20px;  // score summary divider margins
 
   // ── 9. Per-finger load bars ────────────────────────────────────────────────
 
-  .finger-load-wrap {
+  .finger-load {
     padding: 0 0 $gap-small;
     flex-shrink: 0;
   }
@@ -448,11 +448,12 @@ $gap-large:       20px;  // score summary divider margins
     align-items: center;
     gap: calc($gap-extra-small / 2);
     flex: 1;
+
+    .bar { height: 32px; }
   }
 
-  .fl-bar-wrap {
+  .bar {
     width: 100%;
-    height: 32px;
     display: flex;
     align-items: flex-end;
     background: var(--chip-bg);
@@ -461,10 +462,10 @@ $gap-large:       20px;  // score summary divider margins
     cursor: default;
   }
 
-  .fl-bar-fill {
+  .bar-fill {
     width: 100%;
+    height: 0;
     transition: height .5s cubic-bezier(.16, 1, .3, 1);
-    border-radius: 2px 2px 0 0;
   }
 
   .fl-label {
@@ -476,6 +477,18 @@ $gap-large:       20px;  // score summary divider margins
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
+  }
+
+  .cost-hist {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    padding: 0 0 $gap-small;
+
+    .bar {
+      flex: 1;
+      height: 36px;
+    }
   }
 
   // Finger-highlight / hand-highlight / penalty-highlight: dim all panel-text-block spans on hover,
