@@ -60,7 +60,7 @@ export const en = {
     tooltipHandR:        'Right hand share of total keystrokes',
     tooltipBigram:       'Total weight of this key pair accumulated across the whole text',
     tooltipTopWord:      'Total typing cost for this word — the higher, the harder to type',
-    tooltipLongWordText: 'Long word — extra fatigue penalty applied beyond 8 characters',
+    tooltipLongWordText: 'Long word — extra fatigue penalty applied beyond $1 characters',
 
     // Zone descriptions
     tooltipEasyText:     'Easy zone — comfortable to type',

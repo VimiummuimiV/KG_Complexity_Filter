@@ -505,7 +505,8 @@ export const analyzeComplexity = (text, layoutLang = null, layoutName = null) =>
         charBases,
         keyCounts,
         keyCosts,
-        layoutLang:  cfg.layoutLang,
-        layoutName:  cfg.layoutName,
+        layoutLang:    cfg.layoutLang,
+        layoutName:    cfg.layoutName,
+        wordLengthBase,
     };
 };

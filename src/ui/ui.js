@@ -485,7 +485,7 @@ const buildHardestWords = (hardestWords, strings) => {
 
 const buildTextView = ({ chars, segments, longWordChars, worstZone,
                          sameFingerChars, shiftedChars, charFingers, charBases,
-                         outwardRollChars, scissorChars, rowJumpChars }, strings) => {
+                         outwardRollChars, scissorChars, rowJumpChars, wordLengthBase }, strings) => {
     const text = el('div', 'panel-text');
 
     const penaltyChars = {
@@ -526,7 +526,7 @@ const buildTextView = ({ chars, segments, longWordChars, worstZone,
             span.dataset.penalty = penalties.join(' ');
 
             const tooltipText =
-                isLong    ? strings.tooltipLongWordText :
+                isLong    ? strings.tooltipLongWordText.replace('$1', wordLengthBase) :
                 isWorst   ? strings.tooltipWorstZone :
                 sfHand === 'L' ? strings.tooltipSameFingerL :
                 sfHand === 'R' ? strings.tooltipSameFingerR :
